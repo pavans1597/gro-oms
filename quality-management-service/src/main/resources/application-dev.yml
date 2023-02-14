@@ -1,0 +1,62 @@
+multitenancy:
+  schema-cache:
+    maximumSize: '100'
+    expireAfterAccess: '10'
+  tenant:
+    liquibase:
+      changeLog: classpath:db/changelog/db.changelog-tenant.yaml
+    entityManager:
+      packages: com.groyyo.quality.management.service.entity
+    module: qc
+    repository:
+      packages: com.groyyo.quality.management.service.repository
+  master:
+    repository:
+      packages: com.groyyo.core.multitenancy.repository
+    liquibase:
+      enabled: 'false'
+    entityManager:
+      packages: com.groyyo.core.multitenancy.entity
+spring:
+  application:
+    name: QUALITY-MANAGEMENT-SERVICE
+  datasource:
+    driverClassName: org.postgresql.Driver
+    url: jdbc:postgresql://groyyo-postgres-db.postgres.database.azure.com:5432/postgres
+    username: groyyopgadmin@groyyo-postgres-db
+    password: J-Y@WnAh8nJ#k2D%
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update
+    open-in-view: 'false'
+server:
+  error:
+    include-message: always
+    port: 9081
+    contextPath: /quality-management-service
+    servlet:
+      contextPath: /quality-management-service
+    tomcat:
+      accesslog:
+        enabled: true
+        rotate: false
+        suffix: .log
+        prefix: quality-management-service
+        directory: /tmp
+        pattern: common
+
+logging:
+  file:
+    name: /tmp/quality-management.log
+  level:
+    org:
+      springframework: INFO
+  pattern:
+    file: '%d{yyyy-MM-dd HH:mm:ss} - %msg traceID=%X{trace_id} %n'
+
+azure:
+  storage:
+    ConnectionString: DefaultEndpointsProtocol=https;AccountName=groyyotenantstorage;AccountKey=Z0C14b9x66WuW5VcuAgt0vKMaC7bVlxqxQXcGaoZvyaCE+ZTKuqs39BWbjQhx9wASjUn86wRbIXP+AStnElvag==;EndpointSuffix=core.windows.net

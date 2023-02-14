@@ -1,0 +1,5 @@
+FROM amazoncorretto:17
+WORKDIR /app
+COPY /target/oauth-service-1.0-SNAPSHOT.jar /app/
+COPY /src/main/resources/application-prod.yml /app/
+ENTRYPOINT ["java", "-jar", "-Dspring.profiles.active=prod", "/app/oauth-service-1.0-SNAPSHOT.jar"]

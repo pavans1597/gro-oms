@@ -1,0 +1,36 @@
+package com.groyyo.quality.management.service.entity;
+
+import com.groyyo.core.sqlPostgresJpa.conveter.StringListConverter;
+import com.groyyo.core.sqlPostgresJpa.entity.AbstractJpaEntity;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
+import lombok.experimental.SuperBuilder;
+
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import java.sql.Timestamp;
+import java.util.List;
+
+@Entity
+@Table(name="size_groups")
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@ToString(callSuper = true)
+@SuperBuilder
+public class SizeGroups extends AbstractJpaEntity {
+    /**
+     *
+     */
+    private static final long serialVersionUID = 1L;
+
+    @Column(name = "name", columnDefinition = "varchar(100)", nullable = false)
+    private String name;
+
+    @Convert(converter = StringListConverter.class)
+    @Column(name = "size_ids", columnDefinition = "text", nullable = false)
+    private List<String> sizeIds;
+
+}
