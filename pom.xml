@@ -5,9 +5,9 @@
 	<modelVersion>4.0.0</modelVersion>
 	
 	<groupId>com.groyyo</groupId>
-	<artifactId>QC-management-service-parent</artifactId>
+	<artifactId>order-management-service-parent</artifactId>
 	<packaging>pom</packaging>
-	<name>quality-management-service-parent</name>
+	<name>order-management-service-parent</name>
 
 	<parent>
 		<groupId>com.groyyo.core</groupId>
@@ -17,7 +17,7 @@
 	</parent>
 
 	<modules>
-		<module>quality-management-service</module>
+		<module>order-management-service</module>
 		<module>../core-utils/base</module>
 		<module>../core-utils/properties</module>
 		<module>../core-utils/utilservice</module>

@@ -1,5 +1,5 @@
 FROM amazoncorretto:11
 WORKDIR /app
-COPY /quality-management-service/target/quality-management-service.jar /app/
-COPY /quality-management-service/src/main/resources/application-dev.yml /app/
-ENTRYPOINT ["java", "-jar", "-Dspring.profiles.active=dev", "/app/quality-management-service.jar"]
+COPY /order-management-service/target/quality-management-service.jar /app/
+COPY /order-management-service/src/main/resources/application-dev.yml /app/
+ENTRYPOINT ["java", "-jar", "-Dspring.profiles.active=dev", "/app/order-management-service.jar"]

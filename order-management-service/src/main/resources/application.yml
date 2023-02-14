@@ -2,7 +2,7 @@ spring:
   kafka:
     consumer:
       fetch-max-wait: 100ms
-      group-id: quality-management-consumer-group
+      group-id: order-management-consumer-group
       enable-auto-commit: 'true'
       auto-offset-reset: earliest
       properties:
@@ -26,7 +26,7 @@ spring:
           request:
             size: '21943040'
       retries: '1'
-    client-id: qualityManagementServiceClient
+    client-id: orderManagementServiceClient
     listener:
       type: batch
     admin:
@@ -40,7 +40,7 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
     open-in-view: 'false'
   application:
-    name: QC-Mangement-Srvice
+    name: Order-Mangement-Srvice
   datasource:
     password:
     url: jdbc:postgresql://localhost:5432/groyyo
@@ -66,9 +66,9 @@ multitenancy:
     liquibase:
       changeLog: classpath:db/changelog/db.changelog-tenant.yaml
     repository:
-      packages: com.groyyo.quality.management.service.repository
+      packages: com.groyyo.order.management.service.repository
     entityManager:
-      packages: com.groyyo.quality.management.service.entity
+      packages: com.groyyo.order.management.service.entity
     module: qc
   master:
     entityManager:
@@ -111,7 +111,7 @@ server:
   tomcat:
     accesslog:
       enabled: 'true'
-      prefix: quality-management
+      prefix: order-management
       pattern: '%h %l %u %t "%r" %I %s %b %F %D'
       suffix: .log
       file-date-format: .yyyy-MM-dd

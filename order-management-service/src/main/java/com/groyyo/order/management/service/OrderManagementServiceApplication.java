@@ -13,10 +13,10 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @ComponentScan(basePackages = { "com.groyyo" })
 @SpringBootApplication(exclude = {LiquibaseAutoConfiguration.class})
 @EnableTransactionManagement
-public class QualityManagementServiceApplication extends SpringBootServletInitializer {
+public class OrderManagementServiceApplication extends SpringBootServletInitializer {
 
 	public static void main(String[] args) {
-		SpringApplication.run(QualityManagementServiceApplication.class, args);
+		SpringApplication.run(OrderManagementServiceApplication.class, args);
 	}
 
 	@Bean
