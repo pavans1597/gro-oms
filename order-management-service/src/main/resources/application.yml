@@ -42,9 +42,10 @@ spring:
   application:
     name: Order-Mangement-Srvice
   datasource:
-    password:
-    url: jdbc:postgresql://localhost:5432/groyyo
-    username: akhil
+    driverClassName: org.postgresql.Driver
+    url: jdbc:postgresql://groyyo-postgres-db.postgres.database.azure.com:5432/postgres
+    username: groyyopgadmin@groyyo-postgres-db
+    password: J-Y@WnAh8nJ#k2D%
   mvc:
     pathmatch:
       matching-strategy: ANT_PATH_MATCHER
@@ -69,7 +70,7 @@ multitenancy:
       packages: com.groyyo.order.management.service.repository
     entityManager:
       packages: com.groyyo.order.management.service.entity
-    module: qc
+    module: product
   master:
     entityManager:
       packages: com.groyyo.core.multitenancy.entity
@@ -107,20 +108,24 @@ jdbc:
 service:
   user:
     url: https://preproderp.groyyo.com/user
+  masterData:
+    url: http://localhost:8003/master-data-service
+
+
+############# Application Context ###############
 server:
+  port: 8004
+  contextPath: /order-management-service
+  servlet:
+    contextPath: /order-management-service
   tomcat:
     accesslog:
-      enabled: 'true'
-      prefix: order-management
-      pattern: '%h %l %u %t "%r" %I %s %b %F %D'
+      enabled: true
+      rotate: false
       suffix: .log
-      file-date-format: .yyyy-MM-dd
-      rotate: 'true'
-      directory: /var/log/groyyo
-    max-threads: '50'
-  port: '8077'
-  servlet:
-    context-path: /bootstrap-multitenant
+      prefix: order-management-service
+      directory: /tmp
+      pattern: common
 azure:
   storage:
     ConnectionString: AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;DefaultEndpointsProtocol=http;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;QueueEndpoint=http://127.0.0.1:10001/devstoreaccount1;TableEndpoint=http://127.0.0.1:10002/devstoreaccount1;
@@ -145,6 +150,9 @@ kafka:
   base:
     topic-2: kafkaBaseTopic
     topic: kafkaBaseTopic
+  master:
+    updates:
+      topic: master-data-updates
 groyyo:
   media:
     container: akhil814
@@ -152,3 +160,7 @@ groyyo:
     accountName: akhilchowdary
     accountKey: scWZ7xzNXWlaiq4viYx9M/sg3MHOUlSz7QnR0zePEkI5wKhXJ1b85fqj54CxkaBxA3UTKXrTWN6i+AStt7GOcw==
 debug: 'false'
+
+
+
+

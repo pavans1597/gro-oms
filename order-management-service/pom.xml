@@ -55,17 +55,6 @@
 			<artifactId>spring-security-crypto</artifactId>
 		</dependency>
 
-<!--		<dependency>-->
-<!--			<groupId>org.apache.poi</groupId>-->
-<!--			<artifactId>poi-ooxml</artifactId>-->
-<!--			<version>3.9</version>-->
-<!--		</dependency>-->
-<!--		<dependency>-->
-<!--			<groupId>com.fasterxml.jackson.core</groupId>-->
-<!--			<artifactId>jackson-core</artifactId>-->
-<!--			<version>2.12.1</version>-->
-<!--		</dependency>-->
-
 		<dependency>
 			<groupId>com.groyyo.core</groupId>
 			<artifactId>base</artifactId>
@@ -122,6 +111,11 @@
 			<groupId>org.springdoc</groupId>
 			<artifactId>springdoc-openapi-ui</artifactId>
 			<version>1.6.9</version>
+		</dependency>
+		<dependency>
+			<groupId>com.groyyo.core</groupId>
+			<artifactId>master-data-client</artifactId>
+			<version>${global.version}</version>
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/org.hibernate/hibernate-core -->
 <!--		<dependency>-->

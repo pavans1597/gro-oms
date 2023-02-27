@@ -1,4 +1,4 @@
-package com.groyyo.quality.management.service;
+package com.groyyo.order.management.service;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -10,18 +10,18 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
-@ComponentScan(basePackages = { "com.groyyo" })
+@ComponentScan(basePackages = {"com.groyyo"})
 @SpringBootApplication(exclude = {LiquibaseAutoConfiguration.class})
 @EnableTransactionManagement
 public class OrderManagementServiceApplication extends SpringBootServletInitializer {
 
-	public static void main(String[] args) {
-		SpringApplication.run(OrderManagementServiceApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(OrderManagementServiceApplication.class, args);
+    }
 
-	@Bean
-	public PasswordEncoder passwordEncoder() {
-		return new BCryptPasswordEncoder(); // only for demonstrations
-	}
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder(); // only for demonstrations
+    }
 
 }

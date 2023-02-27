@@ -1,4 +1,4 @@
-package com.groyyo.quality.management.service.config;
+package com.groyyo.order.management.service.config;
 
 import com.groyyo.core.multitenancy.interceptor.TenantInterceptor;
 import lombok.RequiredArgsConstructor;
@@ -10,11 +10,11 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class WebConfiguration implements WebMvcConfigurer {
 
-	private final TenantInterceptor tenantInterceptor;
+    private final TenantInterceptor tenantInterceptor;
 
-	@Override
-	public void addInterceptors(InterceptorRegistry registry) {
-		registry.addWebRequestInterceptor(tenantInterceptor);
-	}
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addWebRequestInterceptor(tenantInterceptor);
+    }
 
 }

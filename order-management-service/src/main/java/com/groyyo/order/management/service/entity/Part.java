@@ -1,28 +1,31 @@
-package com.groyyo.quality.management.service.entity;
+package com.groyyo.order.management.service.entity;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 
 import com.groyyo.core.sqlPostgresJpa.entity.AbstractJpaEntity;
+
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
-import java.sql.Timestamp;
 
-@Entity
-@Table(name="part")
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-@ToString(callSuper = true)
+@Getter
+@Setter
 @SuperBuilder
+@NoArgsConstructor
+@AllArgsConstructor
+@ToString(callSuper = true)
+@Entity(name = "part")
+@Table(name = "part", uniqueConstraints = {@UniqueConstraint(name = "UK_part_name", columnNames = {"name"})})
 public class Part extends AbstractJpaEntity {
-    /**
-     *
-     */
+
+
     private static final long serialVersionUID = 1L;
 
     @Column(name = "name", columnDefinition = "varchar(100)", nullable = false)

@@ -1,4 +1,4 @@
-package com.groyyo.quality.management.service.model;
+package com.groyyo.order.management.service.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;

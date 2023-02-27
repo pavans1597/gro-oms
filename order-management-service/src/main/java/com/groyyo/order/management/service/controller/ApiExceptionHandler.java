@@ -1,6 +1,6 @@
-package com.groyyo.quality.management.service.controller;
+package com.groyyo.order.management.service.controller;
 
-import com.groyyo.quality.management.service.model.ErrorMessage;
+import com.groyyo.order.management.service.model.ErrorMessage;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
 public class ApiExceptionHandler {
-
     @ExceptionHandler(ApiException.class)
     public final ResponseEntity<ErrorMessage> handleApiException(ApiException ex) {
         HttpStatus status = ex.getStatus();

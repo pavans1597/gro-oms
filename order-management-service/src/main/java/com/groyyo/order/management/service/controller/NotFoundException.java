@@ -1,4 +1,4 @@
-package com.groyyo.quality.management.service.controller;
+package com.groyyo.order.management.service.controller;
 
 import org.springframework.http.HttpStatus;
 

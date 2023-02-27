@@ -1,4 +1,4 @@
-package com.groyyo.quality.management.service.config;
+package com.groyyo.order.management.service.config;
 
 import com.microsoft.azure.storage.CloudStorageAccount;
 import com.microsoft.azure.storage.blob.CloudBlobClient;

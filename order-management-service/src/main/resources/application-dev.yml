@@ -35,7 +35,7 @@ spring:
 server:
   error:
     include-message: always
-    port: 9081
+    port: 8004
     contextPath: /order-management-service
     servlet:
       contextPath: /order-management-service
