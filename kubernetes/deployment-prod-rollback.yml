@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: oauth-service-prod
+spec:
+  selector:
+    matchLabels:
+      app: oauth-service-prod
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: oauth-service-prod
+        group: service-prod
+    spec:
+      containers:
+        - image: groyyoOrgServiceRegistry.azurecr.io/oauth-service-prod:backup
+          name: oauth-service-prod
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "500Mi"
+              cpu: "500m"
+          ports:
+            - containerPort: 80

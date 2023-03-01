@@ -118,9 +118,9 @@ spring:
     name: order-management-service
   datasource:
     driverClassName: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/postgres
-    username: postgres
-    password: root
+    url: jdbc:postgresql://groyyo-postgres-db.postgres.database.azure.com:5432/postgres
+    username: groyyopgadmin@groyyo-postgres-db
+    password: J-Y@WnAh8nJ#k2D%
   mvc:
     pathmatch:
       matching-strategy: ANT_PATH_MATCHER

@@ -1,0 +1,403 @@
+# Docs for the Azure Web Apps Deploy action: https://go.microsoft.com/fwlink/?linkid=2134798
+# More GitHub Actions for Azure: https://go.microsoft.com/fwlink/?linkid=2135048
+
+name: service-deployment-pipeline-workflow
+
+on:
+  workflow_call:
+    secrets:
+      GH_ACCESS_TOKEN:
+        required: true
+      AZURE_REGISTRY_PASSWORD:
+        required: true
+      AZURE_REGISTRY_USERNAME:
+        required: true
+      AZURE_CREDENTIALS_NEW_CLUSTER:
+        required: true
+      AZURE_SUBSCRIPTION_ID_NEW_CLUSTER:
+        required: true
+      SLACK_DEPLOYMENT_NOTIFICATIONS_WEBHOOK:
+        required: true
+      PROD_DB_USERNAME:
+        required: false
+      PROD_DB_PASSWORD:
+        required: false
+    inputs:
+      env:
+        required: true
+        type: string
+      docker-file:
+        required: true
+        type: string
+      service:
+        required: true
+        type: string
+      service-file:
+        required: true
+        type: string
+      test-file:
+        required: true
+        type: string
+      test-required:
+        required: true
+        type: string
+      container-image:
+        required: true
+        type: string
+      container-image-backup:
+        required: true
+        type: string
+      deployment-file:
+        required: true
+        type: string
+      deployment-file-rollback:
+        required: true
+        type: string
+      is-prod:
+        required: true
+        type: string
+      pull-origin:
+        required: false
+        type: string
+      is-version-change:
+        required: true
+        type: string
+      network-policy-file:
+        required: false
+        type: string
+jobs:
+  run-pipeline:
+    name: Run pipeline for ${{ inputs.service }} deployment
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ inputs.env }}
+    steps:
+      # Continuous Integration
+      - name: Checkout Github Respository
+        uses: actions/checkout@v3
+
+      - name: Checkout core utils
+        uses: actions/checkout@v3
+        with:
+          repository: groyyo/core-utils
+          token: ${{ secrets.GH_ACCESS_TOKEN }}
+          path: core-utils
+
+      - name: Pull origin
+        id: pull-origin
+        continue-on-error: true
+        if: contains(inputs.pull-origin, 'true')
+        run: |
+          echo "Triggered by commit $(git log -1 --format='%H')"
+          git pull --no-commit
+          git reset --hard origin/develop
+          echo "Jumped to commit $(git log -1 --format='%H')"
+
+      - name: Slack Notification
+        uses: rtCamp/action-slack-notify@v2
+        if: |-
+          ${{ (contains(steps.pull-origin.outcome, 'failure')) }}
+        env:
+          SLACK_CHANNEL: deployments
+          SLACK_COLOR: ${{ steps.pull-origin.outcome }}
+          SLACK_ICON: https://github.com/rtCamp.png?size=48
+          SLACK_TITLE: ${{ inputs.service }} Pull Origin Failed
+          SLACK_USERNAME: Github Slack Bot
+          SLACK_WEBHOOK: ${{ secrets.SLACK_DEPLOYMENT_NOTIFICATIONS_WEBHOOK }}
+
+      - name: Exit on Pull Origin Failure
+        if: |-
+          ${{ (contains(steps.pull-origin.outcome, 'failure')) }}
+        run: exit 1
+
+      - name: Set up JDK 11
+        uses: actions/setup-java@v2
+        with:
+          java-version: '11'
+          distribution: 'adopt'
+
+      - name: Populate Prod DB Credentials
+        if: contains(inputs.is-prod, 'true')
+        run: |
+          #Install yq
+          sudo snap install yq
+          path="$(pwd)"
+
+          yq -i '.spring.datasource.username = "${{secrets.PROD_DB_USERNAME}}"' ${path}/src/main/resources/application-prod.yml
+          yq -i '.spring.datasource.password = "${{secrets.PROD_DB_PASSWORD}}"' ${path}/src/main/resources/application-prod.yml
+
+      - name: Cache Maven packages
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+
+      - name: Build with Maven
+        id: maven-build
+        continue-on-error: true
+        run: |
+          mv core-utils ../core-utils
+          mvn clean install package -DskipTests
+
+      - name: Slack Notification
+        uses: rtCamp/action-slack-notify@v2
+        if: |-
+          ${{ (contains(steps.maven-build.outcome, 'failure')) }}
+        env:
+          SLACK_CHANNEL: deployments
+          SLACK_COLOR: ${{ steps.maven-build.outcome }}
+          SLACK_ICON: https://github.com/rtCamp.png?size=48
+          SLACK_TITLE: ${{ inputs.service }} Maven Build Failed
+          SLACK_USERNAME: Github Slack Bot
+          SLACK_WEBHOOK: ${{ secrets.SLACK_DEPLOYMENT_NOTIFICATIONS_WEBHOOK }}
+
+      - name: Exit on Maven Build Failure
+        if: |-
+          ${{ (contains(steps.maven-build.outcome, 'failure')) }}
+        run: exit 1
+
+      - name: Docker Login
+        uses: azure/docker-login@v1
+        with:
+          username: groyyoOrgServiceRegistry
+          password: ${{ secrets.AZURE_REGISTRY_PASSWORD }}
+          login-server: groyyoOrgServiceRegistry.azurecr.io
+
+      - name: Backup Docker Image
+        id: docker-backup
+        continue-on-error: true
+        run: |
+          #Check if image exists
+          IMAGE_EXISTS="$(docker manifest inspect groyyoOrgServiceRegistry.azurecr.io/${{ inputs.container-image }} > /dev/null ; echo $?)"
+          echo "$IMAGE_EXISTS"
+
+          #Create backup from latest
+          if [ "1" != "$IMAGE_EXISTS" ];
+          then
+            docker pull groyyoOrgServiceRegistry.azurecr.io/${{ inputs.container-image }}
+            docker image tag groyyoOrgServiceRegistry.azurecr.io/${{ inputs.container-image }} groyyoOrgServiceRegistry.azurecr.io/${{ inputs.container-image-backup }}
+            docker push groyyoOrgServiceRegistry.azurecr.io/${{ inputs.container-image-backup }}
+
+            echo "::set-output name=BACKUP_IMAGE::exists"
+          else
+            echo "::set-output name=BACKUP_IMAGE::not_exists"
+          fi
+
+      - name: Slack Notification
+        uses: rtCamp/action-slack-notify@v2
+        if: |-
+          ${{ (contains(steps.docker-backup.outcome, 'failure')) }}
+        env:
+          SLACK_CHANNEL: deployments
+          SLACK_COLOR: ${{ steps.docker-backup.outcome }}
+          SLACK_ICON: https://github.com/rtCamp.png?size=48
+          SLACK_TITLE: ${{ inputs.service }} Docker Backup Failed
+          SLACK_USERNAME: Github Slack Bot
+          SLACK_WEBHOOK: ${{ secrets.SLACK_DEPLOYMENT_NOTIFICATIONS_WEBHOOK }}
+
+      - name: Exit on Docker Backup Failure
+        if: |-
+          ${{ (contains(steps.docker-backup.outcome, 'failure')) }}
+        run: exit 1
+
+      - name: Build and push docker image
+        run: |
+          docker build . -t groyyoOrgServiceRegistry.azurecr.io/${{ inputs.container-image }} -f ${{ inputs.docker-file }}
+          docker push groyyoOrgServiceRegistry.azurecr.io/${{ inputs.container-image }}
+
+      # Continuous Deployment
+      - name: Set AKS Context
+        uses: azure/aks-set-context@v1
+        with:
+          creds: '${{ secrets.AZURE_CREDENTIALS_NEW_CLUSTER }}'
+          cluster-name: groyyo-ks-cluster-spring
+          resource-group: groyyo-rg-ci-1
+
+      - name: Create Secret
+        uses: azure/k8s-create-secret@v1
+        with:
+          container-registry-url: groyyoOrgServiceRegistry.azurecr.io
+          container-registry-username: ${{ secrets.AZURE_REGISTRY_USERNAME }}
+          container-registry-password: ${{ secrets.AZURE_REGISTRY_PASSWORD }}
+          secret-name: ${{ inputs.service }}-acr-secret
+          namespace: default
+          force: true
+
+      - name: Deploy to Cluster
+        uses: azure/k8s-deploy@v1
+        with:
+          manifests: |
+            kubernetes/${{ inputs.deployment-file }}.yml
+            kubernetes/${{ inputs.service-file }}.yml
+          images: |
+            groyyoOrgServiceRegistry.azurecr.io/${{ inputs.container-image }}
+          imagepullsecrets: |
+            ${{ inputs.service }}-acr-secret
+          namespace: default
+
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS_NEW_CLUSTER }}
+
+      - name: Restart deployment
+        run: |
+          az account set --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID_NEW_CLUSTER }}
+          kubectl rollout restart deployment ${{ inputs.service }}
+
+      # Verify deployment status
+      - name: Wait for Deployment to Complete
+        run: sleep 45
+
+      - name: Verify Successful Deployment
+        id: deployment
+        run: |
+          REPLICA_COUNT="$(kubectl get deployment ${{ inputs.service }} -ojson | jq ".status.availableReplicas")"
+          echo "AvailableReplicas: $REPLICA_COUNT"
+          kubectl get pods --selector=app=${{ inputs.service }} -ojson > pod_details_output.json
+
+          if [ $REPLICA_COUNT = "null" ];
+          then
+            echo "::set-output name=DEPLOYMENT_STATUS::failure"
+          else
+            #Loop through pods and verify if pod is running
+            for ((i=0;i<REPLICA_COUNT;i++));
+            do
+              POD_STATUS="$(jq -r ".items[$i].status.phase" pod_details_output.json)"
+              echo "Pod $i : Current Status: $POD_STATUS"
+              if [ $POD_STATUS != "Running" ];
+              then
+                echo "::set-output name=DEPLOYMENT_STATUS::failure"
+              else
+                echo "::set-output name=DEPLOYMENT_STATUS::success"
+              fi
+            done
+          fi
+
+#      - name: Apply network policy
+#        run: |
+#            az account set --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID_NEW_CLUSTER }}
+#            kubectl apply -f kubernetes/${{ inputs.network-policy-file }}.yaml
+
+      - name: Slack Notification
+        uses: rtCamp/action-slack-notify@v2
+        if: |-
+          ${{ (contains(steps.deployment.outputs.DEPLOYMENT_STATUS, 'failure')) }}
+        env:
+          SLACK_CHANNEL: deployments
+          SLACK_COLOR: ${{ steps.deployment.outputs.DEPLOYMENT_STATUS }}
+          SLACK_ICON: https://github.com/rtCamp.png?size=48
+          SLACK_TITLE: ${{ inputs.service }} Deployment Failed
+          SLACK_USERNAME: Github Slack Bot
+          SLACK_WEBHOOK: ${{ secrets.SLACK_DEPLOYMENT_NOTIFICATIONS_WEBHOOK }}
+
+#      # Delete deployment on failure
+#      - name: Delete deployment
+#        if: contains(steps.deployment.outputs.DEPLOYMENT_STATUS, 'failure')
+#        run: |
+#          az account set --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID_NEW_CLUSTER }}
+#          kubectl delete deployment ${{ inputs.service }}
+#
+#      # Rollback deployment on failure
+#      - name: Deploy to Cluster
+#        uses: azure/k8s-deploy@v1
+#        if: |-
+#          ${{ (contains(steps.deployment.outputs.DEPLOYMENT_STATUS, 'failure')) &&
+#              (contains(steps.docker-backup.outputs.BACKUP_IMAGE, 'exists')) }}
+#        with:
+#          manifests: |
+#            kubernetes/${{ inputs.deployment-file-rollback }}.yml
+#            kubernetes/${{ inputs.service-file }}.yml
+#          images: |
+#            groyyoOrgServiceRegistry.azurecr.io/${{ inputs.container-image-backup }}
+#          imagepullsecrets: |
+#            ${{ inputs.service }}-acr-secret
+#          namespace: default
+#
+#      - name: Restart deployment
+#        if: |-
+#          ${{ (contains(steps.deployment.outputs.DEPLOYMENT_STATUS, 'failure')) &&
+#              (contains(steps.docker-backup.outputs.BACKUP_IMAGE, 'exists')) }}
+#        run: |
+#          az account set --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID_NEW_CLUSTER }}
+#          kubectl rollout restart deployment ${{ inputs.service }}
+
+      # Continuous Testing
+#      - name: Run Integration Test
+#        if: |-
+#          ${{ (contains(inputs.test-required, 'true')) && (contains(steps.deployment.outputs.DEPLOYMENT_STATUS, 'success')) }}
+#        uses: rbhadti94/apache-jmeter-action@v0.5.0
+#        with:
+#          testFilePath: ${{ inputs.test-file }}.jmx
+#          outputReportsFolder: reports/
+#          args: "--loglevel INFO"
+#
+#      - uses: actions/upload-artifact@v1
+#        if: |-
+#          ${{ (contains(inputs.test-required, 'true')) && (contains(steps.deployment.outputs.DEPLOYMENT_STATUS, 'success')) }}
+#        with:
+#          name: jmeter-test-results
+#          path: reports/
+#
+#      - name: Verify Test Status
+#        id: verify
+#        if: |-
+#          ${{ (contains(inputs.test-required, 'true')) && (contains(steps.deployment.outputs.DEPLOYMENT_STATUS, 'success')) }}
+#        run: |
+#          #Fetch error count
+#          errorCount="$(cat reports/statistics.json | jq ".Total.errorCount")"
+#          echo "Error Count: $errorCount"
+#
+#          if [ "$errorCount" != 0 ];
+#          then
+#            #Set test to fail
+#            echo "::set-output name=TEST_STATUS::failure"
+#          else
+#            #Set test to pass
+#            echo "::set-output name=TEST_STATUS::success"
+#          fi
+
+#      - name: Slack Notification
+#        uses: rtCamp/action-slack-notify@v2
+#        if: |-
+#          ${{ (contains(steps.verify.outputs.TEST_STATUS, 'failure')) }}
+#        env:
+#          SLACK_CHANNEL: deployments
+#          SLACK_COLOR: ${{ steps.verify.outputs.TEST_STATUS }}
+#          SLACK_ICON: https://github.com/rtCamp.png?size=48
+#          SLACK_TITLE: Integration Test Failed
+#          SLACK_USERNAME: Github Slack Bot
+#          SLACK_WEBHOOK: ${{ secrets.SLACK_DEPLOYMENT_NOTIFICATIONS_WEBHOOK }}
+#
+#      - name: Slack Notification
+#        uses: rtCamp/action-slack-notify@v2
+#        if: |-
+#          ${{ (contains(inputs.is-prod, 'true')) || (contains(steps.verify.outputs.TEST_STATUS, 'success')) }}
+#        env:
+#          SLACK_CHANNEL: deployments
+#          SLACK_ICON: https://github.com/rtCamp.png?size=48
+#          SLACK_TITLE: Build Passed
+#          SLACK_USERNAME: Github Slack Bot
+#          SLACK_WEBHOOK: ${{ secrets.SLACK_DEPLOYMENT_NOTIFICATIONS_WEBHOOK }}
+#
+#      - name: Delete deployment
+#        if: |-
+#          ${{ (contains(steps.verify.outputs.TEST_STATUS, 'failure')) }}
+#        run: |
+#          az account set --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID_NEW_CLUSTER }}
+#          kubectl delete deployment ${{ inputs.service }}
+#
+#      - name: Deploy to Cluster
+#        if: |-
+#          ${{ (contains(steps.verify.outputs.TEST_STATUS, 'failure')) }}
+#        uses: azure/k8s-deploy@v1
+#        with:
+#          manifests: |
+#            kubernetes/${{ inputs.deployment-file-rollback }}.yml
+#            kubernetes/${{ inputs.service-file }}.yml
+#          images: |
+#            groyyoOrgServiceRegistry.azurecr.io/${{ inputs.container-image-backup }}
+#          imagepullsecrets: |
+#            ${{ inputs.service }}-acr-secret
+#          namespace: default

@@ -1,0 +1,38 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: oauth-service-uat
+spec:
+  ports:
+    - port: 80
+      protocol: TCP
+      targetPort: 17000
+      name: http
+  selector:
+    app: oauth-service-uat
+  type: LoadBalancer
+  #type: ClusterIP
+#---
+#apiVersion: networking.k8s.io/v1
+#kind: Ingress
+#metadata:
+#  name: oauth-service-uat
+#  annotations:
+#    cert-manager.io/cluster-issuer: letsencrypt-uatconsole
+#spec:
+#  ingressClassName: uatconsole-nginx
+#  tls:
+#    - hosts:
+#        - uatconsole.groyyo.com
+#      secretName: tls-secret-uatconsole
+#  rules:
+#    - host: uatconsole.groyyo.com
+#      http:
+#        paths:
+#          - path: /oauth-service-uat
+#            pathType: Prefix
+#            backend:
+#              service:
+#                name: oauth-service-uat
+#                port:
+#                  number: 80

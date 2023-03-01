@@ -1,0 +1,140 @@
+# Docs for the Azure Web Apps Deploy action: https://go.microsoft.com/fwlink/?linkid=2134798
+# More GitHub Actions for Azure: https://go.microsoft.com/fwlink/?linkid=2135048
+
+name: maven-deployment-pipeline-workflow
+
+on:
+  workflow_call:
+    inputs:
+      service:
+        required: true
+        type: string
+    secrets:
+      SLACK_DEPLOYMENT_NOTIFICATIONS_WEBHOOK:
+        required: true
+    outputs:
+      version-change:
+        description: "Version Change"
+        value: ${{ jobs.maven-deploy.outputs.is-version-change }}
+
+jobs:
+  maven-deploy:
+    name: Maven Deploy pipeline for ${{ inputs.service }}
+    runs-on: ubuntu-latest
+    steps:
+      # Continuous Integration
+      - name: Checkout Github Respository
+        uses: actions/checkout@v2
+
+      - name: Set up JDK 11
+        uses: actions/setup-java@v2
+        with:
+          java-version: '11'
+          distribution: 'adopt'
+
+      - name: Cache Maven packages
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+
+      - name: Update POM files
+        id: pom
+        continue-on-error: true
+        run: |
+          #Fetch version
+          comment="${{github.event.head_commit.message}}" 
+          ver="$(awk -F'#md ' '{ print $2 }' <<< $comment)"
+          ver="$(echo $ver|tr -d '\n')"
+          echo $ver
+
+          if [ -z "$ver" ];
+            then
+            echo "Version not available. Maven deploy cancelled!!!"
+            else
+            #Fetch minor version
+            minorVer="$(awk -F'.' '{ print $2 }' <<< $ver)"
+            echo $minorVer
+
+            #Generate new version tag
+            if [ "0" != "$minorVer" ];
+            then
+             newVersionTag="$ver-SNAPSHOT"
+             echo Deploying Version "$newVersionTag"
+            else
+             newVersionTag="$ver-RELEASE"
+             echo Deploying Version "$newVersionTag"
+            fi
+
+            #Install xmlstarlet
+            sudo apt-get install xmlstarlet -y
+
+            #Update new version in pom
+            versionTag="$(xmlstarlet sel -N x=http://maven.apache.org/POM/4.0.0 -t -m "//x:project/x:version" -v . pom.xml)"
+            echo "Updating pom from $versionTag to $newVersionTag"
+
+            if [ "$versionTag" != "$newVersionTag" ];
+            then
+              #Update version tags in pom files
+              xmlstarlet ed --inplace -N x=http://maven.apache.org/POM/4.0.0 -u "//x:project/x:version" -v "$newVersionTag" pom.xml
+
+              echo "Version Updated"
+
+              export IS_VERSION_CHANGE="true"
+              echo "::set-output name=IS_VERSION_CHANGE::$IS_VERSION_CHANGE"
+            else
+              echo "Version Not Updated"
+              export IS_VERSION_CHANGE="false"
+              echo "::set-output name=IS_VERSION_CHANGE::$IS_VERSION_CHANGE"
+            fi
+
+            export VERSION_TAG="$versionTag"
+            echo "::set-output name=VERSION_TAG::$VERSION_TAG"
+
+            export NEW_VERSION_TAG="$newVersionTag"
+            echo "::set-output name=NEW_VERSION_TAG::$NEW_VERSION_TAG"
+            fi
+
+      - name: Maven Deploy
+        run: |
+          #Maven deploy
+          mvn deploy -f pom.xml -s settings.xml
+
+      - name: Push changes to Github
+        continue-on-error: true
+        id: git
+        if: "contains(steps.pom.outputs.IS_VERSION_CHANGE, 'true')"
+        run: |
+          #Setup git user
+          git config user.name "GitHub Actions Bot"
+          git config user.email "<>"
+
+          #Git commit
+          git add .
+          git commit -m "Updated pom from ${{ steps.pom.outputs.VERSION_TAG }} to ${{ steps.pom.outputs.NEW_VERSION_TAG }} #no_md"
+          git push origin develop
+
+      - name: Slack Notification
+        uses: rtCamp/action-slack-notify@v2
+        if: |-
+          ${{ (steps.git.outcome != 'success') }} && ${{ (steps.pom.outputs.IS_VERSION_CHANGE != 'true') }}
+        env:
+          SLACK_CHANNEL: deployments
+          SLACK_COLOR: ${{ steps.git.outcome }}
+          SLACK_ICON: https://github.com/rtCamp.png?size=48
+          SLACK_TITLE: Maven Deploy Failed
+          SLACK_USERNAME: Github Slack Bot
+          SLACK_WEBHOOK: ${{ secrets.SLACK_DEPLOYMENT_NOTIFICATIONS_WEBHOOK }}
+
+      - name: Slack Notification
+        uses: rtCamp/action-slack-notify@v2
+        if: |-
+          ${{ (steps.git.outcome == 'success') }} || ${{ (steps.pom.outputs.IS_VERSION_CHANGE != 'false') }}
+        env:
+          SLACK_CHANNEL: deployments
+          SLACK_COLOR: ${{ steps.git.outcome }} || ${{ steps.pom.outputs.IS_VERSION_CHANGE }}
+          SLACK_ICON: https://github.com/rtCamp.png?size=48
+          SLACK_TITLE: ${{ inputs.service }} artifact updated from ${{ steps.pom.outputs.VERSION_TAG }} to ${{ steps.pom.outputs.NEW_VERSION_TAG }}
+          SLACK_USERNAME: Github Slack Bot
+          SLACK_WEBHOOK: ${{ secrets.SLACK_DEPLOYMENT_NOTIFICATIONS_WEBHOOK }}

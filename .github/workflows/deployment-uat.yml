@@ -1,0 +1,33 @@
+# Docs for the Azure Web Apps Deploy action: https://go.microsoft.com/fwlink/?linkid=2134798
+# More GitHub Actions for Azure: https://go.microsoft.com/fwlink/?linkid=2135048
+
+name: oauth-service-deployment-action-uat
+
+on:
+  push:
+    branches: [ uat ]
+
+jobs:
+  deploy-service:
+    uses: ./.github/workflows/service-deployment-workflow.yml
+    with:
+      env: "uat"
+      docker-file: "Dockerfile.uat"
+      service: "oauth-service-uat"
+      service-file: "service-uat"
+      test-file: "integration-test/groyyo-create-organization"
+      test-required: "false"
+      container-image: "oauth-service-uat:latest"
+      container-image-backup: "oauth-service-uat:backup"
+      deployment-file: "deployment-uat"
+      deployment-file-rollback: "deployment-uat-rollback"
+      is-prod: "false"
+      pull-origin: "false"
+      is-version-change: "true"
+      network-policy-file: "network-policy-uat"
+    secrets:
+      AZURE_REGISTRY_PASSWORD: "${{ secrets.AZURE_REGISTRY_PASSWORD }}"
+      AZURE_REGISTRY_USERNAME: "${{ secrets.AZURE_REGISTRY_USERNAME }}"
+      AZURE_CREDENTIALS_NEW_CLUSTER: "${{ secrets.AZURE_CREDENTIALS_NEW_CLUSTER }}"
+      AZURE_SUBSCRIPTION_ID_NEW_CLUSTER: "${{ secrets.AZURE_SUBSCRIPTION_ID_NEW_CLUSTER }}"
+      SLACK_DEPLOYMENT_NOTIFICATIONS_WEBHOOK: "${{ secrets.SLACK_DEPLOYMENT_NOTIFICATIONS_WEBHOOK }}"

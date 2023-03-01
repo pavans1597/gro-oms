@@ -1,0 +1,35 @@
+# Docs for the Azure Web Apps Deploy action: https://go.microsoft.com/fwlink/?linkid=2134798
+# More GitHub Actions for Azure: https://go.microsoft.com/fwlink/?linkid=2135048
+
+name: oauth-service-deployment-action-prod
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy-service:
+    uses: ./.github/workflows/service-deployment-workflow.yml
+    with:
+      env: "prod"
+      docker-file: "Dockerfile.prod"
+      service: "oauth-service-prod"
+      service-file: "service-prod"
+      test-file: "integration-test/groyyo-create-organization"
+      test-required: "false"
+      container-image: "oauth-service-prod:latest"
+      container-image-backup: "oauth-service-prod:backup"
+      deployment-file: "deployment-prod"
+      deployment-file-rollback: "deployment-prod-rollback"
+      is-prod: "true"
+      pull-origin: "false"
+      is-version-change: "true"
+      network-policy-file: "network-policy-prod"
+    secrets:
+      AZURE_REGISTRY_PASSWORD: "${{ secrets.AZURE_REGISTRY_PASSWORD }}"
+      AZURE_REGISTRY_USERNAME: "${{ secrets.AZURE_REGISTRY_USERNAME }}"
+      AZURE_CREDENTIALS_NEW_CLUSTER: "${{ secrets.AZURE_CREDENTIALS_NEW_CLUSTER }}"
+      AZURE_SUBSCRIPTION_ID_NEW_CLUSTER: "${{ secrets.AZURE_SUBSCRIPTION_ID_NEW_CLUSTER }}"
+      SLACK_DEPLOYMENT_NOTIFICATIONS_WEBHOOK: "${{ secrets.SLACK_DEPLOYMENT_NOTIFICATIONS_WEBHOOK }}"
+      PROD_DB_USERNAME: "${{ secrets.PROD_DB_USERNAME }}"
+      PROD_DB_PASSWORD: "${{ secrets.PROD_DB_PASSWORD }}"

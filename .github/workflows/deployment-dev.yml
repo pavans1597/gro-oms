@@ -1,0 +1,37 @@
+#Docs for the Azure Web Apps Deploy action: https://go.microsoft.com/fwlink/?linkid=2134798
+# More GitHub Actions for Azure: https://go.microsoft.com/fwlink/?linkid=2135048
+
+name: oms-service-deployment-action-dev
+
+on:
+  push:
+    branches: [ 'develop' ]
+
+jobs:
+  deploy-service:
+    if: |-
+      ${{ (!contains(github.event.head_commit.message, '#md '))}}
+    uses: ./.github/workflows/service-deployment-workflow.yml
+    with:
+      env: "dev"
+      docker-file: "Dockerfile.dev"
+      service: "oms-service"
+      service-file: "service-dev"
+      test-file: "integration-test/groyyo-create-organization"
+      test-required: "false"
+      container-image: "oms-service-dev:latest"
+      container-image-backup: "oms-service-dev:backup"
+      deployment-file: "deployment-dev"
+      deployment-file-rollback: "deployment-dev-rollback"
+      is-prod: "false"
+      is-version-change: "true"
+      network-policy-file: "network-policy-dev"
+    secrets:
+      AZURE_REGISTRY_PASSWORD: "${{ secrets.AZURE_REGISTRY_PASSWORD }}"
+      AZURE_REGISTRY_USERNAME: "${{ secrets.AZURE_REGISTRY_USERNAME }}"
+      AZURE_CREDENTIALS_NEW_CLUSTER: "${{ secrets.AZURE_CREDENTIALS_NEW_CLUSTER }}"
+      AZURE_SUBSCRIPTION_ID_NEW_CLUSTER: "${{ secrets.AZURE_SUBSCRIPTION_ID_NEW_CLUSTER }}"
+      SLACK_DEPLOYMENT_NOTIFICATIONS_WEBHOOK: "${{ secrets.SLACK_DEPLOYMENT_NOTIFICATIONS_WEBHOOK }}"
+      PROD_DB_USERNAME: "${{ secrets.PROD_DB_USERNAME }}"
+      PROD_DB_PASSWORD: "${{ secrets.PROD_DB_PASSWORD }}"
+      GH_ACCESS_TOKEN: "${{ secrets.GH_ACCESS_TOKEN }}"

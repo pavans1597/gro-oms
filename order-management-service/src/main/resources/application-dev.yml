@@ -7,7 +7,7 @@ multitenancy:
       changeLog: classpath:db/changelog/db.changelog-tenant.yaml
     entityManager:
       packages: com.groyyo.order.entity
-    module: qc
+    module: product
     repository:
       packages: com.groyyo.order.repository
   master:

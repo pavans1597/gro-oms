@@ -1,0 +1,39 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: oms-service
+spec:
+  ports:
+    - port: 80
+      protocol: TCP
+      targetPort: 8004
+      name: http
+  selector:
+    app: oms-service
+  type: ClusterIP
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: oms-service
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-auth-dev
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+
+spec:
+  ingressClassName: console-dev-nginx
+  tls:
+    - hosts:
+        - groyyoconsoledev.groyyo.com
+      secretName: letsencrypt-auth-dev
+  rules:
+    - host: groyyoconsoledev.groyyo.com
+      http:
+        paths:
+          - path: /oms-service
+            pathType: Prefix
+            backend:
+              service:
+                name: oms-service
+                port:
+                  number: 80
