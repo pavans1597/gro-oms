@@ -1,21 +1,21 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: oms-service
+  name: order-management-service
 spec:
   selector:
     matchLabels:
-      app: oms-service
+      app: order-management-service
   replicas: 1
   template:
     metadata:
       labels:
-        app: oms-service
+        app: order-management-service
         group: service-dev
     spec:
       containers:
-        - image: groyyoOrgServiceRegistry.azurecr.io/oms-service-dev:latest
-          name: oms-service
+        - image: groyyoOrgServiceRegistry.azurecr.io/order-management-service-dev:latest
+          name: order-management-service
           resources:
             requests:
               memory: "128Mi"

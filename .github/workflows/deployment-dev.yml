@@ -1,7 +1,7 @@
 #Docs for the Azure Web Apps Deploy action: https://go.microsoft.com/fwlink/?linkid=2134798
 # More GitHub Actions for Azure: https://go.microsoft.com/fwlink/?linkid=2135048
 
-name: oms-service-deployment-action-dev
+name: order-management-service-deployment-action-dev
 
 on:
   push:
@@ -15,12 +15,12 @@ jobs:
     with:
       env: "dev"
       docker-file: "Dockerfile.dev"
-      service: "oms-service"
+      service: "order-management-service"
       service-file: "service-dev"
       test-file: "integration-test/groyyo-create-organization"
       test-required: "false"
-      container-image: "oms-service-dev:latest"
-      container-image-backup: "oms-service-dev:backup"
+      container-image: "order-management-service-dev:latest"
+      container-image-backup: "order-management-service-dev:backup"
       deployment-file: "deployment-dev"
       deployment-file-rollback: "deployment-dev-rollback"
       is-prod: "false"
