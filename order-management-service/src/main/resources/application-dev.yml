@@ -6,10 +6,10 @@ multitenancy:
     liquibase:
       changeLog: classpath:db/changelog/db.changelog-tenant.yaml
     entityManager:
-      packages: com.groyyo.order.management.service.entity
+      packages: com.groyyo.order.entity
     module: qc
     repository:
-      packages: com.groyyo.order.management.service.repository
+      packages: com.groyyo.order.repository
   master:
     repository:
       packages: com.groyyo.core.multitenancy.repository

@@ -3,27 +3,22 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-
 	<artifactId>order-management-service</artifactId>
 	<packaging>jar</packaging>
-	<name>Order-Management-Service</name>
-	<description>Order-Management-service</description>
-
+	<name>order-management-service</name>
+	<description>order-management-service</description>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<java.version>11</java.version>
 	</properties>
-
 	<parent>
 		<groupId>com.groyyo</groupId>
 		<artifactId>order-management-service-parent</artifactId>
 		<version>1.0.0</version>
 		<relativePath>..</relativePath>
 	</parent>
-
 	<dependencies>
-
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
@@ -34,17 +29,14 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-log4j2</artifactId>
 		</dependency>
-
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator</artifactId>
 		</dependency>
-
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
@@ -54,59 +46,49 @@
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-crypto</artifactId>
 		</dependency>
-
 		<dependency>
 			<groupId>com.groyyo.core</groupId>
 			<artifactId>base</artifactId>
 			<version>${global.version}</version>
 		</dependency>
-
 		<dependency>
 			<groupId>com.groyyo.core</groupId>
 			<artifactId>azureblob</artifactId>
 			<version>${global.version}</version>
 		</dependency>
-
 		<dependency>
 			<groupId>com.groyyo.core</groupId>
 			<artifactId>properties</artifactId>
 			<version>${global.version}</version>
 		</dependency>
-
 		<dependency>
 			<groupId>com.groyyo.core</groupId>
 			<artifactId>kafka</artifactId>
 			<version>${global.version}</version>
 		</dependency>
-
 		<dependency>
 			<groupId>com.groyyo.core</groupId>
 			<artifactId>sql-postgres-jpa</artifactId>
 			<version>${global.version}</version>
 		</dependency>
-
 		<dependency>
 			<groupId>com.opencsv</groupId>
 			<artifactId>opencsv</artifactId>
 			<version>4.5</version>
 		</dependency>
-
 		<dependency>
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
 		</dependency>
-
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-csv</artifactId>
 		</dependency>
-
 		<dependency>
 			<groupId>io.springfox</groupId>
 			<artifactId>springfox-swagger-ui</artifactId>
 			<scope>compile</scope>
 		</dependency>
-
 		<dependency>
 			<groupId>org.springdoc</groupId>
 			<artifactId>springdoc-openapi-ui</artifactId>
@@ -117,13 +99,6 @@
 			<artifactId>master-data-client</artifactId>
 			<version>${global.version}</version>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.hibernate/hibernate-core -->
-<!--		<dependency>-->
-<!--			<groupId>org.hibernate</groupId>-->
-<!--			<artifactId>hibernate-core</artifactId>-->
-<!--			<version>5.6.5.Final</version>-->
-<!--		</dependency>-->
-
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
@@ -141,7 +116,6 @@
 			<version>1.0.0</version>
 			<scope>compile</scope>
 		</dependency>
-
 		<dependency>
 			<groupId>com.groyyo.core</groupId>
 			<artifactId>multitenancy-client</artifactId>
@@ -160,11 +134,8 @@
 			<scope>compile</scope>
 		</dependency>
 	</dependencies>
-
-
 	<build>
-
-		<finalName>quality-management-service</finalName>
+		<finalName>order-management-service</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
@@ -172,5 +143,4 @@
 			</plugin>
 		</plugins>
 	</build>
-
 </project>

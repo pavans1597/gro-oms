@@ -43,7 +43,7 @@
 
 	<profiles>
 		<profile>
-			<id>quality-management-project</id>
+			<id>order-management-project</id>
 			<properties>
 				<sonar.skip>false</sonar.skip>
 			</properties>
