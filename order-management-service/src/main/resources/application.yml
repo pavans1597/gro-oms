@@ -1,3 +1,78 @@
+############# Application Context ###############
+server:
+  port: 8004
+  servlet:
+    contextPath: /order-management-service
+  tomcat:
+    accesslog:
+      enabled: true
+      rotate: true
+      suffix: .log
+      file-date-format: .yyyy-MM-dd
+      prefix: order-management-service
+      directory: /var/log/groyyo
+      pattern: common
+
+########## Auth Config ##############
+enable:
+  cors: 'true'
+  authentication: 'false'
+  authorize: 'false'
+  
+########## Cache Config ##############
+cache:
+  masterData:
+    enable: 'false'
+
+########## Services URL's ##############
+service:
+  user:
+    url: https://preproderp.groyyo.com/user
+  masterData:
+    url: http://localhost:8003/master-data-service
+      
+############## Hibernate Configuration ##############      
+hibernate:
+  format_sql: 'true'
+  dialect: org.hibernate.dialect.PostgreSQL92Dialect
+  order_inserts: 'true'
+  order_updates: 'true'
+  cache:
+    provider_class: org.hibernate.cache.NoCacheProvider
+  hbm2ddl:
+    auto: update
+  show_sql: 'false'
+  
+################# Postgresql JDBC Connection config ###############
+jdbc:
+  max:
+    statements: '240'
+    idle:
+      time:
+        excess:
+          connections: '20'
+        nodeValue: '30'
+    pool:
+      size: '8'
+  initial:
+    pool:
+      size: '2'
+  preferred:
+    test:
+      query: SELECT 1
+  min:
+    pool:
+      size: '2'
+  acquire:
+    increment: '2'
+  checkout:
+    timeout: '5000'
+  test:
+    connection:
+      'on':
+        checkin: 'true'
+
+################## Datasource & Kafka Properties ####################
 spring:
   kafka:
     consumer:
@@ -40,25 +115,17 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
     open-in-view: 'false'
   application:
-    name: Order-Mangement-Srvice
+    name: order-management-service
   datasource:
     driverClassName: org.postgresql.Driver
-    url: jdbc:postgresql://groyyo-postgres-db.postgres.database.azure.com:5432/postgres
-    username: groyyopgadmin@groyyo-postgres-db
-    password: J-Y@WnAh8nJ#k2D%
+    url: jdbc:postgresql://localhost:5432/postgres
+    username: postgres
+    password: root
   mvc:
     pathmatch:
       matching-strategy: ANT_PATH_MATCHER
-hibernate:
-  format_sql: 'true'
-  dialect: org.hibernate.dialect.PostgreSQL92Dialect
-  order_inserts: 'true'
-  order_updates: 'true'
-  cache:
-    provider_class: org.hibernate.cache.NoCacheProvider
-  hbm2ddl:
-    auto: update
-  show_sql: 'false'
+
+################## Multi-tenancy properties ####################
 multitenancy:
   schema-cache:
     maximumSize: '100'
@@ -67,9 +134,9 @@ multitenancy:
     liquibase:
       changeLog: classpath:db/changelog/db.changelog-tenant.yaml
     repository:
-      packages: com.groyyo.order.management.service.repository
+      packages: com.groyyo.order.repository
     entityManager:
-      packages: com.groyyo.order.management.service.entity
+      packages: com.groyyo.order.entity
     module: product
   master:
     entityManager:
@@ -78,72 +145,24 @@ multitenancy:
       packages: com.groyyo.core.multitenancy.repository
     liquibase:
       enabled: 'false'
-jdbc:
-  max:
-    statements: '240'
-    idle:
-      time:
-        excess:
-          connections: '20'
-        nodeValue: '30'
-    pool:
-      size: '8'
-  initial:
-    pool:
-      size: '2'
-  preferred:
-    test:
-      query: SELECT 1
-  min:
-    pool:
-      size: '2'
-  acquire:
-    increment: '2'
-  checkout:
-    timeout: '5000'
-  test:
-    connection:
-      'on':
-        checkin: 'true'
-service:
-  user:
-    url: https://preproderp.groyyo.com/user
-  masterData:
-    url: http://localhost:8003/master-data-service
 
-
-############# Application Context ###############
-server:
-  port: 8004
-  contextPath: /order-management-service
-  servlet:
-    contextPath: /order-management-service
-  tomcat:
-    accesslog:
-      enabled: true
-      rotate: false
-      suffix: .log
-      prefix: order-management-service
-      directory: /tmp
-      pattern: common
+################## Azure Config ####################
 azure:
   storage:
     ConnectionString: AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;DefaultEndpointsProtocol=http;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;QueueEndpoint=http://127.0.0.1:10001/devstoreaccount1;TableEndpoint=http://127.0.0.1:10002/devstoreaccount1;
   myblob:
     connectionstring: BlobEndpoint=https://mikesdemostorageaccount.blob.core.windows.net/;QueueEndpoint=https://mikesdemostorageaccount.queue.core.windows.net/;FileEndpoint=https://mikesdemostorageaccount.file.core.windows.net/;TableEndpoint=https://mikesdemostorageaccount.table.core.windows.net/;SharedAccessSignature=sv=2019-10-10&ss=bfqt&srt=sco&sp=rwdlacupx&se=2020-06-30T18:55:51Z&st=2020-06-30T10:55:51Z&spr=https&sig=YRxcBuMbHd%2BetTTqavSjuOP1aAVwZB7HRk1TfATOXEY%3D
-management:
-  health:
-    db:
-      enabled: 'true'
-    diskspace:
-      enabled: 'true'
-  endpoint:
-    health:
-      show-details: ALWAYS
-enable:
-  cors: 'true'
-  authentication: 'false'
-  authorize: 'false'
+
+groyyo:
+  media:
+    container: akhil814
+    endpointSuffix: core.windows.net
+    accountName: akhilchowdary
+    accountKey: scWZ7xzNXWlaiq4viYx9M/sg3MHOUlSz7QnR0zePEkI5wKhXJ1b85fqj54CxkaBxA3UTKXrTWN6i+AStt7GOcw==
+
+debug: 'false'
+
+############## Kafka Topics #############
 kafka:
   consumer:
     autostart: 'true'
@@ -153,14 +172,14 @@ kafka:
   master:
     updates:
       topic: master-data-updates
-groyyo:
-  media:
-    container: akhil814
-    endpointSuffix: core.windows.net
-    accountName: akhilchowdary
-    accountKey: scWZ7xzNXWlaiq4viYx9M/sg3MHOUlSz7QnR0zePEkI5wKhXJ1b85fqj54CxkaBxA3UTKXrTWN6i+AStt7GOcw==
-debug: 'false'
-
-
-
-
+      
+############### healthcheck spring properties ###############
+management:
+  health:
+    db:
+      enabled: 'true'
+    diskspace:
+      enabled: 'true'
+  endpoint:
+    health:
+      show-details: ALWAYS
