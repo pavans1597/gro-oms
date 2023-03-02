@@ -1,15 +1,5 @@
 package com.groyyo.order.cache;
 
-import com.groyyo.core.base.http.GroyyoRestClient;
-import com.groyyo.core.master.dto.response.*;
-import com.groyyo.core.masterData.client.cache.MasterDataCache;
-import lombok.extern.log4j.Log4j2;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-
-import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -17,419 +7,450 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import javax.annotation.PostConstruct;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+import com.groyyo.core.base.http.GroyyoRestClient;
+import com.groyyo.core.master.dto.response.BaseResponseDto;
+import com.groyyo.core.master.dto.response.ColorResponseDto;
+import com.groyyo.core.master.dto.response.DefectResponseDto;
+import com.groyyo.core.master.dto.response.FitResponseDto;
+import com.groyyo.core.master.dto.response.PartResponseDto;
+import com.groyyo.core.master.dto.response.ProductDefectResponseDto;
+import com.groyyo.core.master.dto.response.ProductResponseDto;
+import com.groyyo.core.master.dto.response.SeasonResponseDto;
+import com.groyyo.core.master.dto.response.SizeGroupResponseDto;
+import com.groyyo.core.master.dto.response.SizeResponseDto;
+import com.groyyo.core.masterData.client.api.MasterDataApi;
+
+import lombok.extern.log4j.Log4j2;
+
 @Log4j2
 @Component
 public class MasterDataLocalCache {
 
-    @Autowired
-    @Qualifier("masterDataClient")
-    private GroyyoRestClient masterDataClient;
+	@Autowired
+	@Qualifier("masterDataClient")
+	private GroyyoRestClient masterDataClient;
 
-    @Value("${cache.masterData.enable:true}")
-    private boolean cacheMasterDataEnable;
+	@Value("${cache.masterData.enable:true}")
+	private boolean cacheMasterDataEnable;
 
-    @Autowired
-    private MasterDataCache masterDataCache;
+	@Autowired
+	private MasterDataApi masterDataApi;
 
-    @PostConstruct
-    public void init() {
+	@PostConstruct
+	public void init() {
 
-        if (cacheMasterDataEnable)
-            refreshCache();
-        else
-            log.info("Not hitting the master-data-service to populate master data as cache is disabled");
-    }
+		if (cacheMasterDataEnable)
+			refreshCache();
+		else
+			log.info("Not hitting the master-data-service to populate master data as cache is disabled");
+	}
 
-    private Map<String, ColorResponseDto> colorByNameMap = new HashMap<String, ColorResponseDto>();
-    private Map<String, DefectResponseDto> defectByNameMap = new HashMap<String, DefectResponseDto>();
-    private Map<String, FitResponseDto> fitByNameMap = new HashMap<String, FitResponseDto>();
-    private Map<String, PartResponseDto> partByNameMap = new HashMap<String, PartResponseDto>();
-    private Map<String, ProductResponseDto> productByNameMap = new HashMap<String, ProductResponseDto>();
-    private Map<String, ProductDefectResponseDto> productDefectByNameMap = new HashMap<String, ProductDefectResponseDto>();
-    private Map<String, SeasonResponseDto> seasonByNameMap = new HashMap<String, SeasonResponseDto>();
-    private Map<String, SizeResponseDto> sizeByNameMap = new HashMap<String, SizeResponseDto>();
-    private Map<String, SizeGroupResponseDto> sizeGroupByNameMap = new HashMap<String, SizeGroupResponseDto>();
+	private Map<String, ColorResponseDto> colorByNameMap = new HashMap<String, ColorResponseDto>();
+	private Map<String, DefectResponseDto> defectByNameMap = new HashMap<String, DefectResponseDto>();
+	private Map<String, FitResponseDto> fitByNameMap = new HashMap<String, FitResponseDto>();
+	private Map<String, PartResponseDto> partByNameMap = new HashMap<String, PartResponseDto>();
+	private Map<String, ProductResponseDto> productByNameMap = new HashMap<String, ProductResponseDto>();
+	private Map<String, ProductDefectResponseDto> productDefectByNameMap = new HashMap<String, ProductDefectResponseDto>();
+	private Map<String, SeasonResponseDto> seasonByNameMap = new HashMap<String, SeasonResponseDto>();
+	private Map<String, SizeResponseDto> sizeByNameMap = new HashMap<String, SizeResponseDto>();
+	private Map<String, SizeGroupResponseDto> sizeGroupByNameMap = new HashMap<String, SizeGroupResponseDto>();
 
-    /**
-     * Sample code to include in any service to fetch and populate master data
-     */
-    public void refreshCache() {
+	/**
+	 * Sample code to include in any service to fetch and populate master data
+	 */
+	public void refreshCache() {
 
-        populateAllColors();
-        populateAllDefects();
-        populateAllFits();
-        populateAllParts();
-        populateAllProducts();
-        populateAllProductDefects();
-        populateAllSeasons();
-        populateAllSizes();
-        populateAllSizeGroups();
-    }
+		populateAllColors();
+		populateAllDefects();
+		populateAllFits();
+		populateAllParts();
+		populateAllProducts();
+		populateAllProductDefects();
+		populateAllSeasons();
+		populateAllSizes();
+		populateAllSizeGroups();
+	}
 
-    /**
-     * Function to fetch colors data from master-data-service and populate
-     * colorByNameMap
-     */
-    public void populateAllColors() {
+	/**
+	 * Function to fetch colors data from master-data-service and populate
+	 * colorByNameMap
+	 */
+	public void populateAllColors() {
 
-        try {
+		try {
 
-            colorByNameMap = new PopulateMap<ColorResponseDto>().populateMap(fetchAllColors(), colorByNameMap);
+			colorByNameMap = new PopulateMap<ColorResponseDto>().populateMap(fetchAllColors(), colorByNameMap);
 
-        } catch (Exception e) {
+		} catch (Exception e) {
 
-            log.error("Failed to load all colors in cache: ", e);
-        }
-    }
+			log.error("Failed to load all colors in cache: ", e);
+		}
+	}
 
-    /**
-     * Function to fetch defects data from master-data-service and populate
-     * defectByNameMap
-     */
-    public void populateAllDefects() {
+	/**
+	 * Function to fetch defects data from master-data-service and populate
+	 * defectByNameMap
+	 */
+	public void populateAllDefects() {
 
-        try {
+		try {
 
-            defectByNameMap = new PopulateMap<DefectResponseDto>().populateMap(fetchAllDefects(), defectByNameMap);
+			defectByNameMap = new PopulateMap<DefectResponseDto>().populateMap(fetchAllDefects(), defectByNameMap);
 
-        } catch (Exception e) {
+		} catch (Exception e) {
 
-            log.error("Failed to load all defects in cache: ", e);
-        }
+			log.error("Failed to load all defects in cache: ", e);
+		}
 
-    }
+	}
 
-    /**
-     * Function to fetch fits data from master-data-service and populate
-     * fitByNameMap
-     */
-    public void populateAllFits() {
+	/**
+	 * Function to fetch fits data from master-data-service and populate
+	 * fitByNameMap
+	 */
+	public void populateAllFits() {
 
-        try {
+		try {
 
-            fitByNameMap = new PopulateMap<FitResponseDto>().populateMap(fetchAllFits(), fitByNameMap);
+			fitByNameMap = new PopulateMap<FitResponseDto>().populateMap(fetchAllFits(), fitByNameMap);
 
-        } catch (Exception e) {
+		} catch (Exception e) {
 
-            log.error("Failed to load all fits in cache: ", e);
-        }
+			log.error("Failed to load all fits in cache: ", e);
+		}
 
-    }
+	}
 
-    /**
-     * Function to fetch parts data from master-data-service and populate
-     * partByNameMap
-     */
-    public void populateAllParts() {
+	/**
+	 * Function to fetch parts data from master-data-service and populate
+	 * partByNameMap
+	 */
+	public void populateAllParts() {
 
-        try {
+		try {
 
-            partByNameMap = new PopulateMap<PartResponseDto>().populateMap(fetchAllParts(), partByNameMap);
+			partByNameMap = new PopulateMap<PartResponseDto>().populateMap(fetchAllParts(), partByNameMap);
 
-        } catch (Exception e) {
+		} catch (Exception e) {
 
-            log.error("Failed to load all parts in cache: ", e);
-        }
+			log.error("Failed to load all parts in cache: ", e);
+		}
 
-    }
+	}
 
-    /**
-     * Function to fetch products data from master-data-service and populate
-     * productByNameMap
-     */
-    public void populateAllProducts() {
+	/**
+	 * Function to fetch products data from master-data-service and populate
+	 * productByNameMap
+	 */
+	public void populateAllProducts() {
 
-        try {
+		try {
 
-            productByNameMap = new PopulateMap<ProductResponseDto>().populateMap(fetchAllProducts(), productByNameMap);
+			productByNameMap = new PopulateMap<ProductResponseDto>().populateMap(fetchAllProducts(), productByNameMap);
 
-        } catch (Exception e) {
+		} catch (Exception e) {
 
-            log.error("Failed to load all products in cache: ", e);
-        }
+			log.error("Failed to load all products in cache: ", e);
+		}
 
-    }
+	}
 
-    /**
-     * Function to fetch product defects data from master-data-service and populate
-     * productDefectByNameMap
-     */
-    public void populateAllProductDefects() {
+	/**
+	 * Function to fetch product defects data from master-data-service and populate
+	 * productDefectByNameMap
+	 */
+	public void populateAllProductDefects() {
 
-        try {
+		try {
 
-            productDefectByNameMap = new PopulateMap<ProductDefectResponseDto>().populateMap(fetchAllProductDefects(), productDefectByNameMap);
+			productDefectByNameMap = new PopulateMap<ProductDefectResponseDto>().populateMap(fetchAllProductDefects(), productDefectByNameMap);
 
-        } catch (Exception e) {
+		} catch (Exception e) {
 
-            log.error("Failed to load all productDefects in cache: ", e);
-        }
+			log.error("Failed to load all productDefects in cache: ", e);
+		}
 
-    }
+	}
 
-    /**
-     * Function to fetch seasons data from master-data-service and populate
-     * seasonByNameMap
-     */
-    public void populateAllSeasons() {
+	/**
+	 * Function to fetch seasons data from master-data-service and populate
+	 * seasonByNameMap
+	 */
+	public void populateAllSeasons() {
 
-        try {
+		try {
 
-            seasonByNameMap = new PopulateMap<SeasonResponseDto>().populateMap(fetchAllSeasons(), seasonByNameMap);
+			seasonByNameMap = new PopulateMap<SeasonResponseDto>().populateMap(fetchAllSeasons(), seasonByNameMap);
 
-        } catch (Exception e) {
+		} catch (Exception e) {
 
-            log.error("Failed to load all seasons in cache: ", e);
-        }
+			log.error("Failed to load all seasons in cache: ", e);
+		}
 
-    }
+	}
 
-    /**
-     * Function to fetch sizes data from master-data-service and populate
-     * sizeByNameMap
-     */
-    public void populateAllSizes() {
+	/**
+	 * Function to fetch sizes data from master-data-service and populate
+	 * sizeByNameMap
+	 */
+	public void populateAllSizes() {
 
-        try {
+		try {
 
-            sizeByNameMap = new PopulateMap<SizeResponseDto>().populateMap(fetchAllSizes(), sizeByNameMap);
+			sizeByNameMap = new PopulateMap<SizeResponseDto>().populateMap(fetchAllSizes(), sizeByNameMap);
 
-        } catch (Exception e) {
+		} catch (Exception e) {
 
-            log.error("Failed to load all sizes in cache: ", e);
-        }
+			log.error("Failed to load all sizes in cache: ", e);
+		}
 
-    }
+	}
 
-    /**
-     * Function to fetch size groups data from master-data-service and populate
-     * sizeGroupByNameMap
-     */
-    public void populateAllSizeGroups() {
+	/**
+	 * Function to fetch size groups data from master-data-service and populate
+	 * sizeGroupByNameMap
+	 */
+	public void populateAllSizeGroups() {
 
-        try {
+		try {
 
-            sizeGroupByNameMap = new PopulateMap<SizeGroupResponseDto>().populateMap(fetchAllSizeGroups(), sizeGroupByNameMap);
+			sizeGroupByNameMap = new PopulateMap<SizeGroupResponseDto>().populateMap(fetchAllSizeGroups(), sizeGroupByNameMap);
 
-        } catch (Exception e) {
+		} catch (Exception e) {
 
-            log.error("Failed to load all sizeGroups in cache: ", e);
-        }
+			log.error("Failed to load all sizeGroups in cache: ", e);
+		}
 
-    }
+	}
 
-    private List<ColorResponseDto> fetchAllColors() {
+	private List<ColorResponseDto> fetchAllColors() {
 
-        List<ColorResponseDto> colors = new ArrayList<ColorResponseDto>();
+		List<ColorResponseDto> colors = new ArrayList<ColorResponseDto>();
 
-        try {
+		try {
 
-            colors = masterDataCache.getAllColors();
+			colors = masterDataApi.getAllColors().getData();
+			// masterDataCache.getAllColors();
 
-            log.info("colors: {}", colors);
+			log.info("colors: {}", colors);
 
-        } catch (Exception e) {
+		} catch (Exception e) {
 
-            log.error("Failed to fetch all colors from master data service: ", e);
-        }
+			log.error("Failed to fetch all colors from master data service: ", e);
+		}
 
-        return colors;
-    }
+		return colors;
+	}
 
-    private List<DefectResponseDto> fetchAllDefects() {
+	private List<DefectResponseDto> fetchAllDefects() {
 
-        List<DefectResponseDto> defects = new ArrayList<DefectResponseDto>();
+		List<DefectResponseDto> defects = new ArrayList<DefectResponseDto>();
 
-        try {
+		try {
 
-            defects = masterDataCache.getAllDefects();
+			defects = masterDataApi.getAllDefects().getData();
+			// masterDataCache.getAllDefects();
 
-            log.info("defects: {}", defects);
+			log.info("defects: {}", defects);
 
-        } catch (Exception e) {
+		} catch (Exception e) {
 
-            log.error("Failed to fetch all defects from master data service: ", e);
-        }
+			log.error("Failed to fetch all defects from master data service: ", e);
+		}
 
-        return defects;
-    }
+		return defects;
+	}
 
-    private List<FitResponseDto> fetchAllFits() {
+	private List<FitResponseDto> fetchAllFits() {
 
-        List<FitResponseDto> fits = new ArrayList<FitResponseDto>();
+		List<FitResponseDto> fits = new ArrayList<FitResponseDto>();
 
-        try {
+		try {
 
-            fits = masterDataCache.getAllFits();
+			fits = masterDataApi.getAllFits().getData();
+			// masterDataCache.getAllFits();
 
-            log.info("fits: {}", fits);
+			log.info("fits: {}", fits);
 
-        } catch (Exception e) {
+		} catch (Exception e) {
 
-            log.error("Failed to fetch all fits from master data service: ", e);
-        }
+			log.error("Failed to fetch all fits from master data service: ", e);
+		}
 
-        return fits;
-    }
+		return fits;
+	}
 
-    private List<PartResponseDto> fetchAllParts() {
+	private List<PartResponseDto> fetchAllParts() {
 
-        List<PartResponseDto> parts = new ArrayList<PartResponseDto>();
+		List<PartResponseDto> parts = new ArrayList<PartResponseDto>();
 
-        try {
+		try {
 
-            parts = masterDataCache.getAllParts();
+			parts = masterDataApi.getAllParts().getData();
+			// masterDataCache.getAllParts();
 
-            log.info("parts: {}", parts);
+			log.info("parts: {}", parts);
 
-        } catch (Exception e) {
+		} catch (Exception e) {
 
-            log.error("Failed to fetch all parts from master data service: ", e);
-        }
+			log.error("Failed to fetch all parts from master data service: ", e);
+		}
 
-        return parts;
-    }
+		return parts;
+	}
 
-    private List<ProductResponseDto> fetchAllProducts() {
+	private List<ProductResponseDto> fetchAllProducts() {
 
-        List<ProductResponseDto> products = new ArrayList<ProductResponseDto>();
+		List<ProductResponseDto> products = new ArrayList<ProductResponseDto>();
 
-        try {
+		try {
 
-            products = masterDataCache.getAllProducts();
+			products = masterDataApi.getAllProducts().getData();
+			// masterDataCache.getAllProducts();
 
-            log.info("products: {}", products);
+			log.info("products: {}", products);
 
-        } catch (Exception e) {
+		} catch (Exception e) {
 
-            log.error("Failed to fetch all products from master data service: ", e);
-        }
+			log.error("Failed to fetch all products from master data service: ", e);
+		}
 
-        return products;
-    }
+		return products;
+	}
 
-    private List<ProductDefectResponseDto> fetchAllProductDefects() {
+	private List<ProductDefectResponseDto> fetchAllProductDefects() {
 
-        List<ProductDefectResponseDto> productDefects = new ArrayList<ProductDefectResponseDto>();
+		List<ProductDefectResponseDto> productDefects = new ArrayList<ProductDefectResponseDto>();
 
-        try {
+		try {
 
-            productDefects = masterDataCache.getAllProductDefects();
+			productDefects = masterDataApi.getAllProductDefects().getData();
+			// masterDataCache.getAllProductDefects();
 
-            log.info("productDefects: {}", productDefects);
+			log.info("productDefects: {}", productDefects);
 
-        } catch (Exception e) {
+		} catch (Exception e) {
 
-            log.error("Failed to fetch all productDefects from master data service: ", e);
-        }
+			log.error("Failed to fetch all productDefects from master data service: ", e);
+		}
 
-        return productDefects;
-    }
+		return productDefects;
+	}
 
-    private List<SeasonResponseDto> fetchAllSeasons() {
+	private List<SeasonResponseDto> fetchAllSeasons() {
 
-        List<SeasonResponseDto> seasons = new ArrayList<SeasonResponseDto>();
+		List<SeasonResponseDto> seasons = new ArrayList<SeasonResponseDto>();
 
-        try {
+		try {
 
-            seasons = masterDataCache.getAllSeasons();
+			seasons = masterDataApi.getAllSeasons().getData();
+			// masterDataCache.getAllSeasons();
 
-            log.info("seasons: {}", seasons);
+			log.info("seasons: {}", seasons);
 
-        } catch (Exception e) {
+		} catch (Exception e) {
 
-            log.error("Failed to fetch all seasons from master data service: ", e);
-        }
+			log.error("Failed to fetch all seasons from master data service: ", e);
+		}
 
-        return seasons;
-    }
+		return seasons;
+	}
 
-    private List<SizeResponseDto> fetchAllSizes() {
+	private List<SizeResponseDto> fetchAllSizes() {
 
-        List<SizeResponseDto> sizes = new ArrayList<SizeResponseDto>();
+		List<SizeResponseDto> sizes = new ArrayList<SizeResponseDto>();
 
-        try {
+		try {
 
-            sizes = masterDataCache.getAllSizes();
+			sizes = masterDataApi.getAllSizes().getData();
+			// masterDataCache.getAllSizes();
 
-            log.info("sizes: {}", sizes);
+			log.info("sizes: {}", sizes);
 
-        } catch (Exception e) {
+		} catch (Exception e) {
 
-            log.error("Failed to fetch all sizes from master data service: ", e);
-        }
+			log.error("Failed to fetch all sizes from master data service: ", e);
+		}
 
-        return sizes;
-    }
+		return sizes;
+	}
 
-    private List<SizeGroupResponseDto> fetchAllSizeGroups() {
+	private List<SizeGroupResponseDto> fetchAllSizeGroups() {
 
-        List<SizeGroupResponseDto> sizeGroups = new ArrayList<SizeGroupResponseDto>();
+		List<SizeGroupResponseDto> sizeGroups = new ArrayList<SizeGroupResponseDto>();
 
-        try {
+		try {
 
-            sizeGroups = masterDataCache.getAllSizeGroups();
+			sizeGroups = masterDataApi.getAllSizeGroups().getData();
+			// masterDataCache.getAllSizeGroups();
 
-            log.info("sizeGroups: {}", sizeGroups);
+			log.info("sizeGroups: {}", sizeGroups);
 
-        } catch (Exception e) {
+		} catch (Exception e) {
 
-            log.error("Failed to fetch all sizeGroups from master data service: ", e);
-        }
+			log.error("Failed to fetch all sizeGroups from master data service: ", e);
+		}
 
-        return sizeGroups;
-    }
+		return sizeGroups;
+	}
 
-    public Map<String, ColorResponseDto> getColorByNameMap() {
+	public Map<String, ColorResponseDto> getColorByNameMap() {
 
-        return colorByNameMap;
-    }
+		return colorByNameMap;
+	}
 
-    public Map<String, DefectResponseDto> getDefectByNameMap() {
+	public Map<String, DefectResponseDto> getDefectByNameMap() {
 
-        return defectByNameMap;
-    }
+		return defectByNameMap;
+	}
 
-    public Map<String, FitResponseDto> getFitByNameMap() {
+	public Map<String, FitResponseDto> getFitByNameMap() {
 
-        return fitByNameMap;
-    }
+		return fitByNameMap;
+	}
 
-    public Map<String, PartResponseDto> getPartByNameMap() {
+	public Map<String, PartResponseDto> getPartByNameMap() {
 
-        return partByNameMap;
-    }
+		return partByNameMap;
+	}
 
-    public Map<String, ProductResponseDto> getProductByNameMap() {
+	public Map<String, ProductResponseDto> getProductByNameMap() {
 
-        return productByNameMap;
-    }
+		return productByNameMap;
+	}
 
-    public Map<String, ProductDefectResponseDto> getProductDefectByNameMap() {
+	public Map<String, ProductDefectResponseDto> getProductDefectByNameMap() {
 
-        return productDefectByNameMap;
-    }
+		return productDefectByNameMap;
+	}
 
-    public Map<String, SeasonResponseDto> getSeasonByNameMap() {
+	public Map<String, SeasonResponseDto> getSeasonByNameMap() {
 
-        return seasonByNameMap;
-    }
+		return seasonByNameMap;
+	}
 
-    public Map<String, SizeResponseDto> getSizeByNameMap() {
+	public Map<String, SizeResponseDto> getSizeByNameMap() {
 
-        return sizeByNameMap;
-    }
+		return sizeByNameMap;
+	}
 
-    public Map<String, SizeGroupResponseDto> getSizeGroupByNameMap() {
+	public Map<String, SizeGroupResponseDto> getSizeGroupByNameMap() {
 
-        return sizeGroupByNameMap;
-    }
+		return sizeGroupByNameMap;
+	}
 
-    class PopulateMap<T extends BaseResponseDto> {
+	class PopulateMap<T extends BaseResponseDto> {
 
-        private Map<String, T> populateMap(List<T> baseResponseDtos, Map<String, T> map) {
+		private Map<String, T> populateMap(List<T> baseResponseDtos, Map<String, T> map) {
 
-            return baseResponseDtos.stream().collect(Collectors.toMap(BaseResponseDto::getName, Function.identity()));
-        }
-    }
+			return baseResponseDtos.stream().collect(Collectors.toMap(BaseResponseDto::getName, Function.identity()));
+		}
+	}
 }
