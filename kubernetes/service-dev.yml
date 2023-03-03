@@ -6,7 +6,7 @@ spec:
   ports:
     - port: 80
       protocol: TCP
-      targetPort: 8004
+      targetPort: 8008
       name: http
   selector:
     app: order-management-service
