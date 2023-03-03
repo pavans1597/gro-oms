@@ -7,15 +7,10 @@ import java.util.Map;
 
 public interface CacheService {
 
-	/**
-	 * @param entity
-	 * @return
-	 */
+
 	Pair<String, Map<String, ?>> getEntitiesFromCache(String entity);
 
-	/**
-	 * @param entity
-	 */
+
 	void populateEntitiesInCache(String entity);
 
 }
