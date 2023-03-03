@@ -1,6 +1,8 @@
-package com.groyyo.order.management.config; /**
- *
- */
+package com.groyyo.order.management.config;
+
+/**
+*
+*/
 
 import java.beans.PropertyVetoException;
 import java.util.HashMap;
@@ -24,7 +26,7 @@ import com.groyyo.core.sqlPostgresJpa.CustomJpaVendor;
 import com.groyyo.core.sqlPostgresJpa.JpaConfigUtil;
 import com.groyyo.core.sqlPostgresJpa.RoutingDataSource;
 import com.groyyo.core.sqlPostgresJpa.enums.DbType;
-import com.zaxxer.hikari.HikariDataSource;
+import com.mchange.v2.c3p0.ComboPooledDataSource;
 
 /**
  * @author pavan
@@ -32,7 +34,7 @@ import com.zaxxer.hikari.HikariDataSource;
  **/
 @Configuration
 @EnableJpaAuditing
-@EnableJpaRepositories(entityManagerFactoryRef = "entityManager", transactionManagerRef = "transactionManager", basePackages = "${packages.repository}" )
+@EnableJpaRepositories(entityManagerFactoryRef = "entityManager", transactionManagerRef = "transactionManager", basePackages = "${packages.repository}")
 @EnableTransactionManagement
 public class DatabaseConfig {
 
@@ -51,11 +53,23 @@ public class DatabaseConfig {
 	@Value("${jdbc.acquire.increment}")
 	private int acquireIncrement;
 
+	@Value("${jdbc.max.statements}")
+	private int maxStatements;
+
+	@Value("${jdbc.max.idle.timing}")
+	private int maxIdleTime;
+
+	@Value("${jdbc.max.idle.time.excess.connections}")
+	private int maxIdleTimeExcessConnections;
+
 	@Value("${jdbc.checkout.timeout}")
 	private int checkoutTimeout;
 
 	@Value("${jdbc.preferred.test.query}")
 	private String preferredTestQuery;
+
+	@Value("${jdbc.test.connection.on.checkin:true}")
+	private boolean testConnectionOnCheckin;
 
 	// Master property
 	@Value("${jdbc.master.url}")
@@ -101,27 +115,34 @@ public class DatabaseConfig {
 
 	@Value("${packages.entitymanager}")
 	private String entityManagerPackages;
+
 	@Value("${packages.repository}")
 	private String repositoryPackages;
 
 	@Bean(name = "masterDataSource")
 	public DataSource masterDataSource() throws PropertyVetoException {
-		HikariDataSource dataSource = createPooledDataSource();
+		ComboPooledDataSource dataSource = createPooledDataSource();
+
 		JpaConfigUtil.configureDbCrendentials(dataSource, driverClassName, masterUrl, masterUsername, masterPassword);
+
 		return dataSource;
 	}
 
 	@Bean(name = "slaveDataSource")
 	public DataSource slaveDataSource() throws PropertyVetoException {
-		HikariDataSource dataSource = createPooledDataSource();
+		ComboPooledDataSource dataSource = createPooledDataSource();
+
 		JpaConfigUtil.configureDbCrendentials(dataSource, driverClassName, slaveUrl, slaveUsername, slavePassword);
+
 		return dataSource;
 	}
 
-	private HikariDataSource createPooledDataSource() {
-		HikariDataSource dataSource = new HikariDataSource();
+	private ComboPooledDataSource createPooledDataSource() {
+		ComboPooledDataSource dataSource = new ComboPooledDataSource();
+
 		JpaConfigUtil.configureDbPool(dataSource, initialPoolSize, minPoolSize, maxPoolSize, acquireIncrement);
-//        JpaConfigUtil.configureDbConnection(dataSource, maxStatements, maxIdleTime, maxIdleTimeExcessConnections, checkoutTimeout, preferredTestQuery, testConnectionOnCheckin);
+		JpaConfigUtil.configureDbConnection(dataSource, maxStatements, maxIdleTime, maxIdleTimeExcessConnections, checkoutTimeout, preferredTestQuery, testConnectionOnCheckin);
+
 		return dataSource;
 	}
 

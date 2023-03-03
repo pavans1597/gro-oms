@@ -1,7 +1,5 @@
 package com.groyyo.order.management.config;
 
-import java.net.URISyntaxException;
-import java.security.InvalidKeyException;
 import java.time.LocalDate;
 
 import org.springframework.beans.factory.annotation.Autowired;
