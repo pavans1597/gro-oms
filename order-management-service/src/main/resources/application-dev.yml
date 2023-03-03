@@ -124,6 +124,9 @@ kafka:
     autostart: 'false'
   base:
     topic: kafka-orderManagement-topic
+  master:
+    updates:
+      topic: master-data-updates
 
 ############### healthcheck spring properties ###############
 management:
