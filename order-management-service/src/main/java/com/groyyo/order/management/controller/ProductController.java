@@ -22,9 +22,6 @@ import com.groyyo.core.master.dto.response.ProductResponseDto;
 
 import lombok.extern.log4j.Log4j2;
 
-/**
- * @author nipunaggarwal
- */
 @Log4j2
 @RestController
 @RequestMapping("product")
