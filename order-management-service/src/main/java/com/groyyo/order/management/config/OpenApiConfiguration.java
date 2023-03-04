@@ -13,7 +13,7 @@ public class OpenApiConfiguration {
 
 	@Bean
 	public OpenAPI customOpenAPI() {
-		return new OpenAPI().info(apiInfo()).components(components());
+		return new OpenAPI().info(apiInfo());
 	}
 
 	private Info apiInfo() {
