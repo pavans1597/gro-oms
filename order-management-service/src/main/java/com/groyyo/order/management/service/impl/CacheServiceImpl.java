@@ -1,16 +1,24 @@
 package com.groyyo.order.management.service.impl;
 
-import com.groyyo.order.management.cache.MasterDataLocalCache;
-import com.groyyo.order.management.constants.CacheConstants;
-import com.groyyo.order.management.service.CacheService;
-import lombok.extern.log4j.Log4j2;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.Map;
+import com.groyyo.order.management.cache.MasterDataLocalCache;
+import com.groyyo.order.management.constants.CacheConstants;
+import com.groyyo.order.management.service.CacheService;
+import com.groyyo.order.management.service.ColorService;
+import com.groyyo.order.management.service.FitService;
+import com.groyyo.order.management.service.PartService;
+import com.groyyo.order.management.service.ProductService;
+import com.groyyo.order.management.service.SeasonService;
+import com.groyyo.order.management.service.SizeGroupService;
+import com.groyyo.order.management.service.SizeService;
 
+import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 @Service
@@ -18,6 +26,27 @@ public class CacheServiceImpl implements CacheService {
 
 	@Autowired
 	private MasterDataLocalCache masterDataLocalCache;
+
+	@Autowired
+	private ColorService colorService;
+
+	@Autowired
+	private FitService fitService;
+
+	@Autowired
+	private PartService partService;
+
+	@Autowired
+	private ProductService productService;
+
+	@Autowired
+	private SeasonService seasonService;
+
+	@Autowired
+	private SizeGroupService sizeGroupService;
+
+	@Autowired
+	private SizeService sizeService;
 
 	@Override
 	public Pair<String, Map<String, ?>> getEntitiesFromCache(String entity) {
@@ -124,4 +153,60 @@ public class CacheServiceImpl implements CacheService {
 		}
 	}
 
+	@Override
+	public void saveEntitiesFromCache(String entity) {
+		log.info("Going to save entity: {} from cache ", entity);
+
+		switch (entity) {
+
+		case CacheConstants.COLOR:
+			colorService.saveEntityFromCache(masterDataLocalCache.getColorByNameMap());
+			break;
+
+		case CacheConstants.DEFECT:
+			// TODO implementation to be added
+			break;
+
+		case CacheConstants.FIT:
+			fitService.saveEntityFromCache(masterDataLocalCache.getFitByNameMap());
+			break;
+
+		case CacheConstants.PART:
+			partService.saveEntityFromCache(masterDataLocalCache.getPartByNameMap());
+			break;
+
+		case CacheConstants.PRODUCT:
+			productService.saveEntityFromCache(masterDataLocalCache.getProductByNameMap());
+			break;
+
+		case CacheConstants.PRODUCT_DEFECT:
+			// TODO implementation to be added
+			break;
+
+		case CacheConstants.SEASON:
+			seasonService.saveEntityFromCache(masterDataLocalCache.getSeasonByNameMap());
+			break;
+
+		case CacheConstants.SIZE:
+			sizeService.saveEntityFromCache(masterDataLocalCache.getSizeByNameMap());
+			break;
+
+		case CacheConstants.SIZE_GROUP:
+			sizeGroupService.saveEntityFromCache(masterDataLocalCache.getSizeGroupByNameMap());
+			break;
+
+		default:
+			log.error("No valid entity values to save from cache. Allowed values are: ", CacheConstants.ENTITY_LIST_POPULATE);
+			break;
+		}
+	}
+
+	@Override
+	public void saveAllEntitiesFromCache() {
+
+		CacheConstants.ENTITY_LIST_SAVE.forEach(entity -> {
+
+			saveEntitiesFromCache(entity);
+		});
+	}
 }

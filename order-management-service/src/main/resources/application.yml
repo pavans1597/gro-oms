@@ -23,7 +23,7 @@ enable:
 ########## Cache Config ##############
 cache:
   masterData:
-    enable: 'false'
+    enable: 'true'
 
 ########## Services URL's ##############
 service:
@@ -123,6 +123,8 @@ spring:
     bootstrap-servers: pkc-7prvp.centralindia.azure.confluent.cloud:9092
   application:
     name: order-management-service
+  main:
+    allow-circular-references: true
 
 ############## Kafka Topics #############
 kafka:

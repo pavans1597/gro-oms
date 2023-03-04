@@ -14,7 +14,6 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
-
 @Getter
 @Setter
 @SuperBuilder
@@ -22,15 +21,18 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @ToString(callSuper = true)
 @Entity(name = "color")
-@Table(name = "color", uniqueConstraints = {@UniqueConstraint(name = "UK_color_name", columnNames = {"name"}),
-        @UniqueConstraint(name = "UK_hex_code", columnNames = {"hex_code"})})
+@Table(name = "color", uniqueConstraints = { @UniqueConstraint(name = "UK_color_name", columnNames = { "name" }),
+		@UniqueConstraint(name = "UK_hex_code", columnNames = { "hex_code" }) })
 public class Color extends AbstractJpaEntity {
-    private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
-    @Column(name = "name", columnDefinition = "varchar(100)", nullable = false)
-    private String name;
+	@Column(name = "name", columnDefinition = "varchar(100)", nullable = false)
+	private String name;
 
-    @Column(name = "hex_code", columnDefinition = "varchar(100)", nullable = false)
-    private String hexCode;
+	@Column(name = "hex_code", columnDefinition = "varchar(100)", nullable = false)
+	private String hexCode;
+
+	@Column(name = "master_id", columnDefinition = "char(40)", nullable = true)
+	private String masterId;
 
 }

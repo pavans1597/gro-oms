@@ -1,29 +1,27 @@
 package com.groyyo.order.management.service;
 
-
 import java.util.List;
+import java.util.Map;
 
 import com.groyyo.core.master.dto.request.ProductRequestDto;
 import com.groyyo.core.master.dto.response.ProductResponseDto;
 
-
 public interface ProductService {
 
+	List<ProductResponseDto> getAllProducts(Boolean status);
 
-    List<ProductResponseDto> getAllProducts(Boolean status);
+	ProductResponseDto getProductById(String id);
 
+	ProductResponseDto addProduct(ProductRequestDto productRequestDto);
 
-    ProductResponseDto getProductById(String id);
+	ProductResponseDto updateProduct(ProductRequestDto productRequestDto);
 
+	ProductResponseDto activateDeactivateProduct(String id, boolean status);
 
-    ProductResponseDto addProduct(ProductRequestDto productRequestDto);
+	void consumeProduct(ProductResponseDto productResponseDto);
 
-
-    ProductResponseDto updateProduct(ProductRequestDto productRequestDto);
-
-
-    ProductResponseDto activateDeactivateProduct(String id, boolean status);
-
-
-    void consumeProduct(ProductResponseDto productResponseDto);
+	/**
+	 * @param productByNameMap
+	 */
+	void saveEntityFromCache(Map<String, ProductResponseDto> productByNameMap);
 }

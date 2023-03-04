@@ -1,6 +1,7 @@
 package com.groyyo.order.management.service;
 
 import java.util.List;
+import java.util.Map;
 
 import com.groyyo.core.master.dto.request.SeasonRequestDto;
 import com.groyyo.core.master.dto.response.SeasonResponseDto;
@@ -11,40 +12,44 @@ import com.groyyo.core.master.dto.response.SeasonResponseDto;
  */
 public interface SeasonService {
 
-    /**
-     * @param status
-     * @return
-     */
-    List<SeasonResponseDto> getAllSeasons(Boolean status);
+	/**
+	 * @param status
+	 * @return
+	 */
+	List<SeasonResponseDto> getAllSeasons(Boolean status);
 
-    /**
-     * @param id
-     * @return
-     */
-    SeasonResponseDto getSeasonById(String id);
+	/**
+	 * @param id
+	 * @return
+	 */
+	SeasonResponseDto getSeasonById(String id);
 
-    /**
-     * @param seasonRequestDto
-     * @return
-     */
-    SeasonResponseDto addSeason(SeasonRequestDto seasonRequestDto);
+	/**
+	 * @param seasonRequestDto
+	 * @return
+	 */
+	SeasonResponseDto addSeason(SeasonRequestDto seasonRequestDto);
 
-    /**
-     * @param seasonRequestDto
-     * @return
-     */
-    SeasonResponseDto updateSeason(SeasonRequestDto seasonRequestDto);
+	/**
+	 * @param seasonRequestDto
+	 * @return
+	 */
+	SeasonResponseDto updateSeason(SeasonRequestDto seasonRequestDto);
 
-    /**
-     * @param id
-     * @param status
-     * @return
-     */
-    SeasonResponseDto activateDeactivateSeason(String id, boolean status);
+	/**
+	 * @param id
+	 * @param status
+	 * @return
+	 */
+	SeasonResponseDto activateDeactivateSeason(String id, boolean status);
 
-    /**
-     * @param seasonResponseDto
-     */
-    void consumeSeason(SeasonResponseDto seasonResponseDto);
+	/**
+	 * @param seasonResponseDto
+	 */
+	void consumeSeason(SeasonResponseDto seasonResponseDto);
+
+	/**
+	 * @param seasonByNameMap
+	 */
+	void saveEntityFromCache(Map<String, SeasonResponseDto> seasonByNameMap);
 }
-

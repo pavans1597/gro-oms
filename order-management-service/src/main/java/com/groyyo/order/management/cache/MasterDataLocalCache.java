@@ -26,6 +26,7 @@ import com.groyyo.core.master.dto.response.SeasonResponseDto;
 import com.groyyo.core.master.dto.response.SizeGroupResponseDto;
 import com.groyyo.core.master.dto.response.SizeResponseDto;
 import com.groyyo.core.masterData.client.api.MasterDataApi;
+import com.groyyo.order.management.service.CacheService;
 
 import lombok.extern.log4j.Log4j2;
 
@@ -43,13 +44,18 @@ public class MasterDataLocalCache {
 	@Autowired
 	private MasterDataApi masterDataApi;
 
+	@Autowired
+	private CacheService cacheService;
+
 	@PostConstruct
 	public void init() {
 
-		if (cacheMasterDataEnable)
+		if (cacheMasterDataEnable) {
 			refreshCache();
-		else
+			saveCache();
+		} else {
 			log.info("Not hitting the master-data-service to populate master data as cache is disabled");
+		}
 	}
 
 	private Map<String, ColorResponseDto> colorByNameMap = new HashMap<String, ColorResponseDto>();
@@ -76,6 +82,14 @@ public class MasterDataLocalCache {
 		populateAllSeasons();
 		populateAllSizes();
 		populateAllSizeGroups();
+	}
+
+	/**
+	 * 
+	 */
+	private void saveCache() {
+
+		cacheService.saveAllEntitiesFromCache();
 	}
 
 	/**
