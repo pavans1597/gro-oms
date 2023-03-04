@@ -19,7 +19,7 @@ server:
 ########## Services URL's ##############
 service:
   user:
-    url: https://preproderp.groyyo.com/user
+    url: https://groyyoconsoledev.groyyo.com/user-service
   masterData:
     url: https://groyyoconsoledev.groyyo.com/master-data-service
 
@@ -138,6 +138,8 @@ management:
   endpoint:
     health:
       show-details: 'ALWAYS'
+      
+############### package config ###############
 packages:
   repository:    com.groyyo.order.management.repository
   entityManager:  com.groyyo.order.management.entity

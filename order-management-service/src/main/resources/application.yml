@@ -17,8 +17,8 @@ server:
 ########## Auth Config ##############
 enable:
   cors: 'true'
-  authentication: 'false'
   authorize: 'false'
+  authentication: 'false'
 
 ########## Cache Config ##############
 cache:
@@ -34,7 +34,7 @@ service:
   raven:
     url: https://api.ravenapp.dev/v1
 
-    ############## Hibernate Configuration ##############
+############## Hibernate Configuration ##############
 hibernate:
   format_sql: 'true'
   dialect: org.hibernate.dialect.PostgreSQL92Dialect
@@ -77,11 +77,11 @@ jdbc:
     increment: '2'
   slave:
     url: jdbc:postgresql://localhost:5432/order_management_service?createDatabaseIfNotExist=true
-    username: gagansoni
+    username: postgres
     password: root
   master:
     url: jdbc:postgresql://localhost:5432/order_management_service?createDatabaseIfNotExist=true
-    username: gagansoni
+    username: postgres
     password: root
   checkout:
     timeout: '5000'
@@ -144,6 +144,8 @@ management:
   endpoint:
     health:
       show-details: 'ALWAYS'
+      
+############### package config ###############
 packages:
   repository:    com.groyyo.order.management.repository
   entityManager:  com.groyyo.order.management.entity

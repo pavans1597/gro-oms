@@ -1,17 +1,12 @@
 package com.groyyo.order.management.config;
 
-import org.springdoc.core.customizers.GlobalOpenApiCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import io.swagger.v3.oas.annotations.enums.ParameterIn;
-import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
-import io.swagger.v3.oas.models.parameters.HeaderParameter;
-import io.swagger.v3.oas.models.security.SecurityScheme;
 
 @Configuration
 public class OpenApiConfiguration {
@@ -41,20 +36,4 @@ public class OpenApiConfiguration {
 				.url("https://www.groyyo.com");
 	}
 
-	private Components components() {
-		return new Components()
-				.addSecuritySchemes("ApiKeyHeader", new SecurityScheme()
-						.type(SecurityScheme.Type.APIKEY)
-						.in(SecurityScheme.In.HEADER)
-						.name("X-TENANT-ID"));
-	}
-
-	@Bean
-	public GlobalOpenApiCustomizer customizer() {
-		return openApi -> openApi.getPaths().values().stream().flatMap(pathItem -> pathItem.readOperations().stream())
-				.forEach(operation -> operation.addParametersItem(new HeaderParameter().name("X-TENANT-ID")
-						.description("Tenant Id")
-						.in(ParameterIn.HEADER.toString())
-						.required(false)));
-	}
 }

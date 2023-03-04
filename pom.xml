@@ -25,8 +25,9 @@
 		<module>../core-utils/pojo</module>
 		<module>../core-utils/kafka</module>
 		<module>../core-utils/azureblob</module>
-<!--		<module>../core-utils/multitenancy-client</module>-->
 		<module>../core-utils/master-data-client</module>
+		<module>../core-utils/security</module>
+		<module>../core-utils/user-client</module>
 	</modules>
 
 	<build>
