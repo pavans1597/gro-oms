@@ -1,8 +1,20 @@
-package com.groyyo.order.dto.request;
+package com.groyyo.order.management.dto.request;
 
-public class StyleRequestDto {
+import com.groyyo.core.master.dto.request.BaseRequestDto;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+import lombok.experimental.SuperBuilder;
 
-    private String style_number;
+@Getter
+@Setter
+@SuperBuilder
+@NoArgsConstructor
+@ToString(callSuper = true)
+public class StyleRequestDto extends BaseRequestDto {
+
+    private String styleNumber;
 
     private String image;
 

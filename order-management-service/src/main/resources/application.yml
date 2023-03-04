@@ -20,6 +20,11 @@ enable:
   authentication: 'false'
   authorize: 'false'
 
+########## Cache Config ##############
+cache:
+  masterData:
+    enable: 'false'
+
 ########## Services URL's ##############
 service:
   user:
@@ -44,15 +49,21 @@ hibernate:
 ################# Postgresql JDBC Connection config ###############
 jdbc:
   max:
+    statements: 240
+    idle:
+      time:
+        excess:
+          connections: 20
+      timing: 30
     pool:
-      size: '8'
+      size: '20'
   min:
     pool:
       size: '2'
-  slave:
-    url: jdbc:postgresql://localhost:5432/qc23?createDatabaseIfNotExist=true
-    username: pavan
-    password:
+  test:
+    connection:
+      on:
+        checkin: true
   initial:
     pool:
       size: '2'
@@ -64,16 +75,16 @@ jdbc:
       query: SELECT 1
   acquire:
     increment: '2'
+  slave:
+    url: jdbc:postgresql://localhost:5432/order_management_service?createDatabaseIfNotExist=true
+    username: gagansoni
+    password: root
   master:
-    url: jdbc:postgresql://localhost:5432/qc23?createDatabaseIfNotExist=true
-    username: pavan
-    password:
+    url: jdbc:postgresql://localhost:5432/order_management_service?createDatabaseIfNotExist=true
+    username: gagansoni
+    password: root
   checkout:
     timeout: '5000'
-  test:
-    connection:
-      on:
-        checkin: 'true'
 
 ################## Kafka Properties ####################
 spring:
@@ -104,12 +115,12 @@ spring:
           request:
             size: '21943040'
       retries: '1'
-    client-id: qualityManagementServiceClient
+    client-id: orderManagementServiceClient
     listener:
       type: batch
     admin:
       fail-fast: 'true'
-    bootstrap-servers: localhost:9092
+    bootstrap-servers: pkc-7prvp.centralindia.azure.confluent.cloud:9092
   application:
     name: order-management-service
 
@@ -117,8 +128,12 @@ spring:
 kafka:
   consumer:
     autostart: 'false'
-  notification:
-    topic: kafka-order-management-topic
+  base:
+    topic: kafka-orderManagement-topic
+  master:
+    updates:
+      topic: master-data-updates
+
 ############### healthcheck spring properties ###############
 management:
   health:

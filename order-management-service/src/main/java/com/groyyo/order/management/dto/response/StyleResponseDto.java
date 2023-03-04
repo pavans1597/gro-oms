@@ -1,4 +1,23 @@
-package com.groyyo.order.dto.response;
+package com.groyyo.order.management.dto.response;
 
-public class StyleResponseDto {
+import com.groyyo.core.master.dto.response.BaseResponseDto;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+import lombok.experimental.SuperBuilder;
+
+@Getter
+@Setter
+@SuperBuilder
+@NoArgsConstructor
+@ToString(callSuper = true)
+public class StyleResponseDto extends BaseResponseDto {
+    private String styleNumber;
+
+    private String image;
+
+    private String cadImage;
+
+    private String productId;
 }

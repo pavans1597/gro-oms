@@ -54,6 +54,4 @@ public class SizeGroupDbServiceImpl extends AbstractJpaServiceImpl<SizeGroup, Lo
         return Objects.nonNull(sizeGroupRepository.findByName(name));
     }
 
-    public static class PurchaseOrderQuantityDbService {
-    }
 }

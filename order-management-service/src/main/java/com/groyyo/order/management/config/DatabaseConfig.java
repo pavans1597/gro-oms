@@ -1,8 +1,5 @@
 package com.groyyo.order.management.config;
 
-/**
-*
-*/
 
 import java.beans.PropertyVetoException;
 import java.util.HashMap;
@@ -28,10 +25,7 @@ import com.groyyo.core.sqlPostgresJpa.RoutingDataSource;
 import com.groyyo.core.sqlPostgresJpa.enums.DbType;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 
-/**
- * @author pavan
- *
- **/
+
 @Configuration
 @EnableJpaAuditing
 @EnableJpaRepositories(entityManagerFactoryRef = "entityManager", transactionManagerRef = "transactionManager", basePackages = "${packages.repository}")
