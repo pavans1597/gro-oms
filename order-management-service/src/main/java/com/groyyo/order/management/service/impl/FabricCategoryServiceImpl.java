@@ -82,11 +82,7 @@ public class FabricCategoryServiceImpl implements FabricCategoryService {
             return null;
         }
 
-        FabricCategoryResponseDto fabricCategoryResponseDto = FabricCategoryAdapter.buildResponseFromEntity(fabricCategory);
-
-        publishFabricCategory(fabricCategoryResponseDto, KafkaConstants.KAFKA_COLOR_TYPE, KafkaConstants.KAFKA_COLOR_SUBTYPE_CREATE, kafkaMasterDataUpdatesTopic);
-
-        return fabricCategoryResponseDto;
+        return FabricCategoryAdapter.buildResponseFromEntity(fabricCategory);
     }
 
     @Override
@@ -107,11 +103,8 @@ public class FabricCategoryServiceImpl implements FabricCategoryService {
 
         fabricCategoryDbService.saveFabricCategory(fabricCategory);
 
-        FabricCategoryResponseDto fabricCategoryResponseDto = FabricCategoryAdapter.buildResponseFromEntity(fabricCategory);
 
-        publishFabricCategory(fabricCategoryResponseDto, KafkaConstants.KAFKA_COLOR_TYPE, KafkaConstants.KAFKA_COLOR_SUBTYPE_UPDATE, kafkaMasterDataUpdatesTopic);
-
-        return fabricCategoryResponseDto;
+        return FabricCategoryAdapter.buildResponseFromEntity(fabricCategory);
     }
 
     @Override

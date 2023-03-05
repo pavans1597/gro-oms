@@ -85,11 +85,7 @@ public class ColorServiceImpl implements ColorService {
 			return null;
 		}
 
-		ColorResponseDto colorResponseDto = ColorAdapter.buildResponseFromEntity(color);
-
-		//publishColor(colorResponseDto, KafkaConstants.KAFKA_COLOR_TYPE, KafkaConstants.KAFKA_COLOR_SUBTYPE_CREATE, kafkaMasterDataUpdatesTopic);
-
-		return colorResponseDto;
+		return ColorAdapter.buildResponseFromEntity(color);
 	}
 
 	@Override
@@ -110,11 +106,7 @@ public class ColorServiceImpl implements ColorService {
 
 		colorDbService.saveColor(color);
 
-		ColorResponseDto colorResponseDto = ColorAdapter.buildResponseFromEntity(color);
-
-		publishColor(colorResponseDto, KafkaConstants.KAFKA_COLOR_TYPE, KafkaConstants.KAFKA_COLOR_SUBTYPE_UPDATE, kafkaMasterDataUpdatesTopic);
-
-		return colorResponseDto;
+		return ColorAdapter.buildResponseFromEntity(color);
 	}
 
 	@Override

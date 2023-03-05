@@ -82,11 +82,8 @@ public class FabricServiceImpl implements FabricService {
             return null;
         }
 
-        FabricResponseDto fabricResponseDto = FabricAdapter.buildResponseFromEntity(fabric);
 
-        publishFabric(fabricResponseDto, KafkaConstants.KAFKA_COLOR_TYPE, KafkaConstants.KAFKA_COLOR_SUBTYPE_CREATE, kafkaMasterDataUpdatesTopic);
-
-        return fabricResponseDto;
+        return FabricAdapter.buildResponseFromEntity(fabric);
     }
 
     @Override
@@ -107,11 +104,8 @@ public class FabricServiceImpl implements FabricService {
 
         fabricDbService.saveFabric(fabric);
 
-        FabricResponseDto fabricResponseDto = FabricAdapter.buildResponseFromEntity(fabric);
 
-        publishFabric(fabricResponseDto, KafkaConstants.KAFKA_COLOR_TYPE, KafkaConstants.KAFKA_COLOR_SUBTYPE_UPDATE, kafkaMasterDataUpdatesTopic);
-
-        return fabricResponseDto;
+        return FabricAdapter.buildResponseFromEntity(fabric);
     }
 
     @Override

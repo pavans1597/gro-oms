@@ -83,11 +83,9 @@ public class BuyerServiceImpl implements BuyerService {
 			return null;
 		}
 
-		BuyerResponseDto buyerResponseDto = BuyerAdapter.buildResponseFromEntity(buyer);
+		//        publishBuyer(buyerResponseDto, KafkaConstants.KAFKA_SIZE_TYPE, KafkaConstants.KAFKA_SIZE_SUBTYPE_CREATE, kafkaMasterDataUpdatesTopic);
 
-//        publishBuyer(buyerResponseDto, KafkaConstants.KAFKA_SIZE_TYPE, KafkaConstants.KAFKA_SIZE_SUBTYPE_CREATE, kafkaMasterDataUpdatesTopic);
-
-		return buyerResponseDto;
+		return BuyerAdapter.buildResponseFromEntity(buyer);
 	}
 
 	@Override

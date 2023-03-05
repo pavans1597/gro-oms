@@ -84,12 +84,10 @@ public class SizeServiceImpl implements SizeService {
 			return null;
 		}
 
-		SizeResponseDto sizeResponseDto = SizeAdapter.buildResponseFromEntity(size);
-
 		// publishSize(sizeResponseDto, KafkaConstants.KAFKA_SIZE_TYPE,
 		// KafkaConstants.KAFKA_SIZE_SUBTYPE_CREATE, kafkaMasterDataUpdatesTopic);
 
-		return sizeResponseDto;
+		return SizeAdapter.buildResponseFromEntity(size);
 	}
 
 	@Override
@@ -110,11 +108,9 @@ public class SizeServiceImpl implements SizeService {
 
 		sizeDbService.saveSize(size);
 
-		SizeResponseDto sizeResponseDto = SizeAdapter.buildResponseFromEntity(size);
+		//        publishSize(sizeResponseDto, KafkaConstants.KAFKA_SIZE_TYPE, KafkaConstants.KAFKA_SIZE_SUBTYPE_UPDATE, kafkaMasterDataUpdatesTopic);
 
-//        publishSize(sizeResponseDto, KafkaConstants.KAFKA_SIZE_TYPE, KafkaConstants.KAFKA_SIZE_SUBTYPE_UPDATE, kafkaMasterDataUpdatesTopic);
-
-		return sizeResponseDto;
+		return SizeAdapter.buildResponseFromEntity(size);
 	}
 
 	@Override

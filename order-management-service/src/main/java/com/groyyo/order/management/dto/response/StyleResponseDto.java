@@ -13,6 +13,8 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @ToString(callSuper = true)
 public class StyleResponseDto extends BaseResponseDto {
+
+    private String Id;
     private String styleNumber;
 
     private String image;

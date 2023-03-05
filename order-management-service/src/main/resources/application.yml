@@ -23,14 +23,14 @@ enable:
 ########## Cache Config ##############
 cache:
   masterData:
-    enable: 'true'
+    enable: 'false'
 
 ########## Services URL's ##############
 service:
   user:
     url: https://preproderp.groyyo.com/user
   masterData:
-    url: http://localhost:8003/master-data-service
+    url: https://groyyoconsoledev.groyyo.com/master-data-service
   raven:
     url: https://api.ravenapp.dev/v1
 
