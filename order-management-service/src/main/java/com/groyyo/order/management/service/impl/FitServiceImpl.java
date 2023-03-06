@@ -85,11 +85,8 @@ public class FitServiceImpl implements FitService {
 			return null;
 		}
 
-		FitResponseDto fitResponseDto = FitAdapter.buildResponseFromEntity(fit);
 
-		//publishFit(fitResponseDto, KafkaConstants.KAFKA_FIT_TYPE, KafkaConstants.KAFKA_FIT_SUBTYPE_CREATE, kafkaMasterDataUpdatesTopic);
-
-		return fitResponseDto;
+		return FitAdapter.buildResponseFromEntity(fit);
 	}
 
 	@Override
@@ -110,11 +107,8 @@ public class FitServiceImpl implements FitService {
 
 		fitDbService.saveFit(fit);
 
-		FitResponseDto fitResponseDto = FitAdapter.buildResponseFromEntity(fit);
 
-		publishFit(fitResponseDto, KafkaConstants.KAFKA_FIT_TYPE, KafkaConstants.KAFKA_FIT_SUBTYPE_UPDATE, kafkaMasterDataUpdatesTopic);
-
-		return fitResponseDto;
+		return FitAdapter.buildResponseFromEntity(fit);
 	}
 
 	@Override

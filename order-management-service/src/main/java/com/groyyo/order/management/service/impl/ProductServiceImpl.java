@@ -85,12 +85,10 @@ public class ProductServiceImpl implements ProductService {
 			return null;
 		}
 
-		ProductResponseDto productResponseDto = ProductAdapter.buildResponseFromEntity(product);
-
 		// publishProduct(productResponseDto, KafkaConstants.KAFKA_PRODUCT_TYPE,
 		// KafkaConstants.KAFKA_PRODUCT_SUBTYPE_CREATE, kafkaMasterDataUpdatesTopic);
 
-		return productResponseDto;
+		return ProductAdapter.buildResponseFromEntity(product);
 	}
 
 	@Override
@@ -111,11 +109,9 @@ public class ProductServiceImpl implements ProductService {
 
 		productDbService.saveProduct(product);
 
-		ProductResponseDto productResponseDto = ProductAdapter.buildResponseFromEntity(product);
+		//		publishProduct(productResponseDto, KafkaConstants.KAFKA_PRODUCT_TYPE, KafkaConstants.KAFKA_PRODUCT_SUBTYPE_UPDATE, kafkaMasterDataUpdatesTopic);
 
-		publishProduct(productResponseDto, KafkaConstants.KAFKA_PRODUCT_TYPE, KafkaConstants.KAFKA_PRODUCT_SUBTYPE_UPDATE, kafkaMasterDataUpdatesTopic);
-
-		return productResponseDto;
+		return ProductAdapter.buildResponseFromEntity(product);
 	}
 
 	@Override

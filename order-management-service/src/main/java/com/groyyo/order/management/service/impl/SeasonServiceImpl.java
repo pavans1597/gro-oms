@@ -89,12 +89,10 @@ public class SeasonServiceImpl implements SeasonService {
 			return null;
 		}
 
-		SeasonResponseDto seasonResponseDto = SeasonAdapter.buildResponseFromEntity(season);
-
 		// publishSeason(seasonResponseDto, KafkaConstants.KAFKA_SEASON_TYPE,
 		// KafkaConstants.KAFKA_SEASON_SUBTYPE_CREATE, kafkaMasterDataUpdatesTopic);
 
-		return seasonResponseDto;
+		return SeasonAdapter.buildResponseFromEntity(season);
 	}
 
 	@Override

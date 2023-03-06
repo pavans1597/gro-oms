@@ -29,168 +29,163 @@ import lombok.extern.log4j.Log4j2;
 @Log4j2
 public class PartServiceImpl implements PartService {
 
-	@Value("${kafka.master.updates.topic}")
-	private String kafkaMasterDataUpdatesTopic;
+    @Value("${kafka.master.updates.topic}")
+    private String kafkaMasterDataUpdatesTopic;
 
-	@Autowired
-	private NotificationProducer notificationProducer;
+    @Autowired
+    private NotificationProducer notificationProducer;
 
-	@Autowired
-	private PartDbService partDbService;
+    @Autowired
+    private PartDbService partDbService;
 
-	@Override
-	public List<PartResponseDto> getAllParts(Boolean status) {
+    @Override
+    public List<PartResponseDto> getAllParts(Boolean status) {
 
-		log.info("Serving request to get all parts");
+        log.info("Serving request to get all parts");
 
-		List<Part> partEntities = Objects.isNull(status) ? partDbService.getAllParts()
-				: partDbService.getAllPartsForStatus(status);
+        List<Part> partEntities = Objects.isNull(status) ? partDbService.getAllParts()
+                : partDbService.getAllPartsForStatus(status);
 
-		if (CollectionUtils.isEmpty(partEntities)) {
-			log.error("No Parts found in the system");
-			return new ArrayList<PartResponseDto>();
-		}
+        if (CollectionUtils.isEmpty(partEntities)) {
+            log.error("No Parts found in the system");
+            return new ArrayList<PartResponseDto>();
+        }
 
-		return PartAdapter.buildResponsesFromEntities(partEntities);
-	}
+        return PartAdapter.buildResponsesFromEntities(partEntities);
+    }
 
-	@Override
-	public PartResponseDto getPartById(String id) {
+    @Override
+    public PartResponseDto getPartById(String id) {
 
-		log.info("Serving request to get a part by id:{}", id);
+        log.info("Serving request to get a part by id:{}", id);
 
-		Part part = partDbService.getPartById(id);
+        Part part = partDbService.getPartById(id);
 
-		if (Objects.isNull(part)) {
-			String errorMsg = "Part with id: " + id + " not found in the system ";
-			throw new NoRecordException(errorMsg);
-		}
+        if (Objects.isNull(part)) {
+            String errorMsg = "Part with id: " + id + " not found in the system ";
+            throw new NoRecordException(errorMsg);
+        }
 
-		return PartAdapter.buildResponseFromEntity(part);
-	}
+        return PartAdapter.buildResponseFromEntity(part);
+    }
 
-	@Override
-	public PartResponseDto addPart(PartRequestDto partRequestDto) {
+    @Override
+    public PartResponseDto addPart(PartRequestDto partRequestDto) {
 
-		log.info("Serving request to add a part with request object:{}", partRequestDto);
+        log.info("Serving request to add a part with request object:{}", partRequestDto);
 
-		runValidations(partRequestDto);
+        runValidations(partRequestDto);
 
-		Part part = PartAdapter.buildPartFromRequest(partRequestDto);
+        Part part = PartAdapter.buildPartFromRequest(partRequestDto);
 
-		part = partDbService.savePart(part);
+        part = partDbService.savePart(part);
 
-		if (Objects.isNull(part)) {
-			log.error("Unable to add part for object: {}", partRequestDto);
-			return null;
-		}
+        if (Objects.isNull(part)) {
+            log.error("Unable to add part for object: {}", partRequestDto);
+            return null;
+        }
 
-		PartResponseDto partResponseDto = PartAdapter.buildResponseFromEntity(part);
+        // publishPart(partResponseDto, KafkaConstants.KAFKA_PART_TYPE,
+        // KafkaConstants.KAFKA_PART_SUBTYPE_CREATE, kafkaMasterDataUpdatesTopic);
 
-		// publishPart(partResponseDto, KafkaConstants.KAFKA_PART_TYPE,
-		// KafkaConstants.KAFKA_PART_SUBTYPE_CREATE, kafkaMasterDataUpdatesTopic);
+        return PartAdapter.buildResponseFromEntity(part);
+    }
 
-		return partResponseDto;
-	}
+    @Override
+    public PartResponseDto updatePart(PartRequestDto partRequestDto) {
 
-	@Override
-	public PartResponseDto updatePart(PartRequestDto partRequestDto) {
+        log.info("Serving request to update a part with request object:{}", partRequestDto);
 
-		log.info("Serving request to update a part with request object:{}", partRequestDto);
+        Part part = partDbService.getPartById(partRequestDto.getId());
 
-		Part part = partDbService.getPartById(partRequestDto.getId());
+        if (Objects.isNull(part)) {
+            log.error("Part with id: {} not found in the system", partRequestDto.getId());
+            return null;
+        }
 
-		if (Objects.isNull(part)) {
-			log.error("Part with id: {} not found in the system", partRequestDto.getId());
-			return null;
-		}
+        runValidations(partRequestDto);
 
-		runValidations(partRequestDto);
+        part = PartAdapter.clonePartWithRequest(partRequestDto, part);
 
-		part = PartAdapter.clonePartWithRequest(partRequestDto, part);
+        partDbService.savePart(part);
 
-		partDbService.savePart(part);
+        //		publishPart(partResponseDto, KafkaConstants.KAFKA_PART_TYPE, KafkaConstants.KAFKA_PART_SUBTYPE_UPDATE, kafkaMasterDataUpdatesTopic);
+        return PartAdapter.buildResponseFromEntity(part);
+    }
 
-		PartResponseDto partResponseDto = PartAdapter.buildResponseFromEntity(part);
+    @Override
+    public PartResponseDto activateDeactivatePart(String id, boolean status) {
 
-		publishPart(partResponseDto, KafkaConstants.KAFKA_PART_TYPE, KafkaConstants.KAFKA_PART_SUBTYPE_UPDATE, kafkaMasterDataUpdatesTopic);
+        log.info("Serving request to activate / deactivate a part with id:{}", id);
 
-		return partResponseDto;
-	}
+        Part part = partDbService.getPartById(id);
 
-	@Override
-	public PartResponseDto activateDeactivatePart(String id, boolean status) {
+        if (Objects.isNull(part)) {
+            String errorMsg = "Part with id: " + id + " not found in the system ";
+            throw new NoRecordException(errorMsg);
+        }
 
-		log.info("Serving request to activate / deactivate a part with id:{}", id);
+        part = partDbService.activateDeactivatePart(part, status);
 
-		Part part = partDbService.getPartById(id);
+        return PartAdapter.buildResponseFromEntity(part);
+    }
 
-		if (Objects.isNull(part)) {
-			String errorMsg = "Part with id: " + id + " not found in the system ";
-			throw new NoRecordException(errorMsg);
-		}
+    private void publishPart(PartResponseDto partResponseDto, String type, String subType, String topicName) {
 
-		part = partDbService.activateDeactivatePart(part, status);
+        KafkaDTO kafkaDTO = new KafkaDTO(type, subType, PartResponseDto.class.getName(), partResponseDto);
+        notificationProducer.publish(topicName, kafkaDTO.getClassName(), kafkaDTO);
+    }
 
-		return PartAdapter.buildResponseFromEntity(part);
-	}
+    @Override
+    public void consumePart(PartResponseDto partResponseDto) {
+        Part part = PartAdapter.buildPartFromResponse(partResponseDto);
 
-	private void publishPart(PartResponseDto partResponseDto, String type, String subType, String topicName) {
+        if (Objects.isNull(part)) {
+            log.error("Unable to build part from response object: {}", partResponseDto);
+            return;
+        }
 
-		KafkaDTO kafkaDTO = new KafkaDTO(type, subType, PartResponseDto.class.getName(), partResponseDto);
-		notificationProducer.publish(topicName, kafkaDTO.getClassName(), kafkaDTO);
-	}
+        partDbService.savePart(part);
+    }
 
-	@Override
-	public void consumePart(PartResponseDto partResponseDto) {
-		Part part = PartAdapter.buildPartFromResponse(partResponseDto);
+    @Override
+    public void saveEntityFromCache(Map<String, PartResponseDto> partByNameMap) {
 
-		if (Objects.isNull(part)) {
-			log.error("Unable to build part from response object: {}", partResponseDto);
-			return;
-		}
+        partByNameMap.values().forEach(partResponseDto -> {
 
-		partDbService.savePart(part);
-	}
+            PartRequestDto partRequestDto = PartAdapter.buildRequestFromResponse(partResponseDto);
 
-	@Override
-	public void saveEntityFromCache(Map<String, PartResponseDto> partByNameMap) {
+            if (Objects.nonNull(partRequestDto)) {
 
-		partByNameMap.values().forEach(partResponseDto -> {
+                try {
 
-			PartRequestDto partRequestDto = PartAdapter.buildRequestFromResponse(partResponseDto);
+                    addPart(partRequestDto);
 
-			if (Objects.nonNull(partRequestDto)) {
+                } catch (Exception e) {
 
-				try {
+                    log.error("Exception caught while saving part entity with data: {} from cache", partByNameMap, e);
+                }
+            }
+        });
 
-					addPart(partRequestDto);
+    }
 
-				} catch (Exception e) {
+    private boolean isEntityExistsWithName(String name) {
 
-					log.error("Exception caught while saving part entity with data: {} from cache", partByNameMap, e);
-				}
-			}
-		});
+        return StringUtils.isNotBlank(name) && partDbService.isEntityExistsByName(name);
+    }
 
-	}
+    private void runValidations(PartRequestDto partRequestDto) {
 
-	private boolean isEntityExistsWithName(String name) {
+        validateName(partRequestDto);
+    }
 
-		return StringUtils.isNotBlank(name) && partDbService.isEntityExistsByName(name);
-	}
+    private void validateName(PartRequestDto partRequestDto) {
 
-	private void runValidations(PartRequestDto partRequestDto) {
-
-		validateName(partRequestDto);
-	}
-
-	private void validateName(PartRequestDto partRequestDto) {
-
-		if (isEntityExistsWithName(partRequestDto.getName())) {
-			String errorMsg = "Part cannot be created/updated as record already exists with name: " + partRequestDto.getName();
-			throw new RecordExistsException(errorMsg);
-		}
-	}
+        if (isEntityExistsWithName(partRequestDto.getName())) {
+            String errorMsg = "Part cannot be created/updated as record already exists with name: " + partRequestDto.getName();
+            throw new RecordExistsException(errorMsg);
+        }
+    }
 
 }

@@ -81,10 +81,8 @@ public class StyleServiceImpl implements StyleService {
             return null;
         }
 
-        StyleResponseDto styleResponseDto = StyleAdapter.buildResponseFromEntity(style);
 
-
-        return styleResponseDto;
+        return StyleAdapter.buildResponseFromEntity(style);
     }
 
     @Override
@@ -105,10 +103,8 @@ public class StyleServiceImpl implements StyleService {
 
         styleDbService.saveStyle(style);
 
-        StyleResponseDto styleResponseDto = StyleAdapter.buildResponseFromEntity(style);
 
-
-        return styleResponseDto;
+        return StyleAdapter.buildResponseFromEntity(style);
     }
 
     @Override

@@ -36,23 +36,32 @@ public class PurchaseOrder extends AbstractJpaEntity {
 	@Column(name = "style_id", columnDefinition = "char(40)", nullable = false)
 	private String styleId;
 
-	@Column(name = "product_id", columnDefinition = "char(40)", nullable = false)
-	private String productId;
-
-	@Column(name = "product_name", columnDefinition = "char(40)", nullable = false)
-	private String productName;
-
 	@Column(name = "style_number", columnDefinition = "char(40)", nullable = false)
 	private String styleNumber;
 
 	@Column(name = "style_name", columnDefinition = "char(40)", nullable = false)
 	private String styleName;
 
-	@Column(name = "order_id", columnDefinition = "char(40)", nullable = false)
-	private String orderId;
+	@Column(name = "product_id", columnDefinition = "char(40)", nullable = false)
+	private String productId;
 
-	@Column(name = "order_name", columnDefinition = "char(40)", nullable = false)
-	private String orderName;
+	@Column(name = "product_name", columnDefinition = "char(40)", nullable = false)
+	private String productName;
+
+	@Column(name = "fabric_id", columnDefinition = "char(40)", nullable = false)
+	private String fabricId;
+
+	@Column(name = "fabric_name", columnDefinition = "char(40)", nullable = false)
+	private String fabricName;
+
+	@Column(name = "buyer_id", columnDefinition = "char(40)", nullable = false)
+	private String buyerId;
+
+	@Column(name = "buyer_name", columnDefinition = "char(40)", nullable = false)
+	private String buyerName;
+
+	@Column(name = "tolerance", columnDefinition = "DOUBLE(10,2)")
+	private Double tolerance;
 
 	@Column(name = "receive_date", nullable = false)
 	@Temporal(TemporalType.TIMESTAMP)
@@ -70,4 +79,10 @@ public class PurchaseOrder extends AbstractJpaEntity {
 
 	@Column(name = "part_id", columnDefinition = "char(40)", nullable = false)
 	private String partId;
+
+	@Column(name = "order_id", columnDefinition = "char(40)")
+	private String orderId;
+
+	@Column(name = "order_name", columnDefinition = "char(40)")
+	private String orderName;
 }

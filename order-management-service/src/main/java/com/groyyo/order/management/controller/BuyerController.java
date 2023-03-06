@@ -45,7 +45,7 @@ public class BuyerController {
                 : ResponseDto.success("Found buyer with id: " + id, buyerResponseDto);
     }
 
-    @PostMapping("add")
+    @PostMapping("/add")
     public ResponseDto<BuyerResponseDto> addBuyer(@RequestBody @Valid BuyerRequestDto buyerRequestDto) {
 
         log.info("Request received to add buyer: {}", buyerRequestDto);

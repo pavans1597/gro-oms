@@ -1,6 +1,5 @@
 package com.groyyo.order.management.dto.request;
 
-import com.groyyo.core.master.dto.request.BaseRequestDto;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
@@ -10,16 +9,14 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class StyleRequestDto{
+public class PurchaseOrderQuantityCreateDto {
 
     private String id;
     private String name;
+    private String purchaseOrderId;
+    private String sizeId;
+    private Long quantity;
+    private String colourId;
+    private Long targetQuantity;
 
-    private String styleNumber;
-
-    private String image;
-
-    private String cadImage;
-
-    private String productId;
 }

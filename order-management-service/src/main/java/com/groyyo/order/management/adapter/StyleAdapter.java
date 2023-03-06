@@ -55,6 +55,7 @@ public class StyleAdapter {
 
         return StyleResponseDto
                 .builder()
+                .uuid(style.getUuid())
                 .name(style.getName())
                 .image(style.getImage())
                 .styleNumber(style.getStyleNumber())
