@@ -1,6 +1,7 @@
 package com.groyyo.order.management.controller;
 import com.groyyo.core.base.common.dto.ResponseDto;
 import com.groyyo.order.management.dto.request.StyleRequestDto;
+import com.groyyo.order.management.dto.request.StyleUpdateDto;
 import com.groyyo.order.management.dto.response.StyleResponseDto;
 import com.groyyo.order.management.service.StyleService;
 import lombok.extern.log4j.Log4j2;
@@ -50,11 +51,11 @@ public class StyleController {
     }
 
     @PostMapping("update")
-    public ResponseDto<StyleResponseDto> updateStyle(@RequestBody StyleRequestDto styleRequestDto) {
+    public ResponseDto<StyleResponseDto> updateStyle(@RequestBody StyleUpdateDto styleUpdateDto) {
 
-        log.info("Request received to update style: {}", styleRequestDto);
+        log.info("Request received to update style: {}", styleUpdateDto);
 
-        StyleResponseDto styleResponseDto = styleService.updateStyle(styleRequestDto);
+        StyleResponseDto styleResponseDto = styleService.updateStyle(styleUpdateDto);
 
         return Objects.isNull(styleResponseDto) ? ResponseDto.failure("Unable to update style !!") : ResponseDto.success("Style updated successfully !!", styleResponseDto);
     }

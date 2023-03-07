@@ -29,7 +29,7 @@ public class Season extends AbstractJpaEntity {
 	@Column(name = "name", columnDefinition = "varchar(100)", nullable = false)
 	private String name;
 
-	@Column(name = "master_id", columnDefinition = "char(40)", nullable = true)
+	@Column(name = "master_id", columnDefinition = "varchar(40)", nullable = true)
 	private String masterId;
 
 }

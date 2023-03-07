@@ -26,10 +26,10 @@ public class FabricCategory extends AbstractJpaEntity {
 
 	private static final long serialVersionUID = 1L;
 
-	@Column(name = "name", nullable = false, columnDefinition = "char(40)")
+	@Column(name = "name", nullable = false, columnDefinition = "varchar(40)")
 	private String name;
 
-	@Column(name = "type", nullable = false, columnDefinition = "char(40)")
+	@Column(name = "type", nullable = false, columnDefinition = "varchar(40)")
 	private String type;
 
 }
