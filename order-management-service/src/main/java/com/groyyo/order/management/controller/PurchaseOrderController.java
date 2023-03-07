@@ -45,7 +45,7 @@ public class PurchaseOrderController {
 
         List<PurchaseOrderResponseDto> purchaseOrderResponseDtos = purchaseOrderService.getAllPurchaseOrders(status);
 
-        return ResponseDto.success("Found " + purchaseOrderResponseDtos.hashCode() + " purchaseOrders in the system", purchaseOrderResponseDtos);
+        return ResponseDto.success("Found " + purchaseOrderResponseDtos.size() + " purchaseOrders in the system", purchaseOrderResponseDtos);
     }
 
     @GetMapping("/get/{id}")
