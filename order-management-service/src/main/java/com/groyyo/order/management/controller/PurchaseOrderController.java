@@ -2,9 +2,8 @@ package com.groyyo.order.management.controller;
 
 import com.groyyo.core.base.common.dto.ResponseDto;
 import com.groyyo.order.management.dto.request.PurchaseOrderRequestDto;
-import com.groyyo.order.management.dto.request.StyleRequestDto;
+import com.groyyo.order.management.dto.request.PurchaseOrderUpdateDto;
 import com.groyyo.order.management.dto.response.PurchaseOrderResponseDto;
-import com.groyyo.order.management.dto.response.StyleResponseDto;
 import com.groyyo.order.management.service.PurchaseOrderQuantityService;
 import com.groyyo.order.management.service.PurchaseOrderService;
 import com.groyyo.order.management.service.StyleService;
@@ -64,19 +63,19 @@ public class PurchaseOrderController {
     public ResponseDto<PurchaseOrderResponseDto> addPurchaseOrder(@RequestBody @Valid PurchaseOrderRequestDto purchaseOrderRequestDto) {
 
         log.info("Request received to add purchaseOrder: {}", purchaseOrderRequestDto);
-        StyleResponseDto styleResponse = styleService.addStyle(purchaseOrderRequestDto.getStyleRequestDto());
-        PurchaseOrderResponseDto purchaseOrderResponse = purchaseOrderService.addPurchaseOrder(purchaseOrderRequestDto, styleResponse);
+//        StyleResponseDto styleResponse = styleService.addStyle(purchaseOrderRequestDto.getStyleRequestDto());
+        PurchaseOrderResponseDto purchaseOrderResponse = purchaseOrderService.addPurchaseOrder(purchaseOrderRequestDto);
         purchaseOrderQuantityService.addBulkPurchaseOrderQuantity(purchaseOrderRequestDto.getPurchaseOrderQuantityRequest(), purchaseOrderResponse.getUuid(), purchaseOrderRequestDto.getTolerance());
 
         return ResponseDto.success("PurchaseOrder added successfully !!", purchaseOrderResponse);
     }
 
     @PostMapping("/update")
-    public ResponseDto<PurchaseOrderResponseDto> updatePurchaseOrder(@RequestBody PurchaseOrderRequestDto purchaseOrderRequestDto) {
+    public ResponseDto<PurchaseOrderResponseDto> updatePurchaseOrder(@RequestBody PurchaseOrderUpdateDto purchaseOrderUpdateDto) {
 
-        log.info("Request received to update purchaseOrder: {}", purchaseOrderRequestDto);
+        log.info("Request received to update purchaseOrder: {}", purchaseOrderUpdateDto);
 
-        PurchaseOrderResponseDto purchaseOrderResponseDto = purchaseOrderService.updatePurchaseOrder(purchaseOrderRequestDto);
+        PurchaseOrderResponseDto purchaseOrderResponseDto = purchaseOrderService.updatePurchaseOrder(purchaseOrderUpdateDto);
 
         return Objects.isNull(purchaseOrderResponseDto) ? ResponseDto.failure("Unable to update purchaseOrder !!")
                 : ResponseDto.success("PurchaseOrder updated successfully !!", purchaseOrderResponseDto);

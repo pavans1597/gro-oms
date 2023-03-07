@@ -1,6 +1,5 @@
 package com.groyyo.order.management.dto.request;
 
-import com.groyyo.core.master.dto.request.BaseRequestDto;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
@@ -10,9 +9,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class StyleRequestDto{
-
-    private String id;
+public class StyleRequestDto {
     private String name;
 
     private String styleNumber;

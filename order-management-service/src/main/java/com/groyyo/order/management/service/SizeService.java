@@ -20,8 +20,5 @@ public interface SizeService {
 
 	void consumeSize(SizeResponseDto sizeResponseDto);
 
-	/**
-	 * @param sizeByNameMap
-	 */
 	void saveEntityFromCache(Map<String, SizeResponseDto> sizeByNameMap);
 }

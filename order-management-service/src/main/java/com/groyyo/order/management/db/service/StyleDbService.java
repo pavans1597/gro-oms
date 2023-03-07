@@ -23,5 +23,5 @@ public interface StyleDbService extends AbstractJpaService<Style, Long> {
     Style activateDeactivateStyle(Style style, boolean status);
 
 
-    boolean isEntityExistsByName(String name);
+    boolean isEntityExistsByStyleNumber(String styleNumber);
 }

@@ -32,7 +32,7 @@ public class Product extends AbstractJpaEntity {
 	@Column(name = "line_art", columnDefinition = "varchar(100)")
 	private String lineArt;
 
-	@Column(name = "master_id", columnDefinition = "char(40)", nullable = true)
+	@Column(name = "master_id", columnDefinition = "varchar(40)", nullable = true)
 	private String masterId;
 
 }

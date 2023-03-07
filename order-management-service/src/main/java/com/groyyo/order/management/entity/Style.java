@@ -21,7 +21,7 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @ToString(callSuper = true)
 @Entity(name = "style")
-@Table(name = "style", uniqueConstraints = { @UniqueConstraint(name = "UK_style_name", columnNames = { "name" }) })
+@Table(name = "style", uniqueConstraints = { @UniqueConstraint(name = "UK_style_number", columnNames = { "style_number" }) })
 public class Style extends AbstractJpaEntity {
 
 	private static final long serialVersionUID = 1L;
@@ -38,6 +38,6 @@ public class Style extends AbstractJpaEntity {
 	@Column(name = "cad_image", columnDefinition = "varchar(255)")
 	private String cadImage;
 
-	@Column(name = "product_id", columnDefinition = "char(40)")
+	@Column(name = "product_id", columnDefinition = "varchar(40)")
 	private String productId;
 }

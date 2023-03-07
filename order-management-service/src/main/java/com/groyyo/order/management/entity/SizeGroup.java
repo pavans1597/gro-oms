@@ -37,7 +37,7 @@ public class SizeGroup extends AbstractJpaEntity {
 	@Column(name = "size_ids", columnDefinition = "text", nullable = false)
 	private List<String> sizeIds;
 
-	@Column(name = "master_id", columnDefinition = "char(40)", nullable = true)
+	@Column(name = "master_id", columnDefinition = "varchar(40)", nullable = true)
 	private String masterId;
 
 }

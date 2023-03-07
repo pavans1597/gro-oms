@@ -19,15 +19,15 @@ public class Fabric extends AbstractJpaEntity {
 
     private static final long serialVersionUID = 1L;
 
-	@Column(name = "name", nullable = false, columnDefinition = "char(40)")
+	@Column(name = "name", nullable = false, columnDefinition = "varchar(40)")
     private String name;
 
-    @Column(name = "fabric_category", nullable = false, columnDefinition = "char(40)")
+    @Column(name = "fabric_category", nullable = false, columnDefinition = "varchar(40)")
     private String fabricCategory;
 
     @Column(name = "image_url", nullable = false, columnDefinition = "char(255)")
     private String imageUrl;
 
-    @Column(name = "fabric_code", nullable = false, columnDefinition = "char(40)")
+    @Column(name = "fabric_code", nullable = false, columnDefinition = "varchar(40)")
     private String fabricCode;
 }
