@@ -3,20 +3,29 @@ package com.groyyo.order.management.service.impl;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
-import com.groyyo.order.management.dto.request.PurchaseOrderRequestDto;
-import com.groyyo.order.management.dto.request.PurchaseOrderUpdateDto;
-import com.groyyo.order.management.dto.response.PurchaseOrderResponseDto;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import com.groyyo.core.base.common.dto.PageResponse;
 import com.groyyo.core.base.exception.NoRecordException;
 import com.groyyo.core.base.exception.RecordExistsException;
+import com.groyyo.core.sqlPostgresJpa.specification.utils.GroyyoSpecificationBuilder;
+import com.groyyo.core.sqlPostgresJpa.specification.utils.PaginationUtility;
 import com.groyyo.order.management.adapter.PurchaseOrderAdapter;
 import com.groyyo.order.management.db.service.PurchaseOrderDbService;
+import com.groyyo.order.management.dto.request.PurchaseOrderRequestDto;
+import com.groyyo.order.management.dto.request.PurchaseOrderUpdateDto;
+import com.groyyo.order.management.dto.response.PurchaseOrderResponseDto;
 import com.groyyo.order.management.entity.PurchaseOrder;
+import com.groyyo.order.management.service.PurchaseOrderQuantityService;
 import com.groyyo.order.management.service.PurchaseOrderService;
 
 import lombok.extern.log4j.Log4j2;
@@ -24,99 +33,153 @@ import lombok.extern.log4j.Log4j2;
 @Service
 @Log4j2
 public class PurchaseOrderServiceImpl implements PurchaseOrderService {
-    @Autowired
-    private PurchaseOrderDbService purchaseOrderDbService;
 
-    @Override
-    public List<PurchaseOrderResponseDto> getAllPurchaseOrders(Boolean status) {
+	@Autowired
+	private PurchaseOrderDbService purchaseOrderDbService;
 
-        log.info("Serving request to get all purchaseOrders");
+	@Autowired
+	private PurchaseOrderQuantityService purchaseOrderQuantityService;
 
-        List<PurchaseOrder> purchaseOrderEntities = Objects.isNull(status) ? purchaseOrderDbService.getAllPurchaseOrders()
-                : purchaseOrderDbService.getAllPurchaseOrdersForStatus(status);
+	@Override
+	public List<PurchaseOrderResponseDto> getAllPurchaseOrders(Boolean status) {
 
-        if (CollectionUtils.isEmpty(purchaseOrderEntities)) {
-            log.error("No PurchaseOrders found in the system");
-            return new ArrayList<>();
-        }
+		log.info("Serving request to get all purchaseOrders");
 
-        return PurchaseOrderAdapter.buildResponsesFromEntities(purchaseOrderEntities);
-    }
+		List<PurchaseOrderResponseDto> purchaseOrderResponseDtos = new ArrayList<PurchaseOrderResponseDto>();
 
-    @Override
-    public PurchaseOrderResponseDto getPurchaseOrderById(String id) {
+		List<PurchaseOrder> purchaseOrderEntities = Objects.isNull(status) ? purchaseOrderDbService.getAllPurchaseOrders()
+				: purchaseOrderDbService.getAllPurchaseOrdersForStatus(status);
 
-        log.info("Serving request to get a purchaseOrder by id:{}", id);
+		if (CollectionUtils.isEmpty(purchaseOrderEntities)) {
+			log.error("No PurchaseOrders found in the system");
+			return new ArrayList<>();
+		}
 
-        PurchaseOrder purchaseOrder = purchaseOrderDbService.getPurchaseOrderById(id);
+		purchaseOrderResponseDtos = PurchaseOrderAdapter.buildResponsesFromEntities(purchaseOrderEntities);
+		log.info("Found total: {} purchase orders to show in listing ", purchaseOrderResponseDtos.size());
 
-        if (Objects.isNull(purchaseOrder)) {
-            String errorMsg = "PurchaseOrder with id: " + id + " not found in the system ";
-            throw new NoRecordException(errorMsg);
-        }
+		List<String> purchaseOrderIds = purchaseOrderResponseDtos.stream().map(PurchaseOrderResponseDto::getUuid).collect(Collectors.toList());
+		log.info("Fetched distinct purchase ids: {} from the list of purchase orders ", purchaseOrderIds.size());
 
-        return PurchaseOrderAdapter.buildResponseFromEntity(purchaseOrder);
-    }
+		populateTotalQuantitiesForPurchaseOrder(purchaseOrderResponseDtos);
 
-    @Override
-    public PurchaseOrderResponseDto addPurchaseOrder(PurchaseOrderRequestDto purchaseOrderRequestDto) {
+		// TODO fetch purchase order line data
+		return purchaseOrderResponseDtos;
+	}
 
-        log.info("Serving request to add a purchaseOrder with request object:{}", purchaseOrderRequestDto);
+	@Override
+	public PurchaseOrderResponseDto getPurchaseOrderById(String id) {
 
+		log.info("Serving request to get a purchaseOrder by id:{}", id);
 
+		PurchaseOrder purchaseOrder = purchaseOrderDbService.getPurchaseOrderById(id);
 
-        PurchaseOrder purchaseOrder = PurchaseOrderAdapter.buildPurchaseOrderFromRequest(purchaseOrderRequestDto);
+		if (Objects.isNull(purchaseOrder)) {
+			String errorMsg = "PurchaseOrder with id: " + id + " not found in the system ";
+			throw new NoRecordException(errorMsg);
+		}
 
-        purchaseOrder = purchaseOrderDbService.savePurchaseOrder(purchaseOrder);
+		return PurchaseOrderAdapter.buildResponseFromEntity(purchaseOrder);
+	}
 
+	@Override
+	public PurchaseOrderResponseDto addPurchaseOrder(PurchaseOrderRequestDto purchaseOrderRequestDto) {
 
+		log.info("Serving request to add a purchaseOrder with request object:{}", purchaseOrderRequestDto);
 
-        if (Objects.isNull(purchaseOrder)) {
-            log.error("Unable to add purchaseOrder for object: {}", purchaseOrderRequestDto);
-            return null;
-        }
+		PurchaseOrder purchaseOrder = PurchaseOrderAdapter.buildPurchaseOrderFromRequest(purchaseOrderRequestDto);
 
-        return PurchaseOrderAdapter.buildResponseFromEntity(purchaseOrder);
-    }
+		purchaseOrder = purchaseOrderDbService.savePurchaseOrder(purchaseOrder);
 
-    @Override
-    public PurchaseOrderResponseDto updatePurchaseOrder(PurchaseOrderUpdateDto purchaseOrderUpdateDto) {
+		if (Objects.isNull(purchaseOrder)) {
+			log.error("Unable to add purchaseOrder for object: {}", purchaseOrderRequestDto);
+			return null;
+		}
 
-        log.info("Serving request to update a purchaseOrder with request object:{}", purchaseOrderUpdateDto);
+		return PurchaseOrderAdapter.buildResponseFromEntity(purchaseOrder);
+	}
 
-        PurchaseOrder purchaseOrder = purchaseOrderDbService.getPurchaseOrderById(purchaseOrderUpdateDto.getId());
+	@Override
+	public PurchaseOrderResponseDto updatePurchaseOrder(PurchaseOrderUpdateDto purchaseOrderUpdateDto) {
 
-        if (Objects.isNull(purchaseOrder)) {
-            log.error("PurchaseOrder with id: {} not found in the system", purchaseOrderUpdateDto.getId());
-            return null;
-        }
+		log.info("Serving request to update a purchaseOrder with request object:{}", purchaseOrderUpdateDto);
 
-        runValidations(purchaseOrderUpdateDto);
+		PurchaseOrder purchaseOrder = purchaseOrderDbService.getPurchaseOrderById(purchaseOrderUpdateDto.getId());
 
-        purchaseOrder = PurchaseOrderAdapter.clonePurchaseOrderWithRequest(purchaseOrderUpdateDto, purchaseOrder);
+		if (Objects.isNull(purchaseOrder)) {
+			log.error("PurchaseOrder with id: {} not found in the system", purchaseOrderUpdateDto.getId());
+			return null;
+		}
 
-        purchaseOrderDbService.savePurchaseOrder(purchaseOrder);
+		runValidations(purchaseOrderUpdateDto);
 
-        return PurchaseOrderAdapter.buildResponseFromEntity(purchaseOrder);
-    }
+		purchaseOrder = PurchaseOrderAdapter.clonePurchaseOrderWithRequest(purchaseOrderUpdateDto, purchaseOrder);
 
-    private boolean isEntityExistsWithName(String name) {
+		purchaseOrderDbService.savePurchaseOrder(purchaseOrder);
 
-        return StringUtils.isNotBlank(name) && purchaseOrderDbService.isEntityExistsByName(name);
-    }
+		return PurchaseOrderAdapter.buildResponseFromEntity(purchaseOrder);
+	}
 
-    private void runValidations(PurchaseOrderRequestDto purchaseOrderRequestDto) {
+	private void populateTotalQuantitiesForPurchaseOrder(List<PurchaseOrderResponseDto> purchaseOrderResponseDtos) {
 
-        validateName(purchaseOrderRequestDto);
-    }
+		purchaseOrderResponseDtos.forEach(purchaseOrderResponseDto -> {
 
+			purchaseOrderResponseDto.setTotalQuantity(purchaseOrderQuantityService.getTotalQuantityForPurchaseOrder(purchaseOrderResponseDto.getUuid()));
+			purchaseOrderResponseDto.setTotalTargetQuantity(purchaseOrderQuantityService.getTotalTargetQuantityForPurchaseOrder(purchaseOrderResponseDto.getUuid()));
+		});
+	}
 
+	@Override
+	public PageResponse<PurchaseOrderResponseDto> getPurchaseOrderListing(int page, int limit) {
 
-    private void validateName(PurchaseOrderRequestDto purchaseOrderRequestDto) {
+		Specification<PurchaseOrder> specification = getSpecificationForPurchaseOrderListing();
 
-        if (isEntityExistsWithName(purchaseOrderRequestDto.getPurchaseOrderNumber())) {
-            String errorMsg = "PurchaseOrder cannot be created/updated as record already exists with name: " + purchaseOrderRequestDto.getPurchaseOrderNumber();
-            throw new RecordExistsException(errorMsg);
-        }
-    }
+		Pageable pageable = PaginationUtility.getPageRequest(page, limit, "updatedAt", Direction.DESC);
+
+		Page<PurchaseOrder> data = purchaseOrderDbService.findAll(specification, pageable);
+
+		if (Objects.nonNull(data))
+			return new PageResponse<PurchaseOrderResponseDto>(limit, data.getNumberOfElements(), data.getTotalPages(), data.getTotalElements(), convertPurchaseOrderPageDataToResponseDtos(data));
+		else
+			return new PageResponse<PurchaseOrderResponseDto>(limit, 0, 0, 0, null);
+
+	}
+
+	private List<PurchaseOrderResponseDto> convertPurchaseOrderPageDataToResponseDtos(Page<PurchaseOrder> data) {
+
+		List<PurchaseOrder> purchaseOrders = data.get().collect(Collectors.toList());
+
+		List<PurchaseOrderResponseDto> purchaseOrderResponseDtos = PurchaseOrderAdapter.buildResponsesFromEntities(purchaseOrders);
+
+		populateTotalQuantitiesForPurchaseOrder(purchaseOrderResponseDtos);
+
+		return purchaseOrderResponseDtos;
+	}
+
+	/**
+	 * @return
+	 */
+	private Specification<PurchaseOrder> getSpecificationForPurchaseOrderListing() {
+		GroyyoSpecificationBuilder<PurchaseOrder> groyyoSpecificationBuilder = new GroyyoSpecificationBuilder<PurchaseOrder>();
+
+		return groyyoSpecificationBuilder.build();
+	}
+
+	private boolean isEntityExistsWithName(String name) {
+
+		return StringUtils.isNotBlank(name) && purchaseOrderDbService.isEntityExistsByName(name);
+	}
+
+	private void runValidations(PurchaseOrderRequestDto purchaseOrderRequestDto) {
+
+		validateName(purchaseOrderRequestDto);
+	}
+
+	private void validateName(PurchaseOrderRequestDto purchaseOrderRequestDto) {
+
+		if (isEntityExistsWithName(purchaseOrderRequestDto.getPurchaseOrderNumber())) {
+			String errorMsg = "PurchaseOrder cannot be created/updated as record already exists with name: " + purchaseOrderRequestDto.getPurchaseOrderNumber();
+			throw new RecordExistsException(errorMsg);
+		}
+	}
 }
