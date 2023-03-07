@@ -18,7 +18,6 @@ import com.groyyo.core.kafka.producer.NotificationProducer;
 import com.groyyo.core.master.dto.request.ColorRequestDto;
 import com.groyyo.core.master.dto.response.ColorResponseDto;
 import com.groyyo.order.management.adapter.ColorAdapter;
-import com.groyyo.order.management.constants.KafkaConstants;
 import com.groyyo.order.management.db.service.ColorDbService;
 import com.groyyo.order.management.entity.Color;
 import com.groyyo.order.management.service.ColorService;
@@ -164,10 +163,29 @@ public class ColorServiceImpl implements ColorService {
 			ColorRequestDto colorRequestDto = ColorAdapter.buildRequestFromResponse(colorResponseDto);
 
 			if (Objects.nonNull(colorRequestDto)) {
-				
+
 				try {
 
 					addColor(colorRequestDto);
+
+				} catch (Exception e) {
+
+					log.error("Exception caught while saving color entity with data: {} from cache", colorByNameMap, e);
+				}
+			}
+		});
+
+	}
+
+	public void saveEntityFromCacheUpdated(Map<String, ColorResponseDto> colorByNameMap) {
+
+		colorByNameMap.values().forEach(colorResponseDto -> {
+
+			if (Objects.nonNull(colorResponseDto)) {
+
+				try {
+
+					// addColor(colorResponseDto);
 
 				} catch (Exception e) {
 

@@ -15,6 +15,17 @@ server:
       directory: /var/log/groyyo
   error:
     include-message: always
+    
+########## Auth Config ##############
+enable:
+  cors: 'true'
+  authorize: 'false'
+  authentication: 'false'
+
+########## Cache Config ##############
+cache:
+  masterData:
+    enable: 'true'
 
 ########## Services URL's ##############
 service:

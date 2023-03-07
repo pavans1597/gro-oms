@@ -159,6 +159,10 @@ public class CacheServiceImpl implements CacheService {
 
 		switch (entity) {
 
+		case CacheConstants.ALL:
+			saveAllEntitiesFromCache();
+			break;
+
 		case CacheConstants.COLOR:
 			colorService.saveEntityFromCache(masterDataLocalCache.getColorByNameMap());
 			break;
@@ -204,7 +208,11 @@ public class CacheServiceImpl implements CacheService {
 	@Override
 	public void saveAllEntitiesFromCache() {
 
+		log.info("Going to save all cache entities in local db");
+
 		CacheConstants.ENTITY_LIST_SAVE.forEach(entity -> {
+
+			log.info("Running iteration for entity: {}", entity);
 
 			saveEntitiesFromCache(entity);
 		});

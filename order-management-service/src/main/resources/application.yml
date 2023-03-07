@@ -28,9 +28,9 @@ cache:
 ########## Services URL's ##############
 service:
   user:
-    url: https://preproderp.groyyo.com/user
+    url: http://localhost:8006/user-service
   masterData:
-    url: https://groyyoconsoledev.groyyo.com/master-data-service
+    url: http://localhost:8003/master-data-service
   raven:
     url: https://api.ravenapp.dev/v1
 

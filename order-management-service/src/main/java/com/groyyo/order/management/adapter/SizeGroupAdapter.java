@@ -65,6 +65,9 @@ public class SizeGroupAdapter {
 		if (StringUtils.isNotBlank(sizeGroupResponseDto.getMasterId()))
 			sizeGroupRequestDto.setMasterId(sizeGroupResponseDto.getMasterId());
 
+		if (CollectionUtils.isNotEmpty(sizeGroupResponseDto.getSizeIds()))
+			sizeGroupRequestDto.setSizeIds(sizeGroupResponseDto.getSizeIds());
+
 		return sizeGroupRequestDto;
 	}
 
