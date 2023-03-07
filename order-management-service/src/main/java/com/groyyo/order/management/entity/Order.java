@@ -26,21 +26,21 @@ public class Order extends AbstractJpaEntity {
 
 	private static final long serialVersionUID = 1L;
 
-	@Column(name = "name", nullable = false, columnDefinition = "char(40)")
+	@Column(name = "name", nullable = false, columnDefinition = "varchar(40)")
 	private String name;
 
-	@Column(name = "style_id", columnDefinition = "char(40)", nullable = false)
+	@Column(name = "style_id", columnDefinition = "varchar(40)", nullable = false)
 	private String styleId;
 
-	@Column(name = "style_number", columnDefinition = "char(40)", nullable = false)
+	@Column(name = "style_number", columnDefinition = "varchar(40)", nullable = false)
 	private String styleNumber;
 
-	@Column(name = "style_name", columnDefinition = "char(40)")
+	@Column(name = "style_name", columnDefinition = "varchar(40)")
 	private String styleName;
 
-	@Column(name = "product_id", columnDefinition = "char(40)", nullable = false)
+	@Column(name = "product_id", columnDefinition = "varchar(40)", nullable = false)
 	private String productId;
 
-	@Column(name = "product_name", columnDefinition = "char(40)")
+	@Column(name = "product_name", columnDefinition = "varchar(40)")
 	private String productName;
 }

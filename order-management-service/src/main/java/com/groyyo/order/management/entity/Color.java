@@ -32,7 +32,7 @@ public class Color extends AbstractJpaEntity {
 	@Column(name = "hex_code", columnDefinition = "varchar(100)", nullable = false)
 	private String hexCode;
 
-	@Column(name = "master_id", columnDefinition = "char(40)", nullable = true)
+	@Column(name = "master_id", columnDefinition = "varchar(40)", nullable = true)
 	private String masterId;
 
 }

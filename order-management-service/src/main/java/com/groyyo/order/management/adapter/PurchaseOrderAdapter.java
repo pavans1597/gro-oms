@@ -5,7 +5,6 @@ import java.util.stream.Collectors;
 
 import com.groyyo.order.management.dto.request.PurchaseOrderRequestDto;
 import com.groyyo.order.management.dto.response.PurchaseOrderResponseDto;
-import com.groyyo.order.management.dto.response.StyleResponseDto;
 import org.apache.commons.lang3.StringUtils;
 import com.groyyo.order.management.entity.PurchaseOrder;
 
@@ -14,13 +13,13 @@ import lombok.experimental.UtilityClass;
 @UtilityClass
 public class PurchaseOrderAdapter {
 
-    public PurchaseOrder buildPurchaseOrderFromRequest(PurchaseOrderRequestDto purchaseOrderRequestDto, StyleResponseDto styleResponse) {
+    public PurchaseOrder buildPurchaseOrderFromRequest(PurchaseOrderRequestDto purchaseOrderRequestDto) {
         return PurchaseOrder
                 .builder()
-                .name(purchaseOrderRequestDto.getName())
-                .styleId(styleResponse.getUuid())
-                .styleNumber(styleResponse.getStyleNumber())
-                .styleName(styleResponse.getName())
+                .name(purchaseOrderRequestDto.getPurchaseOrderNumber())
+                .styleId(purchaseOrderRequestDto.getStyleId())
+                .styleNumber(purchaseOrderRequestDto.getStyleNumber())
+                .styleName(purchaseOrderRequestDto.getStyleName())
                 .fabricId(purchaseOrderRequestDto.getFabricId())
                 .fabricName(purchaseOrderRequestDto.getFabricName())
                 .buyerId(purchaseOrderRequestDto.getBuyerId())
@@ -46,8 +45,8 @@ public class PurchaseOrderAdapter {
 
     public PurchaseOrder clonePurchaseOrderWithRequest(PurchaseOrderRequestDto purchaseOrderRequestDto, PurchaseOrder purchaseOrder) {
 
-        if (StringUtils.isNotBlank(purchaseOrderRequestDto.getName()))
-            purchaseOrder.setName(purchaseOrderRequestDto.getName());
+        if (StringUtils.isNotBlank(purchaseOrderRequestDto.getPurchaseOrderNumber()))
+            purchaseOrder.setName(purchaseOrderRequestDto.getPurchaseOrderNumber());
 
 
         return purchaseOrder;
@@ -58,7 +57,7 @@ public class PurchaseOrderAdapter {
         PurchaseOrderRequestDto purchaseOrderRequestDto = PurchaseOrderRequestDto.builder().build();
 
         if (StringUtils.isNotBlank(purchaseOrderResponseDto.getName()))
-            purchaseOrderRequestDto.setName(purchaseOrderResponseDto.getName());
+            purchaseOrderRequestDto.setPurchaseOrderNumber(purchaseOrderResponseDto.getName());
 
 
         return purchaseOrderRequestDto;

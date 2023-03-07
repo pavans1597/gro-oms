@@ -1,6 +1,5 @@
 package com.groyyo.order.management.dto.request;
 
-import com.groyyo.core.master.dto.request.BaseRequestDto;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import java.util.Date;
@@ -13,10 +12,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PurchaseOrderRequestDto {
-
-    private String id;
-
-    private String name;
+    private String purchaseOrderNumber;
 
     private String styleId;
 
@@ -48,12 +44,6 @@ public class PurchaseOrderRequestDto {
 
     private String partId;
 
-    private String orderId;
-
-    private String orderName;
-
     private List<PurchaseOrderQuantityRequestDto> purchaseOrderQuantityRequest;
-
-    private StyleRequestDto styleRequestDto;
 
 }

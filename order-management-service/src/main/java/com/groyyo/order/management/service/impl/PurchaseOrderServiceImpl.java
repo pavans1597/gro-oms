@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.Objects;
 
 import com.groyyo.order.management.dto.request.PurchaseOrderRequestDto;
+import com.groyyo.order.management.dto.request.PurchaseOrderUpdateDto;
 import com.groyyo.order.management.dto.response.PurchaseOrderResponseDto;
-import com.groyyo.order.management.dto.response.StyleResponseDto;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,13 +59,13 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
     }
 
     @Override
-    public PurchaseOrderResponseDto addPurchaseOrder(PurchaseOrderRequestDto purchaseOrderRequestDto, StyleResponseDto styleResponse) {
+    public PurchaseOrderResponseDto addPurchaseOrder(PurchaseOrderRequestDto purchaseOrderRequestDto) {
 
         log.info("Serving request to add a purchaseOrder with request object:{}", purchaseOrderRequestDto);
 
 
 
-        PurchaseOrder purchaseOrder = PurchaseOrderAdapter.buildPurchaseOrderFromRequest(purchaseOrderRequestDto, styleResponse);
+        PurchaseOrder purchaseOrder = PurchaseOrderAdapter.buildPurchaseOrderFromRequest(purchaseOrderRequestDto);
 
         purchaseOrder = purchaseOrderDbService.savePurchaseOrder(purchaseOrder);
 
@@ -80,20 +80,20 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
     }
 
     @Override
-    public PurchaseOrderResponseDto updatePurchaseOrder(PurchaseOrderRequestDto purchaseOrderRequestDto) {
+    public PurchaseOrderResponseDto updatePurchaseOrder(PurchaseOrderUpdateDto purchaseOrderUpdateDto) {
 
-        log.info("Serving request to update a purchaseOrder with request object:{}", purchaseOrderRequestDto);
+        log.info("Serving request to update a purchaseOrder with request object:{}", purchaseOrderUpdateDto);
 
-        PurchaseOrder purchaseOrder = purchaseOrderDbService.getPurchaseOrderById(purchaseOrderRequestDto.getId());
+        PurchaseOrder purchaseOrder = purchaseOrderDbService.getPurchaseOrderById(purchaseOrderUpdateDto.getId());
 
         if (Objects.isNull(purchaseOrder)) {
-            log.error("PurchaseOrder with id: {} not found in the system", purchaseOrderRequestDto.getId());
+            log.error("PurchaseOrder with id: {} not found in the system", purchaseOrderUpdateDto.getId());
             return null;
         }
 
-        runValidations(purchaseOrderRequestDto);
+        runValidations(purchaseOrderUpdateDto);
 
-        purchaseOrder = PurchaseOrderAdapter.clonePurchaseOrderWithRequest(purchaseOrderRequestDto, purchaseOrder);
+        purchaseOrder = PurchaseOrderAdapter.clonePurchaseOrderWithRequest(purchaseOrderUpdateDto, purchaseOrder);
 
         purchaseOrderDbService.savePurchaseOrder(purchaseOrder);
 
@@ -114,8 +114,8 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
     private void validateName(PurchaseOrderRequestDto purchaseOrderRequestDto) {
 
-        if (isEntityExistsWithName(purchaseOrderRequestDto.getName())) {
-            String errorMsg = "PurchaseOrder cannot be created/updated as record already exists with name: " + purchaseOrderRequestDto.getName();
+        if (isEntityExistsWithName(purchaseOrderRequestDto.getPurchaseOrderNumber())) {
+            String errorMsg = "PurchaseOrder cannot be created/updated as record already exists with name: " + purchaseOrderRequestDto.getPurchaseOrderNumber();
             throw new RecordExistsException(errorMsg);
         }
     }

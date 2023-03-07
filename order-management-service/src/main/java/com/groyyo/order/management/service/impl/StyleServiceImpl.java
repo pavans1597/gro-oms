@@ -2,12 +2,11 @@ package com.groyyo.order.management.service.impl;
 
 import com.groyyo.core.base.exception.NoRecordException;
 import com.groyyo.core.base.exception.RecordExistsException;
-import com.groyyo.core.kafka.dto.KafkaDTO;
 import com.groyyo.core.kafka.producer.NotificationProducer;
 import com.groyyo.order.management.adapter.StyleAdapter;
-import com.groyyo.order.management.constants.KafkaConstants;
 import com.groyyo.order.management.db.service.StyleDbService;
 import com.groyyo.order.management.dto.request.StyleRequestDto;
+import com.groyyo.order.management.dto.request.StyleUpdateDto;
 import com.groyyo.order.management.dto.response.StyleResponseDto;
 import com.groyyo.order.management.entity.Style;
 import com.groyyo.order.management.service.StyleService;
@@ -25,11 +24,6 @@ import java.util.Objects;
 @Service
 @Log4j2
 public class StyleServiceImpl implements StyleService {
-    @Value("${kafka.master.updates.topic}")
-    private String kafkaMasterDataUpdatesTopic;
-
-    @Autowired
-    private NotificationProducer notificationProducer;
 
     @Autowired
     private StyleDbService styleDbService;
@@ -44,7 +38,7 @@ public class StyleServiceImpl implements StyleService {
 
         if (CollectionUtils.isEmpty(styleEntities)) {
             log.error("No Styles found in the system");
-            return new ArrayList<StyleResponseDto>();
+            return new ArrayList<>();
         }
 
         return StyleAdapter.buildResponsesFromEntities(styleEntities);
@@ -86,20 +80,20 @@ public class StyleServiceImpl implements StyleService {
     }
 
     @Override
-    public StyleResponseDto updateStyle(StyleRequestDto styleRequestDto) {
+    public StyleResponseDto updateStyle(StyleUpdateDto styleUpdateDto) {
 
-        log.info("Serving request to update a style with request object:{}", styleRequestDto);
+        log.info("Serving request to update a style with request object:{}", styleUpdateDto);
 
-        Style style = styleDbService.getStyleById(styleRequestDto.getId());
+        Style style = styleDbService.getStyleById(styleUpdateDto.getId());
 
         if (Objects.isNull(style)) {
-            log.error("Style with id: {} not found in the system", styleRequestDto.getId());
+            log.error("Style with id: {} not found in the system", styleUpdateDto.getId());
             return null;
         }
 
-        runValidations(styleRequestDto);
+        runValidations(styleUpdateDto);
 
-        style = StyleAdapter.cloneStyleWithRequest(styleRequestDto, style);
+        style = StyleAdapter.cloneStyleWithRequest(styleUpdateDto, style);
 
         styleDbService.saveStyle(style);
 
@@ -124,12 +118,6 @@ public class StyleServiceImpl implements StyleService {
         return StyleAdapter.buildResponseFromEntity(style);
     }
 
-    private void publishStyle(StyleResponseDto styleResponseDto, String type, String subType, String topicName) {
-
-        KafkaDTO kafkaDTO = new KafkaDTO(type, subType, StyleResponseDto.class.getName(), styleResponseDto);
-        notificationProducer.publish(topicName, kafkaDTO.getClassName(), kafkaDTO);
-    }
-
     @Override
     public void consumeStyle(StyleResponseDto styleResponseDto) {
         Style style = StyleAdapter.buildStyleFromResponse(styleResponseDto);
@@ -142,28 +130,18 @@ public class StyleServiceImpl implements StyleService {
         styleDbService.saveStyle(style);
     }
 
-    private boolean isEntityExistsWithName(String name) {
+    private boolean isEntityExistsWithStyleNumber(String styleNumber) {
 
-        return StringUtils.isNotBlank(name) && styleDbService.isEntityExistsByName(name);
+        return StringUtils.isNotBlank(styleNumber) && styleDbService.isEntityExistsByStyleNumber(styleNumber);
     }
 
     private void runValidations(StyleRequestDto styleRequestDto) {
-
-        validateName(styleRequestDto);
         validateStyleNumber(styleRequestDto);
-    }
-
-    private void validateName(StyleRequestDto styleRequestDto) {
-
-        if (isEntityExistsWithName(styleRequestDto.getName())) {
-            String errorMsg = "Style cannot be created/updated as record already exists with name: " + styleRequestDto.getName();
-            throw new RecordExistsException(errorMsg);
-        }
     }
 
     private void validateStyleNumber(StyleRequestDto styleRequestDto) {
 
-        if (isEntityExistsWithName(styleRequestDto.getStyleNumber())) {
+        if (isEntityExistsWithStyleNumber(styleRequestDto.getStyleNumber())) {
             String errorMsg = "Style cannot be created/updated as record already exists with style number: " + styleRequestDto.getStyleNumber();
             throw new RecordExistsException(errorMsg);
         }

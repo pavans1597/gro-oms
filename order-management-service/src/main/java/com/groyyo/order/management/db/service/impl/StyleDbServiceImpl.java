@@ -50,7 +50,7 @@ public class StyleDbServiceImpl extends AbstractJpaServiceImpl<Style, Long, Styl
     }
 
     @Override
-    public boolean isEntityExistsByName(String name) {
-        return Objects.nonNull(styleRepository.findByName(name));
+    public boolean isEntityExistsByStyleNumber(String styleNumber) {
+        return Objects.nonNull(styleRepository.findByStyleNumber(styleNumber));
     }
 }
