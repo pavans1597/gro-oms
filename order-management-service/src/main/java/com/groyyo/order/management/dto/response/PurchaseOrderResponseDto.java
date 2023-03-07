@@ -1,13 +1,10 @@
 package com.groyyo.order.management.dto.response;
 
 import com.groyyo.core.master.dto.response.BaseResponseDto;
-import com.groyyo.order.management.dto.request.PurchaseOrderQuantityRequestDto;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 @Getter
 @Setter
@@ -15,7 +12,7 @@ import java.util.List;
 @NoArgsConstructor
 @ToString(callSuper = true)
 public class PurchaseOrderResponseDto extends BaseResponseDto {
-    private String name;
+    private String purchaseOrderNumber;
 
     private String styleId;
 
@@ -46,10 +43,4 @@ public class PurchaseOrderResponseDto extends BaseResponseDto {
     private String fitId;
 
     private String partId;
-
-    private String orderId;
-
-    private String orderName;
-    @Builder.Default
-    private List<PurchaseOrderQuantityRequestDto> sizeIds = new ArrayList<>();
 }

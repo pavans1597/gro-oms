@@ -32,12 +32,15 @@ public class Style extends AbstractJpaEntity {
 	@Column(name = "style_number", columnDefinition = "varchar(100)", nullable = false)
 	private String styleNumber;
 
-	@Column(name = "image", columnDefinition = "varchar(255)")
-	private String image;
+	@Column(name = "style_image_id", columnDefinition = "varchar(255)")
+	private String styleImageId;
 
-	@Column(name = "cad_image", columnDefinition = "varchar(255)")
-	private String cadImage;
+	@Column(name = "cad_image_id", columnDefinition = "varchar(255)")
+	private String cadImageId;
 
 	@Column(name = "product_id", columnDefinition = "varchar(40)")
 	private String productId;
+
+	@Column(name = "product_name", columnDefinition = "varchar(100)")
+	private String productName;
 }

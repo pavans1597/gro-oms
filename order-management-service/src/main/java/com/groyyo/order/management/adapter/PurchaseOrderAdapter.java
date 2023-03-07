@@ -68,7 +68,7 @@ public class PurchaseOrderAdapter {
         return PurchaseOrderResponseDto
                 .builder()
                 .uuid(purchaseOrder.getUuid())
-                .name(purchaseOrder.getName())
+                .purchaseOrderNumber(purchaseOrder.getName())
                 .styleId(purchaseOrder.getStyleId())
                 .styleNumber(purchaseOrder.getStyleNumber())
                 .styleName(purchaseOrder.getStyleName())

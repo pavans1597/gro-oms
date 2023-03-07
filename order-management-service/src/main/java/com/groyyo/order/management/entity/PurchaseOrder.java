@@ -60,7 +60,7 @@ public class PurchaseOrder extends AbstractJpaEntity {
 	@Column(name = "buyer_name", columnDefinition = "varchar(40)", nullable = false)
 	private String buyerName;
 
-	@Column(name = "tolerance", columnDefinition = "DOUBLE(10,2)")
+	@Column(name = "tolerance", columnDefinition ="Decimal(10,2)" )
 	private Double tolerance;
 
 	@Column(name = "receive_date", nullable = false)

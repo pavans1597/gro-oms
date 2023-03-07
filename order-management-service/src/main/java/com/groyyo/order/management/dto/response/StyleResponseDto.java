@@ -1,6 +1,7 @@
 package com.groyyo.order.management.dto.response;
 
 import com.groyyo.core.master.dto.response.BaseResponseDto;
+import com.groyyo.order.management.dto.request.ImageDto;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -14,12 +15,15 @@ import lombok.experimental.SuperBuilder;
 @ToString(callSuper = true)
 public class StyleResponseDto extends BaseResponseDto {
 
-    private String Id;
+    private String id;
+
     private String styleNumber;
 
-    private String image;
+    private ImageDto styleImage;
 
-    private String cadImage;
+    private ImageDto cadImage;
 
     private String productId;
+
+    private String productName;
 }
