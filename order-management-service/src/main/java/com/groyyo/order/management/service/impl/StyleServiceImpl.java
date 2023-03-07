@@ -1,8 +1,11 @@
 package com.groyyo.order.management.service.impl;
 
+import com.groyyo.core.base.common.dto.ResponseDto;
 import com.groyyo.core.base.exception.NoRecordException;
 import com.groyyo.core.base.exception.RecordExistsException;
-import com.groyyo.core.kafka.producer.NotificationProducer;
+import com.groyyo.core.dto.fileManagement.dto.response.FileResponseDto;
+import com.groyyo.core.enums.ServiceName;
+import com.groyyo.core.file.management.client.api.FileManagementApi;
 import com.groyyo.order.management.adapter.StyleAdapter;
 import com.groyyo.order.management.db.service.StyleDbService;
 import com.groyyo.order.management.dto.request.StyleRequestDto;
@@ -14,12 +17,12 @@ import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 @Log4j2
@@ -28,9 +31,11 @@ public class StyleServiceImpl implements StyleService {
     @Autowired
     private StyleDbService styleDbService;
 
+    @Autowired
+    private FileManagementApi fileManagementApi;
+
     @Override
     public List<StyleResponseDto> getAllStyles(Boolean status) {
-
         log.info("Serving request to get all styles");
 
         List<Style> styleEntities = Objects.isNull(status) ? styleDbService.getAllStyles()
@@ -40,8 +45,11 @@ public class StyleServiceImpl implements StyleService {
             log.error("No Styles found in the system");
             return new ArrayList<>();
         }
-
-        return StyleAdapter.buildResponsesFromEntities(styleEntities);
+        return styleEntities.stream().map(style -> {
+            StyleResponseDto styleResponseDto = StyleAdapter.buildResponseFromEntity(style);
+            setImagesForStyle(style, styleResponseDto);
+            return styleResponseDto;
+        }).collect(Collectors.toList());
     }
 
     @Override
@@ -75,8 +83,16 @@ public class StyleServiceImpl implements StyleService {
             return null;
         }
 
+        StyleResponseDto styleResponseDto = StyleAdapter.buildResponseFromEntity(style);
+        setImagesForStyle(style, styleResponseDto);
+        return styleResponseDto;
+    }
 
-        return StyleAdapter.buildResponseFromEntity(style);
+    private void setImagesForStyle(Style style, StyleResponseDto styleResponseDto) {
+        ResponseDto<FileResponseDto> styleImage = fileManagementApi.getSignedUrl(style.getStyleImageId(), ServiceName.ORDER, true);
+        ResponseDto<FileResponseDto> cadImage = fileManagementApi.getSignedUrl(style.getCadImageId(), ServiceName.ORDER, true);
+        styleResponseDto.setStyleImage(StyleAdapter.buildImageDtoFrom(style.getStyleImageId(), styleImage.getData().getSignedUrl()));
+        styleResponseDto.setCadImage(StyleAdapter.buildImageDtoFrom(style.getCadImageId(), cadImage.getData().getSignedUrl()));
     }
 
     @Override

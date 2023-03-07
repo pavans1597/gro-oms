@@ -33,6 +33,8 @@ service:
     url: http://localhost:8003/master-data-service
   raven:
     url: https://api.ravenapp.dev/v1
+  file_management:
+    url: https://groyyoconsoledev.groyyo.com/file-management-service
 
 ############## Hibernate Configuration ##############
 hibernate:
@@ -76,11 +78,11 @@ jdbc:
   acquire:
     increment: '2'
   slave:
-    url: jdbc:postgresql://localhost:5432/order_management_service?createDatabaseIfNotExist=true
+    url: jdbc:postgresql://localhost:5432/oms?createDatabaseIfNotExist=true
     username: postgres
     password: root
   master:
-    url: jdbc:postgresql://localhost:5432/order_management_service?createDatabaseIfNotExist=true
+    url: jdbc:postgresql://localhost:5432/oms?createDatabaseIfNotExist=true
     username: postgres
     password: root
   checkout:

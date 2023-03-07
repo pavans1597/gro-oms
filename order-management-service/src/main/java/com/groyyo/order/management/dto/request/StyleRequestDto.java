@@ -14,9 +14,11 @@ public class StyleRequestDto {
 
     private String styleNumber;
 
-    private String image;
+    private String styleImageId;
 
-    private String cadImage;
+    private String cadImageId;
 
     private String productId;
+
+    private String productName;
 }

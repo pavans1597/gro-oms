@@ -53,6 +53,11 @@
 		</dependency>
 		<dependency>
 			<groupId>com.groyyo.core</groupId>
+			<artifactId>file-management-client</artifactId>
+			<version>${global.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.groyyo.core</groupId>
 			<artifactId>azureblob</artifactId>
 			<version>${global.version}</version>
 		</dependency>
