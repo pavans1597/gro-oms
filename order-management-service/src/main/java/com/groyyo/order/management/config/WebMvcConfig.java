@@ -15,6 +15,7 @@ import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.groyyo.core.base.http.interceptor.HeaderInterceptor;
 import com.groyyo.core.security.SecurityModuleBuilder;
 import com.groyyo.core.security.interceptor.AuthInterceptor;
 import com.groyyo.core.security.interceptor.UIDInterceptor;
@@ -60,6 +61,11 @@ public class WebMvcConfig implements WebMvcConfigurer {
 	}
 
 	@Bean
+	public HeaderInterceptor headerInterceptor() {
+		return new HeaderInterceptor();
+	}
+
+	@Bean
 	public UIDInterceptor uidInterceptor() {
 		return new UIDInterceptor();
 	}
@@ -97,5 +103,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
 						"/swagger-ui/index.html",
 						"/swagger-ui/**",
 						"/webjars/**");
+
+		registry.addInterceptor(headerInterceptor());
 	}
 }
