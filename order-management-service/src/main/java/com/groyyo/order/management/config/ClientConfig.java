@@ -19,7 +19,8 @@ public class ClientConfig {
     @Value("${service.file_management.url}")
     private String fileManagementServiceUrl;
 
-    @Value("${service.user-client.url}")
+
+    @Value("${service.user.url}")
     private String userServiceUrl;
 
     @Bean(name = "fileClient")
