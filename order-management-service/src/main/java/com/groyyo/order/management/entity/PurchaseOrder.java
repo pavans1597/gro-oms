@@ -4,14 +4,18 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.UniqueConstraint;
 
 import com.groyyo.core.sqlPostgresJpa.entity.AbstractJpaEntity;
+import com.groyyo.order.management.enums.PurchaseOrderStatus;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -32,6 +36,11 @@ public class PurchaseOrder extends AbstractJpaEntity {
 
 	@Column(name = "name", nullable = false, columnDefinition = "varchar(40)")
 	private String name;
+
+	@Column(name = "purchase_order_status")
+	@Enumerated(EnumType.STRING)
+	@Builder.Default
+	private PurchaseOrderStatus purchaseOrderStatus = PurchaseOrderStatus.DRAFT;
 
 	@Column(name = "style_id", columnDefinition = "varchar(40)", nullable = false)
 	private String styleId;
@@ -60,7 +69,7 @@ public class PurchaseOrder extends AbstractJpaEntity {
 	@Column(name = "buyer_name", columnDefinition = "varchar(40)", nullable = false)
 	private String buyerName;
 
-	@Column(name = "tolerance", columnDefinition ="Decimal(10,2)" )
+	@Column(name = "tolerance", columnDefinition = "Decimal(10,2)")
 	private Double tolerance;
 
 	@Column(name = "receive_date", nullable = false)
@@ -80,9 +89,9 @@ public class PurchaseOrder extends AbstractJpaEntity {
 	@Column(name = "part_id", columnDefinition = "varchar(40)", nullable = false)
 	private String partId;
 
-	@Column(name = "order_id", columnDefinition = "varchar(40)")
+	@Column(name = "order_id", columnDefinition = "varchar(40)", nullable = true)
 	private String orderId;
 
-	@Column(name = "order_name", columnDefinition = "varchar(40)")
+	@Column(name = "order_name", columnDefinition = "varchar(40)", nullable = true)
 	private String orderName;
 }

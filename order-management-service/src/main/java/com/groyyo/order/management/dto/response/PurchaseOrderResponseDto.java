@@ -3,7 +3,9 @@ package com.groyyo.order.management.dto.response;
 import java.util.Date;
 
 import com.groyyo.core.master.dto.response.BaseResponseDto;
+import com.groyyo.order.management.enums.PurchaseOrderStatus;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -51,4 +53,7 @@ public class PurchaseOrderResponseDto extends BaseResponseDto {
 	private Long totalQuantity;
 
 	private Long totalTargetQuantity;
+
+	@Builder.Default
+	private PurchaseOrderStatus purchaseOrderStatus = PurchaseOrderStatus.DRAFT;
 }

@@ -1,22 +1,25 @@
 package com.groyyo.order.management.db.service;
 
-import com.groyyo.order.management.entity.LineCheckerAssignment;
-
 import java.util.List;
+
+import com.groyyo.order.management.entity.LineCheckerAssignment;
 
 public interface LineCheckerAssignmentDbService {
 
+	List<LineCheckerAssignment> getAllLineCheckerAssignments();
 
-    List<LineCheckerAssignment> getAllLineCheckerAssignments();
+	List<LineCheckerAssignment> getAllLineCheckerAssignmentsForStatus(boolean status);
 
-    List<LineCheckerAssignment> getAllLineCheckerAssignmentsForStatus(boolean status);
+	LineCheckerAssignment getLineCheckerAssignmentById(String id);
 
-    LineCheckerAssignment getLineCheckerAssignmentById(String id);
+	LineCheckerAssignment saveLineCheckerAssignment(LineCheckerAssignment lineCheckerAssignment);
 
-    LineCheckerAssignment saveLineCheckerAssignment(LineCheckerAssignment lineCheckerAssignment);
+	LineCheckerAssignment activateDeactivateLineCheckerAssignment(LineCheckerAssignment lineCheckerAssignment, boolean status);
 
-    LineCheckerAssignment activateDeactivateLineCheckerAssignment(LineCheckerAssignment lineCheckerAssignment, boolean status);
+	List<LineCheckerAssignment> saveAllLineCheckerAssignemnt(List<LineCheckerAssignment> lineCheckerAssignments);
 
-
-    List<LineCheckerAssignment> saveAllLineCheckerAssignemnt(List<LineCheckerAssignment> lineCheckerAssignments);
+	/**
+	 * @return
+	 */
+	List<LineCheckerAssignment> getLineCheckerAssignmentForPurchaseOrder(String purchaseOrderId);
 }
