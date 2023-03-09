@@ -8,10 +8,12 @@ import com.groyyo.order.management.dto.request.LineAssignmentRequestDto;
 import com.groyyo.order.management.dto.request.PurchaseOrderRequestDto;
 import com.groyyo.order.management.dto.request.PurchaseOrderUpdateDto;
 import com.groyyo.order.management.dto.response.PurchaseOrderResponseDto;
+import com.groyyo.order.management.dto.response.StyleDto;
 import com.groyyo.order.management.entity.LineCheckerAssignment;
 import com.groyyo.order.management.service.LineCheckerService;
 import com.groyyo.order.management.service.PurchaseOrderQuantityService;
 import com.groyyo.order.management.service.PurchaseOrderService;
+import com.groyyo.order.management.service.StyleService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -32,6 +34,9 @@ public class PurchaseOrderController {
 	private PurchaseOrderQuantityService purchaseOrderQuantityService;
 	@Autowired
 	private LineCheckerService lineCheckerService;
+
+	@Autowired
+	private StyleService styleService;
 
 	@GetMapping("/get/all")
 	public ResponseDto<List<PurchaseOrderResponseDto>> getAllPurchaseOrders(@RequestParam(value = "status", required = false) Boolean status) {
@@ -69,7 +74,11 @@ public class PurchaseOrderController {
 	public ResponseDto<PurchaseOrderResponseDto> addPurchaseOrder(@RequestBody @Valid PurchaseOrderRequestDto purchaseOrderRequestDto) {
 
 		log.info("Request received to add purchaseOrder: {}", purchaseOrderRequestDto);
-//        StyleResponseDto styleResponse = styleService.addStyle(purchaseOrderRequestDto.getStyleRequestDto());
+		String uuid = purchaseOrderRequestDto.getStyleRequestDto().getUuid();
+		if(uuid == null || uuid.trim().isEmpty()){
+			StyleDto styleResponse = styleService.addStyle(purchaseOrderRequestDto.getStyleRequestDto());
+			purchaseOrderRequestDto.setStyleRequestDto(styleResponse);
+		}
 		PurchaseOrderResponseDto purchaseOrderResponse = purchaseOrderService.addPurchaseOrder(purchaseOrderRequestDto);
 		purchaseOrderQuantityService.addBulkPurchaseOrderQuantity(purchaseOrderRequestDto.getPurchaseOrderQuantityRequest(), purchaseOrderResponse.getUuid(), purchaseOrderRequestDto.getTolerance());
 
@@ -86,6 +95,7 @@ public class PurchaseOrderController {
 		return Objects.isNull(purchaseOrderResponseDto) ? ResponseDto.failure("Unable to update purchaseOrder !!")
 				: ResponseDto.success("PurchaseOrder updated successfully !!", purchaseOrderResponseDto);
 	}
+
 //	@GetMapping( "fetch/users/{factoryId}/{departmentId}")
 //	public ResponseDto<List<UserResponseDto>> getUsersCheckerAssigmennt(@RequestParam(required = true ) LineType lineType, @RequestParam(required = false, name = "keyword") String keyword , @PathVariable("factoryId") String factoryId , @PathVariable("departmentId") String departmentId ) {
 //

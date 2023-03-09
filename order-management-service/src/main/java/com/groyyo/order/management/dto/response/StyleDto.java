@@ -13,7 +13,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @ToString(callSuper = true)
-public class StyleResponseDto extends BaseResponseDto {
+public class StyleDto extends BaseResponseDto {
 
     private String id;
 

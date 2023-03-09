@@ -8,9 +8,7 @@ import com.groyyo.core.enums.ServiceName;
 import com.groyyo.core.file.management.client.api.FileManagementApi;
 import com.groyyo.order.management.adapter.StyleAdapter;
 import com.groyyo.order.management.db.service.StyleDbService;
-import com.groyyo.order.management.dto.request.StyleRequestDto;
-import com.groyyo.order.management.dto.request.StyleUpdateDto;
-import com.groyyo.order.management.dto.response.StyleResponseDto;
+import com.groyyo.order.management.dto.response.StyleDto;
 import com.groyyo.order.management.entity.Style;
 import com.groyyo.order.management.service.StyleService;
 import lombok.extern.log4j.Log4j2;
@@ -35,7 +33,7 @@ public class StyleServiceImpl implements StyleService {
     private FileManagementApi fileManagementApi;
 
     @Override
-    public List<StyleResponseDto> getAllStyles(Boolean status) {
+    public List<StyleDto> getAllStyles(Boolean status) {
         log.info("Serving request to get all styles");
 
         List<Style> styleEntities = Objects.isNull(status) ? styleDbService.getAllStyles()
@@ -46,14 +44,14 @@ public class StyleServiceImpl implements StyleService {
             return new ArrayList<>();
         }
         return styleEntities.stream().map(style -> {
-            StyleResponseDto styleResponseDto = StyleAdapter.buildResponseFromEntity(style);
-            setImagesForStyle(style, styleResponseDto);
-            return styleResponseDto;
+            StyleDto styleDto = StyleAdapter.buildResponseFromEntity(style);
+            setImagesForStyle(style, styleDto);
+            return styleDto;
         }).collect(Collectors.toList());
     }
 
     @Override
-    public StyleResponseDto getStyleById(String id) {
+    public StyleDto getStyleById(String id) {
 
         log.info("Serving request to get a style by id:{}", id);
 
@@ -68,7 +66,7 @@ public class StyleServiceImpl implements StyleService {
     }
 
     @Override
-    public StyleResponseDto addStyle(StyleRequestDto styleRequestDto) {
+    public StyleDto addStyle(StyleDto styleRequestDto) {
 
         log.info("Serving request to add a style with request object:{}", styleRequestDto);
 
@@ -83,20 +81,24 @@ public class StyleServiceImpl implements StyleService {
             return null;
         }
 
-        StyleResponseDto styleResponseDto = StyleAdapter.buildResponseFromEntity(style);
-        setImagesForStyle(style, styleResponseDto);
-        return styleResponseDto;
+        StyleDto styleDto = StyleAdapter.buildResponseFromEntity(style);
+        setImagesForStyle(style, styleDto);
+        return styleDto;
     }
 
-    private void setImagesForStyle(Style style, StyleResponseDto styleResponseDto) {
-        ResponseDto<FileResponseDto> styleImage = fileManagementApi.getSignedUrl(style.getStyleImageId(), ServiceName.ORDER, true);
-        ResponseDto<FileResponseDto> cadImage = fileManagementApi.getSignedUrl(style.getCadImageId(), ServiceName.ORDER, true);
-        styleResponseDto.setStyleImage(StyleAdapter.buildImageDtoFrom(style.getStyleImageId(), styleImage.getData().getSignedUrl()));
-        styleResponseDto.setCadImage(StyleAdapter.buildImageDtoFrom(style.getCadImageId(), cadImage.getData().getSignedUrl()));
+    private void setImagesForStyle(Style style, StyleDto styleDto) {
+        if(style.getStyleImageId()!=null && !style.getStyleImageId().trim().isEmpty()){
+            ResponseDto<FileResponseDto> styleImage = fileManagementApi.getSignedUrl(style.getStyleImageId(), ServiceName.ORDER, true);
+            styleDto.setStyleImage(StyleAdapter.buildImageDtoFrom(style.getStyleImageId(), styleImage.getData().getSignedUrl()));
+        }
+        if(style.getCadImageId()!=null && !style.getCadImageId().trim().isEmpty()) {
+            ResponseDto<FileResponseDto> cadImage = fileManagementApi.getSignedUrl(style.getCadImageId(), ServiceName.ORDER, true);
+            styleDto.setCadImage(StyleAdapter.buildImageDtoFrom(style.getCadImageId(), cadImage.getData().getSignedUrl()));
+        }
     }
 
     @Override
-    public StyleResponseDto updateStyle(StyleUpdateDto styleUpdateDto) {
+    public StyleDto updateStyle(StyleDto styleUpdateDto) {
 
         log.info("Serving request to update a style with request object:{}", styleUpdateDto);
 
@@ -118,7 +120,7 @@ public class StyleServiceImpl implements StyleService {
     }
 
     @Override
-    public StyleResponseDto activateDeactivateStyle(String id, boolean status) {
+    public StyleDto activateDeactivateStyle(String id, boolean status) {
 
         log.info("Serving request to activate / deactivate a style with id:{}", id);
 
@@ -135,11 +137,11 @@ public class StyleServiceImpl implements StyleService {
     }
 
     @Override
-    public void consumeStyle(StyleResponseDto styleResponseDto) {
-        Style style = StyleAdapter.buildStyleFromResponse(styleResponseDto);
+    public void consumeStyle(StyleDto styleDto) {
+        Style style = StyleAdapter.buildStyleFromResponse(styleDto);
 
         if (Objects.isNull(style)) {
-            log.error("Unable to build style from response object: {}", styleResponseDto);
+            log.error("Unable to build style from response object: {}", styleDto);
             return;
         }
 
@@ -151,11 +153,11 @@ public class StyleServiceImpl implements StyleService {
         return StringUtils.isNotBlank(styleNumber) && styleDbService.isEntityExistsByStyleNumber(styleNumber);
     }
 
-    private void runValidations(StyleRequestDto styleRequestDto) {
+    private void runValidations(StyleDto styleRequestDto) {
         validateStyleNumber(styleRequestDto);
     }
 
-    private void validateStyleNumber(StyleRequestDto styleRequestDto) {
+    private void validateStyleNumber(StyleDto styleRequestDto) {
 
         if (isEntityExistsWithStyleNumber(styleRequestDto.getStyleNumber())) {
             String errorMsg = "Style cannot be created/updated as record already exists with style number: " + styleRequestDto.getStyleNumber();

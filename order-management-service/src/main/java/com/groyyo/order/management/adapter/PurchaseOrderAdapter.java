@@ -17,9 +17,9 @@ public class PurchaseOrderAdapter {
         return PurchaseOrder
                 .builder()
                 .name(purchaseOrderRequestDto.getPurchaseOrderNumber())
-                .styleId(purchaseOrderRequestDto.getStyleId())
-                .styleNumber(purchaseOrderRequestDto.getStyleNumber())
-                .styleName(purchaseOrderRequestDto.getStyleName())
+                .styleId(purchaseOrderRequestDto.getStyleRequestDto().getUuid())
+                .styleNumber(purchaseOrderRequestDto.getStyleRequestDto().getStyleNumber())
+                .styleName(purchaseOrderRequestDto.getStyleRequestDto().getName())
                 .fabricId(purchaseOrderRequestDto.getFabricId())
                 .fabricName(purchaseOrderRequestDto.getFabricName())
                 .buyerId(purchaseOrderRequestDto.getBuyerId())
@@ -30,8 +30,8 @@ public class PurchaseOrderAdapter {
                 .seasonId(purchaseOrderRequestDto.getSeasonId())
                 .fitId(purchaseOrderRequestDto.getFitId())
                 .partId(purchaseOrderRequestDto.getPartId())
-                .productId(purchaseOrderRequestDto.getProductId())
-                .productName(purchaseOrderRequestDto.getProductName())
+                .productId(purchaseOrderRequestDto.getStyleRequestDto().getProductId())
+                .productName(purchaseOrderRequestDto.getStyleRequestDto().getProductName())
                 .build();
     }
 
