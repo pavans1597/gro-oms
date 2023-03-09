@@ -2,6 +2,8 @@ package com.groyyo.order.management.controller;
 
 import com.groyyo.core.base.common.dto.PageResponse;
 import com.groyyo.core.base.common.dto.ResponseDto;
+import com.groyyo.core.base.constants.InterceptorConstants;
+import com.groyyo.core.base.http.utils.HeaderUtil;
 import com.groyyo.order.management.dto.request.LineAssignmentRequestDto;
 import com.groyyo.order.management.dto.request.PurchaseOrderRequestDto;
 import com.groyyo.order.management.dto.request.PurchaseOrderUpdateDto;
@@ -105,13 +107,12 @@ public class PurchaseOrderController {
 //	}
 
 
-	@PostMapping("/assign/checkers/{factoryId}")
-	public ResponseDto<PurchaseOrderResponseDto> assignCheckers(@PathVariable("factoryId") String factoryId , @RequestBody LineAssignmentRequestDto checkerAssignDto) {
-
+	@PostMapping("/assign/checkers")
+	public ResponseDto<PurchaseOrderResponseDto> assignCheckers(@RequestBody LineAssignmentRequestDto checkerAssignDto) {
 		log.info("Request received to update purchaseOrder: {}", checkerAssignDto);
-
-		List<LineCheckerAssignment> lineCheckerAssignments = lineCheckerService.lineCheckerAssignment(checkerAssignDto,factoryId);
-
+		String headerFactoryIdName = InterceptorConstants.HEADER_FACTORY_ID_NAME;
+		String factoryIdHeaderValue = HeaderUtil.getFactoryIdHeaderValue();
+		List<LineCheckerAssignment> lineCheckerAssignments = lineCheckerService.lineCheckerAssignment(checkerAssignDto,factoryIdHeaderValue);
 		return Objects.isNull(lineCheckerAssignments) ? ResponseDto.failure("Unable to update purchaseOrder !!")
 				: ResponseDto.success("PurchaseOrder updated successfully !!");
 	}
