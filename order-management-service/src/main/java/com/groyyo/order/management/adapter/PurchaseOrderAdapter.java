@@ -3,10 +3,9 @@ package com.groyyo.order.management.adapter;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang3.StringUtils;
-
 import com.groyyo.order.management.dto.request.PurchaseOrderRequestDto;
 import com.groyyo.order.management.dto.response.PurchaseOrderResponseDto;
+import org.apache.commons.lang3.StringUtils;
 import com.groyyo.order.management.entity.PurchaseOrder;
 
 import lombok.experimental.UtilityClass;
@@ -14,28 +13,27 @@ import lombok.experimental.UtilityClass;
 @UtilityClass
 public class PurchaseOrderAdapter {
 
-	public PurchaseOrder buildPurchaseOrderFromRequest(PurchaseOrderRequestDto purchaseOrderRequestDto) {
-
-		return PurchaseOrder
-				.builder()
-				.name(purchaseOrderRequestDto.getPurchaseOrderNumber())
-				.styleId(purchaseOrderRequestDto.getStyleId())
-				.styleNumber(purchaseOrderRequestDto.getStyleNumber())
-				.styleName(purchaseOrderRequestDto.getStyleName())
-				.fabricId(purchaseOrderRequestDto.getFabricId())
-				.fabricName(purchaseOrderRequestDto.getFabricName())
-				.buyerId(purchaseOrderRequestDto.getBuyerId())
-				.buyerName(purchaseOrderRequestDto.getBuyerName())
-				.tolerance(purchaseOrderRequestDto.getTolerance())
-				.receiveDate(purchaseOrderRequestDto.getReceiveDate())
-				.exFtyDate(purchaseOrderRequestDto.getExFtyDate())
-				.seasonId(purchaseOrderRequestDto.getSeasonId())
-				.fitId(purchaseOrderRequestDto.getFitId())
-				.partId(purchaseOrderRequestDto.getPartId())
-				.productId(purchaseOrderRequestDto.getProductId())
-				.productName(purchaseOrderRequestDto.getProductName())
-				.build();
-	}
+    public PurchaseOrder buildPurchaseOrderFromRequest(PurchaseOrderRequestDto purchaseOrderRequestDto) {
+        return PurchaseOrder
+                .builder()
+                .name(purchaseOrderRequestDto.getPurchaseOrderNumber())
+                .styleId(purchaseOrderRequestDto.getStyleRequestDto().getUuid())
+                .styleNumber(purchaseOrderRequestDto.getStyleRequestDto().getStyleNumber())
+                .styleName(purchaseOrderRequestDto.getStyleRequestDto().getName())
+                .fabricId(purchaseOrderRequestDto.getFabricId())
+                .fabricName(purchaseOrderRequestDto.getFabricName())
+                .buyerId(purchaseOrderRequestDto.getBuyerId())
+                .buyerName(purchaseOrderRequestDto.getBuyerName())
+                .tolerance(purchaseOrderRequestDto.getTolerance())
+                .receiveDate(purchaseOrderRequestDto.getReceiveDate())
+                .exFtyDate(purchaseOrderRequestDto.getExFtyDate())
+                .seasonId(purchaseOrderRequestDto.getSeasonId())
+                .fitId(purchaseOrderRequestDto.getFitId())
+                .partId(purchaseOrderRequestDto.getPartId())
+                .productId(purchaseOrderRequestDto.getStyleRequestDto().getProductId())
+                .productName(purchaseOrderRequestDto.getStyleRequestDto().getProductName())
+                .build();
+    }
 
 	public PurchaseOrder buildPurchaseOrderFromResponse(PurchaseOrderResponseDto purchaseOrderResponseDto) {
 

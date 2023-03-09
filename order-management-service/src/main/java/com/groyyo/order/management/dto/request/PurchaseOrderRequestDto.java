@@ -1,5 +1,6 @@
 package com.groyyo.order.management.dto.request;
 
+import com.groyyo.order.management.dto.response.StyleDto;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import java.util.Date;
@@ -13,16 +14,6 @@ import java.util.List;
 @AllArgsConstructor
 public class PurchaseOrderRequestDto {
     private String purchaseOrderNumber;
-
-    private String styleId;
-
-    private String styleNumber;
-
-    private String styleName;
-
-    private String productId;
-
-    private String productName;
 
     private String fabricId;
 
@@ -45,5 +36,7 @@ public class PurchaseOrderRequestDto {
     private String partId;
 
     private List<PurchaseOrderQuantityRequestDto> purchaseOrderQuantityRequest;
+
+    private StyleDto styleRequestDto;
 
 }

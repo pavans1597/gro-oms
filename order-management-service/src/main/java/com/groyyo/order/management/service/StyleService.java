@@ -1,9 +1,7 @@
 package com.groyyo.order.management.service;
 
 
-import com.groyyo.order.management.dto.request.StyleRequestDto;
-import com.groyyo.order.management.dto.request.StyleUpdateDto;
-import com.groyyo.order.management.dto.response.StyleResponseDto;
+import com.groyyo.order.management.dto.response.StyleDto;
 
 import java.util.List;
 
@@ -13,20 +11,20 @@ import java.util.List;
 public interface StyleService {
 
 
-    List<StyleResponseDto> getAllStyles(Boolean status);
+    List<StyleDto> getAllStyles(Boolean status);
 
 
-    StyleResponseDto getStyleById(String id);
+    StyleDto getStyleById(String id);
 
 
-    StyleResponseDto addStyle(StyleRequestDto styleRequestDto);
+    StyleDto addStyle(StyleDto styleRequestDto);
 
 
-    StyleResponseDto updateStyle(StyleUpdateDto styleUpdateDto);
+    StyleDto updateStyle(StyleDto styleUpdateDto);
 
 
-    StyleResponseDto activateDeactivateStyle(String id, boolean status);
+    StyleDto activateDeactivateStyle(String id, boolean status);
 
 
-    void consumeStyle(StyleResponseDto styleResponseDto);
+    void consumeStyle(StyleDto styleDto);
 }
