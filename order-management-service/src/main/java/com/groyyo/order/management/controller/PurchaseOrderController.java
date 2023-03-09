@@ -26,13 +26,10 @@ import com.groyyo.order.management.dto.request.LineAssignmentRequestDto;
 import com.groyyo.order.management.dto.request.PurchaseOrderRequestDto;
 import com.groyyo.order.management.dto.request.PurchaseOrderUpdateDto;
 import com.groyyo.order.management.dto.response.PurchaseOrderResponseDto;
-import com.groyyo.order.management.dto.response.StyleDto;
 import com.groyyo.order.management.entity.LineCheckerAssignment;
 import com.groyyo.order.management.enums.PurchaseOrderStatus;
 import com.groyyo.order.management.service.LineCheckerService;
-import com.groyyo.order.management.service.PurchaseOrderQuantityService;
 import com.groyyo.order.management.service.PurchaseOrderService;
-import com.groyyo.order.management.service.StyleService;
 
 import lombok.extern.log4j.Log4j2;
 
@@ -45,12 +42,7 @@ public class PurchaseOrderController {
 	private PurchaseOrderService purchaseOrderService;
 
 	@Autowired
-	private PurchaseOrderQuantityService purchaseOrderQuantityService;
-	@Autowired
 	private LineCheckerService lineCheckerService;
-
-	@Autowired
-	private StyleService styleService;
 
 	@GetMapping("/get/all")
 	public ResponseDto<List<PurchaseOrderResponseDto>> getAllPurchaseOrders(@RequestParam(value = "status", required = false) Boolean status) {
@@ -91,15 +83,10 @@ public class PurchaseOrderController {
 	public ResponseDto<PurchaseOrderResponseDto> addPurchaseOrder(@RequestBody @Valid PurchaseOrderRequestDto purchaseOrderRequestDto) {
 
 		log.info("Request received to add purchaseOrder: {}", purchaseOrderRequestDto);
-		String uuid = purchaseOrderRequestDto.getStyleRequestDto().getUuid();
-		if (uuid == null || uuid.trim().isEmpty()) {
-			StyleDto styleResponse = styleService.addStyle(purchaseOrderRequestDto.getStyleRequestDto());
-			purchaseOrderRequestDto.setStyleRequestDto(styleResponse);
-		}
-		PurchaseOrderResponseDto purchaseOrderResponse = purchaseOrderService.addPurchaseOrder(purchaseOrderRequestDto);
-		purchaseOrderQuantityService.addBulkPurchaseOrderQuantity(purchaseOrderRequestDto.getPurchaseOrderQuantityRequest(), purchaseOrderResponse.getUuid(), purchaseOrderRequestDto.getTolerance());
 
-		return ResponseDto.success("PurchaseOrder added successfully !!", purchaseOrderResponse);
+		PurchaseOrderResponseDto purchaseOrderResponseDto = purchaseOrderService.addPurchaseOrder(purchaseOrderRequestDto);
+
+		return ResponseDto.success("PurchaseOrder added successfully !!", purchaseOrderResponseDto);
 	}
 
 	@PostMapping("/update")
@@ -139,9 +126,11 @@ public class PurchaseOrderController {
 	@PostMapping("/assign/checkers")
 	public ResponseDto<PurchaseOrderResponseDto> assignCheckers(@RequestBody LineAssignmentRequestDto checkerAssignDto) {
 		log.info("Request received to update purchaseOrder: {}", checkerAssignDto);
+
 		String headerFactoryIdName = InterceptorConstants.HEADER_FACTORY_ID_NAME;
 		String factoryIdHeaderValue = HeaderUtil.getFactoryIdHeaderValue();
 		List<LineCheckerAssignment> lineCheckerAssignments = lineCheckerService.lineCheckerAssignment(checkerAssignDto, factoryIdHeaderValue);
+
 		return Objects.isNull(lineCheckerAssignments) ? ResponseDto.failure("Unable to update purchaseOrder !!")
 				: ResponseDto.success("PurchaseOrder updated successfully !!");
 	}

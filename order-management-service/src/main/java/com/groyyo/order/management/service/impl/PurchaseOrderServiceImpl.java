@@ -29,11 +29,13 @@ import com.groyyo.order.management.dto.filter.PurchaseOrderFilterDto;
 import com.groyyo.order.management.dto.request.PurchaseOrderRequestDto;
 import com.groyyo.order.management.dto.request.PurchaseOrderUpdateDto;
 import com.groyyo.order.management.dto.response.PurchaseOrderResponseDto;
+import com.groyyo.order.management.dto.response.StyleDto;
 import com.groyyo.order.management.entity.LineCheckerAssignment;
 import com.groyyo.order.management.entity.PurchaseOrder;
 import com.groyyo.order.management.enums.PurchaseOrderStatus;
 import com.groyyo.order.management.service.PurchaseOrderQuantityService;
 import com.groyyo.order.management.service.PurchaseOrderService;
+import com.groyyo.order.management.service.StyleService;
 
 import lombok.extern.log4j.Log4j2;
 
@@ -49,6 +51,9 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
 	@Autowired
 	private LineCheckerAssignmentDbService lineCheckerAssignmentDbService;
+
+	@Autowired
+	private StyleService styleService;
 
 	@Override
 	public List<PurchaseOrderResponseDto> getAllPurchaseOrders(Boolean status) {
@@ -67,9 +72,6 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
 		purchaseOrderResponseDtos = PurchaseOrderAdapter.buildResponsesFromEntities(purchaseOrderEntities);
 		log.info("Found total: {} purchase orders to show in listing ", purchaseOrderResponseDtos.size());
-
-		List<String> purchaseOrderIds = purchaseOrderResponseDtos.stream().map(PurchaseOrderResponseDto::getUuid).collect(Collectors.toList());
-		log.info("Fetched distinct purchase ids: {} from the list of purchase orders ", purchaseOrderIds.size());
 
 		populateTotalQuantitiesForPurchaseOrder(purchaseOrderResponseDtos);
 		populateLineCheckerAssignmentsForPurchaseOrder(purchaseOrderResponseDtos);
@@ -95,18 +97,30 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 	@Override
 	public PurchaseOrderResponseDto addPurchaseOrder(PurchaseOrderRequestDto purchaseOrderRequestDto) {
 
-		log.info("Serving request to add a purchaseOrder with request object:{}", purchaseOrderRequestDto);
+		log.info("Serving request to add a purchaseOrder with request object: {}", purchaseOrderRequestDto);
 
-		PurchaseOrder purchaseOrder = PurchaseOrderAdapter.buildPurchaseOrderFromRequest(purchaseOrderRequestDto);
+		PurchaseOrder purchaseOrder = PurchaseOrder.builder().build();
 
-		purchaseOrder = purchaseOrderDbService.savePurchaseOrder(purchaseOrder);
+		try {
+			purchaseOrder = PurchaseOrderAdapter.buildPurchaseOrderFromRequest(purchaseOrderRequestDto);
 
-		if (Objects.isNull(purchaseOrder)) {
-			log.error("Unable to add purchaseOrder for object: {}", purchaseOrderRequestDto);
-			return null;
+			purchaseOrder = purchaseOrderDbService.savePurchaseOrder(purchaseOrder);
+
+			if (Objects.isNull(purchaseOrder)) {
+				log.error("Unable to add purchaseOrder for object: {}", purchaseOrderRequestDto);
+				return null;
+			}
+
+			addRunTimeStyle(purchaseOrderRequestDto);
+
+			addPurchaseOrderQuantities(purchaseOrderRequestDto, purchaseOrder);
+
+			updateVitalFieldsAndSave(purchaseOrder);
+
+		} catch (Exception e) {
+
+			log.error("Exception caught while adding Purchase order with request object: {}", purchaseOrderRequestDto, e);
 		}
-
-		updatePurchaseOrderStatus(purchaseOrder);
 
 		return PurchaseOrderAdapter.buildResponseFromEntity(purchaseOrder);
 	}
@@ -148,6 +162,31 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
 	}
 
+	private void updateVitalFieldsAndSave(PurchaseOrder purchaseOrder) {
+
+		updatePurchaseOrderStatus(purchaseOrder);
+
+		setTotalQuantitiesForPurchaseOrder(purchaseOrder);
+
+		purchaseOrderDbService.saveAndFlush(purchaseOrder);
+	}
+
+	private void addPurchaseOrderQuantities(PurchaseOrderRequestDto purchaseOrderRequestDto, PurchaseOrder purchaseOrder) {
+
+		purchaseOrderQuantityService.addBulkPurchaseOrderQuantity(purchaseOrderRequestDto.getPurchaseOrderQuantityRequest(), purchaseOrder.getUuid(), purchaseOrderRequestDto.getTolerance());
+	}
+
+	private void addRunTimeStyle(PurchaseOrderRequestDto purchaseOrderRequestDto) {
+
+		String styleUuid = Objects.nonNull(purchaseOrderRequestDto) ? purchaseOrderRequestDto.getStyleRequestDto().getUuid() : null;
+
+		if (StringUtils.isBlank(styleUuid)) {
+
+			StyleDto styleResponse = styleService.addStyle(purchaseOrderRequestDto.getStyleRequestDto());
+			purchaseOrderRequestDto.setStyleRequestDto(styleResponse);
+		}
+	}
+
 	private void populateTotalQuantitiesForPurchaseOrder(List<PurchaseOrderResponseDto> purchaseOrderResponseDtos) {
 
 		purchaseOrderResponseDtos.forEach(purchaseOrderResponseDto -> {
@@ -155,6 +194,12 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 			purchaseOrderResponseDto.setTotalQuantity(purchaseOrderQuantityService.getTotalQuantityForPurchaseOrder(purchaseOrderResponseDto.getUuid()));
 			purchaseOrderResponseDto.setTotalTargetQuantity(purchaseOrderQuantityService.getTotalTargetQuantityForPurchaseOrder(purchaseOrderResponseDto.getUuid()));
 		});
+	}
+
+	private void setTotalQuantitiesForPurchaseOrder(PurchaseOrder purchaseOrder) {
+
+		purchaseOrder.setTotalQuantity(purchaseOrderQuantityService.getTotalQuantityForPurchaseOrder(purchaseOrder.getUuid()));
+		purchaseOrder.setTotalTargetQuantity(purchaseOrderQuantityService.getTotalTargetQuantityForPurchaseOrder(purchaseOrder.getUuid()));
 	}
 
 	private void populateLineCheckerAssignmentsForPurchaseOrder(List<PurchaseOrderResponseDto> purchaseOrderResponseDtos) {
@@ -174,8 +219,6 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 		if (CollectionUtils.isNotEmpty(lineCheckerAssignments)) {
 			purchaseOrder.setPurchaseOrderStatus(PurchaseOrderStatus.ONGOING);
 		}
-
-		purchaseOrderDbService.saveAndFlush(purchaseOrder);
 	}
 
 	private void populateLineCheckerAssignments(PurchaseOrderResponseDto purchaseOrderResponseDto) {

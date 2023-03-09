@@ -94,4 +94,10 @@ public class PurchaseOrder extends AbstractJpaEntity {
 
 	@Column(name = "order_name", columnDefinition = "varchar(40)", nullable = true)
 	private String orderName;
+
+	@Column(name = "quantity", columnDefinition = "BIGINT", nullable = true)
+	private Long totalQuantity;
+
+	@Column(name = "targetQuantity", columnDefinition = "BIGINT", nullable = true)
+	private Long totalTargetQuantity;
 }
