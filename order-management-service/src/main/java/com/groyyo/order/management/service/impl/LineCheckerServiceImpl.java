@@ -1,5 +1,10 @@
 package com.groyyo.order.management.service.impl;
 
+import com.groyyo.core.base.common.dto.ResponseDto;
+import com.groyyo.core.dto.userservice.LineResponseDto;
+import com.groyyo.core.dto.userservice.LineType;
+import com.groyyo.core.dto.userservice.UserResponseDto;
+import com.groyyo.core.user.client.api.UserClientApi;
 import com.groyyo.order.management.adapter.LineCheckerAdapter;
 import com.groyyo.order.management.db.service.LineCheckerAssignmentDbService;
 import com.groyyo.order.management.dto.request.LineAssignment;
@@ -16,33 +21,32 @@ import java.util.List;
 @Service
 @Log4j2
 public class LineCheckerServiceImpl implements LineCheckerService {
-//	@Autowired
-//	UserClientApi userClientApi ;
+	@Autowired
+	UserClientApi userClientApi ;
 
 	@Autowired
 	private LineCheckerAssignmentDbService lineCheckerAssignmentDbService;
 
-//	@Override
-//	public List<UserResponseDto> getLineUsers(String factoryId, String departmentId, String searchKeyWord, LineType lineType) {
-//		try {
-//			return  userClientApi.getLineUsers(factoryId,departmentId,,lineType);
-//		} catch (Exception e) {
-//			log.error("exception occured while calling getLineUsers service ");
-//		}
-//		return null;
-//	}
+	public ResponseDto<List<UserResponseDto>> getLineUsers(String factoryId, LineType lineType) {
+		try {
+			return userClientApi.getUsers(factoryId,lineType);
+		} catch (Exception e) {
+			log.error("exception occured while calling getLineUsers service ");
+		}
+		return null;
+	}
 
-//
-//
-//	@Override
-//	public List<LineResponseDto> getLines(String factoryId, LineType lineType) {
-//		try {
-//			return  userClientApi.getLines(factoryId,lineType);
-//		} catch (Exception e) {
-//			log.error("exception occured while calling getLines service ");
-//		}
-//		return null;
-//	}
+
+
+	@Override
+	public ResponseDto<List<LineResponseDto>> getLines(String factoryId, LineType lineType) {
+		try {
+			return userClientApi.getLines(factoryId);
+		} catch (Exception e) {
+			log.error("exception occured while calling getLines service ");
+		}
+		return null;
+	}
 
 	@Override
 	public List<LineCheckerAssignment> lineCheckerAssignment(LineAssignmentRequestDto lineAssignmentRequestDto, String factoryId) {
