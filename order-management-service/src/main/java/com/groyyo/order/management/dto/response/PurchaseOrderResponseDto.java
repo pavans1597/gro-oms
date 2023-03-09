@@ -1,8 +1,11 @@
 package com.groyyo.order.management.dto.response;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import com.groyyo.core.master.dto.response.BaseResponseDto;
+import com.groyyo.order.management.entity.LineCheckerAssignment;
 import com.groyyo.order.management.enums.PurchaseOrderStatus;
 
 import lombok.Builder;
@@ -56,4 +59,7 @@ public class PurchaseOrderResponseDto extends BaseResponseDto {
 
 	@Builder.Default
 	private PurchaseOrderStatus purchaseOrderStatus = PurchaseOrderStatus.DRAFT;
+
+	@Builder.Default
+	private List<LineCheckerAssignment> lineCheckerAssignments = new ArrayList<LineCheckerAssignment>();
 }

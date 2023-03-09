@@ -3,9 +3,11 @@ package com.groyyo.order.management.service;
 import java.util.List;
 
 import com.groyyo.core.base.common.dto.PageResponse;
+import com.groyyo.order.management.dto.filter.PurchaseOrderFilterDto;
 import com.groyyo.order.management.dto.request.PurchaseOrderRequestDto;
 import com.groyyo.order.management.dto.request.PurchaseOrderUpdateDto;
 import com.groyyo.order.management.dto.response.PurchaseOrderResponseDto;
+import com.groyyo.order.management.enums.PurchaseOrderStatus;
 
 public interface PurchaseOrderService {
 
@@ -22,6 +24,6 @@ public interface PurchaseOrderService {
 	 * @param limit
 	 * @return
 	 */
-	PageResponse<PurchaseOrderResponseDto> getPurchaseOrderListing(int page, int limit);
+	PageResponse<PurchaseOrderResponseDto> getPurchaseOrderListing(PurchaseOrderFilterDto purchaseOrderFilterDto, PurchaseOrderStatus purchaseOrderStatus, int page, int limit);
 
 }

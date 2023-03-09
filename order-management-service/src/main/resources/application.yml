@@ -46,7 +46,7 @@ hibernate:
     provider_class: org.hibernate.cache.NoCacheProvider
   hbm2ddl:
     auto: update
-  show_sql: 'false'
+  show_sql: 'true'
 
 ################# Postgresql JDBC Connection config ###############
 jdbc:

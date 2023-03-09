@@ -18,7 +18,6 @@ import com.groyyo.core.kafka.producer.NotificationProducer;
 import com.groyyo.core.master.dto.request.ProductRequestDto;
 import com.groyyo.core.master.dto.response.ProductResponseDto;
 import com.groyyo.order.management.adapter.ProductAdapter;
-import com.groyyo.order.management.constants.KafkaConstants;
 import com.groyyo.order.management.db.service.ProductDbService;
 import com.groyyo.order.management.entity.Product;
 import com.groyyo.order.management.service.ProductService;

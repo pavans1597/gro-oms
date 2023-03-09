@@ -21,12 +21,14 @@ import com.groyyo.core.base.http.utils.HeaderUtil;
 import com.groyyo.core.dto.userservice.LineResponseDto;
 import com.groyyo.core.dto.userservice.LineType;
 import com.groyyo.core.dto.userservice.UserResponseDto;
+import com.groyyo.order.management.dto.filter.PurchaseOrderFilterDto;
 import com.groyyo.order.management.dto.request.LineAssignmentRequestDto;
 import com.groyyo.order.management.dto.request.PurchaseOrderRequestDto;
 import com.groyyo.order.management.dto.request.PurchaseOrderUpdateDto;
 import com.groyyo.order.management.dto.response.PurchaseOrderResponseDto;
 import com.groyyo.order.management.dto.response.StyleDto;
 import com.groyyo.order.management.entity.LineCheckerAssignment;
+import com.groyyo.order.management.enums.PurchaseOrderStatus;
 import com.groyyo.order.management.service.LineCheckerService;
 import com.groyyo.order.management.service.PurchaseOrderQuantityService;
 import com.groyyo.order.management.service.PurchaseOrderService;
@@ -71,15 +73,18 @@ public class PurchaseOrderController {
 				: ResponseDto.success("Found purchaseOrder with id: " + id, purchaseOrderResponseDto);
 	}
 
-	@GetMapping("get/listing/{page}/{limit}")
-	public ResponseDto<PageResponse<PurchaseOrderResponseDto>> getPurchaseOrderListing(@PathVariable(name = "page", value = "page") int page,
+	@PostMapping("get/listing/{page}/{limit}")
+	public ResponseDto<PageResponse<PurchaseOrderResponseDto>> getPurchaseOrderListing(@RequestBody PurchaseOrderFilterDto purchaseOrderFilterDto,
+			@RequestParam(name = "poStatus", value = "poStatus") PurchaseOrderStatus purchaseOrderStatus,
+			@PathVariable(name = "page", value = "page") int page,
 			@PathVariable(name = "limit", value = "limit") int limit) {
 
-		log.info("Request received to get listing of purchase orders with page: {} and limit: {}", page, limit);
+		log.info("Request received to get listing of purchase orders with purchaseOrderFilterDto: {}, purchaseOrderStatus: {}, page: {}, limit: {}", purchaseOrderFilterDto, purchaseOrderStatus, page,
+				limit);
 
-		PageResponse<PurchaseOrderResponseDto> purchaseOrderResponseDtos = purchaseOrderService.getPurchaseOrderListing(page, limit);
+		PageResponse<PurchaseOrderResponseDto> purchaseOrderResponseDtos = purchaseOrderService.getPurchaseOrderListing(purchaseOrderFilterDto, purchaseOrderStatus, page, limit);
 
-		return ResponseDto.success("Page Response", purchaseOrderResponseDtos);
+		return ResponseDto.success("Page Response for Purchase Orders", purchaseOrderResponseDtos);
 	}
 
 	@PostMapping("/add")
@@ -87,7 +92,7 @@ public class PurchaseOrderController {
 
 		log.info("Request received to add purchaseOrder: {}", purchaseOrderRequestDto);
 		String uuid = purchaseOrderRequestDto.getStyleRequestDto().getUuid();
-		if(uuid == null || uuid.trim().isEmpty()){
+		if (uuid == null || uuid.trim().isEmpty()) {
 			StyleDto styleResponse = styleService.addStyle(purchaseOrderRequestDto.getStyleRequestDto());
 			purchaseOrderRequestDto.setStyleRequestDto(styleResponse);
 		}

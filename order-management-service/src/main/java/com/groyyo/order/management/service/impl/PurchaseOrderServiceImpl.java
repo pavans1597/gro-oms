@@ -17,11 +17,15 @@ import org.springframework.stereotype.Service;
 import com.groyyo.core.base.common.dto.PageResponse;
 import com.groyyo.core.base.exception.NoRecordException;
 import com.groyyo.core.base.exception.RecordExistsException;
+import com.groyyo.core.sqlPostgresJpa.specification.utils.CriteriaOperation;
 import com.groyyo.core.sqlPostgresJpa.specification.utils.GroyyoSpecificationBuilder;
 import com.groyyo.core.sqlPostgresJpa.specification.utils.PaginationUtility;
 import com.groyyo.order.management.adapter.PurchaseOrderAdapter;
+import com.groyyo.order.management.constants.FilterConstants;
+import com.groyyo.order.management.constants.SymbolConstants;
 import com.groyyo.order.management.db.service.LineCheckerAssignmentDbService;
 import com.groyyo.order.management.db.service.PurchaseOrderDbService;
+import com.groyyo.order.management.dto.filter.PurchaseOrderFilterDto;
 import com.groyyo.order.management.dto.request.PurchaseOrderRequestDto;
 import com.groyyo.order.management.dto.request.PurchaseOrderUpdateDto;
 import com.groyyo.order.management.dto.response.PurchaseOrderResponseDto;
@@ -68,8 +72,8 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 		log.info("Fetched distinct purchase ids: {} from the list of purchase orders ", purchaseOrderIds.size());
 
 		populateTotalQuantitiesForPurchaseOrder(purchaseOrderResponseDtos);
+		populateLineCheckerAssignmentsForPurchaseOrder(purchaseOrderResponseDtos);
 
-		// TODO fetch purchase order line data
 		return purchaseOrderResponseDtos;
 	}
 
@@ -107,19 +111,6 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 		return PurchaseOrderAdapter.buildResponseFromEntity(purchaseOrder);
 	}
 
-	private void updatePurchaseOrderStatus(PurchaseOrder purchaseOrder) {
-
-		purchaseOrder.setPurchaseOrderStatus(PurchaseOrderStatus.YET_TO_START);
-
-		List<LineCheckerAssignment> lineCheckerAssignments = lineCheckerAssignmentDbService.getLineCheckerAssignmentForPurchaseOrder(purchaseOrder.getUuid());
-
-		if (CollectionUtils.isNotEmpty(lineCheckerAssignments)) {
-			purchaseOrder.setPurchaseOrderStatus(PurchaseOrderStatus.ONGOING);
-		}
-
-		purchaseOrderDbService.saveAndFlush(purchaseOrder);
-	}
-
 	@Override
 	public PurchaseOrderResponseDto updatePurchaseOrder(PurchaseOrderUpdateDto purchaseOrderUpdateDto) {
 
@@ -141,19 +132,10 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 		return PurchaseOrderAdapter.buildResponseFromEntity(purchaseOrder);
 	}
 
-	private void populateTotalQuantitiesForPurchaseOrder(List<PurchaseOrderResponseDto> purchaseOrderResponseDtos) {
-
-		purchaseOrderResponseDtos.forEach(purchaseOrderResponseDto -> {
-
-			purchaseOrderResponseDto.setTotalQuantity(purchaseOrderQuantityService.getTotalQuantityForPurchaseOrder(purchaseOrderResponseDto.getUuid()));
-			purchaseOrderResponseDto.setTotalTargetQuantity(purchaseOrderQuantityService.getTotalTargetQuantityForPurchaseOrder(purchaseOrderResponseDto.getUuid()));
-		});
-	}
-
 	@Override
-	public PageResponse<PurchaseOrderResponseDto> getPurchaseOrderListing(int page, int limit) {
+	public PageResponse<PurchaseOrderResponseDto> getPurchaseOrderListing(PurchaseOrderFilterDto purchaseOrderFilterDto, PurchaseOrderStatus purchaseOrderStatus, int page, int limit) {
 
-		Specification<PurchaseOrder> specification = getSpecificationForPurchaseOrderListing();
+		Specification<PurchaseOrder> specification = getSpecificationForPurchaseOrderListing(purchaseOrderFilterDto, purchaseOrderStatus);
 
 		Pageable pageable = PaginationUtility.getPageRequest(page, limit, "updatedAt", Direction.DESC);
 
@@ -166,6 +148,43 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
 	}
 
+	private void populateTotalQuantitiesForPurchaseOrder(List<PurchaseOrderResponseDto> purchaseOrderResponseDtos) {
+
+		purchaseOrderResponseDtos.forEach(purchaseOrderResponseDto -> {
+
+			purchaseOrderResponseDto.setTotalQuantity(purchaseOrderQuantityService.getTotalQuantityForPurchaseOrder(purchaseOrderResponseDto.getUuid()));
+			purchaseOrderResponseDto.setTotalTargetQuantity(purchaseOrderQuantityService.getTotalTargetQuantityForPurchaseOrder(purchaseOrderResponseDto.getUuid()));
+		});
+	}
+
+	private void populateLineCheckerAssignmentsForPurchaseOrder(List<PurchaseOrderResponseDto> purchaseOrderResponseDtos) {
+
+		purchaseOrderResponseDtos.forEach(purchaseOrderResponseDto -> {
+
+			populateLineCheckerAssignments(purchaseOrderResponseDto);
+		});
+	}
+
+	private void updatePurchaseOrderStatus(PurchaseOrder purchaseOrder) {
+
+		purchaseOrder.setPurchaseOrderStatus(PurchaseOrderStatus.YET_TO_START);
+
+		List<LineCheckerAssignment> lineCheckerAssignments = lineCheckerAssignmentDbService.getLineCheckerAssignmentForPurchaseOrder(purchaseOrder.getUuid());
+
+		if (CollectionUtils.isNotEmpty(lineCheckerAssignments)) {
+			purchaseOrder.setPurchaseOrderStatus(PurchaseOrderStatus.ONGOING);
+		}
+
+		purchaseOrderDbService.saveAndFlush(purchaseOrder);
+	}
+
+	private void populateLineCheckerAssignments(PurchaseOrderResponseDto purchaseOrderResponseDto) {
+
+		List<LineCheckerAssignment> lineCheckerAssignments = lineCheckerAssignmentDbService.getLineCheckerAssignmentForPurchaseOrder(purchaseOrderResponseDto.getUuid());
+
+		purchaseOrderResponseDto.setLineCheckerAssignments(lineCheckerAssignments);
+	}
+
 	private List<PurchaseOrderResponseDto> convertPurchaseOrderPageDataToResponseDtos(Page<PurchaseOrder> data) {
 
 		List<PurchaseOrder> purchaseOrders = data.get().collect(Collectors.toList());
@@ -173,6 +192,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 		List<PurchaseOrderResponseDto> purchaseOrderResponseDtos = PurchaseOrderAdapter.buildResponsesFromEntities(purchaseOrders);
 
 		populateTotalQuantitiesForPurchaseOrder(purchaseOrderResponseDtos);
+		populateLineCheckerAssignmentsForPurchaseOrder(purchaseOrderResponseDtos);
 
 		return purchaseOrderResponseDtos;
 	}
@@ -180,8 +200,68 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 	/**
 	 * @return
 	 */
-	private Specification<PurchaseOrder> getSpecificationForPurchaseOrderListing() {
+	private Specification<PurchaseOrder> getSpecificationForPurchaseOrderListing(PurchaseOrderFilterDto purchaseOrderFilterDto, PurchaseOrderStatus purchaseOrderStatus) {
 		GroyyoSpecificationBuilder<PurchaseOrder> groyyoSpecificationBuilder = new GroyyoSpecificationBuilder<PurchaseOrder>();
+
+		groyyoSpecificationBuilder.with(FilterConstants.STATUS, CriteriaOperation.TRUE, Boolean.TRUE);
+
+		if (Objects.nonNull(purchaseOrderStatus))
+			groyyoSpecificationBuilder.with(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_STATUS, CriteriaOperation.ENUM_EQ, purchaseOrderStatus);
+
+		if (Objects.nonNull(purchaseOrderFilterDto)) {
+
+			if (Objects.nonNull(purchaseOrderFilterDto.getId()))
+				groyyoSpecificationBuilder.with(FilterConstants.ID, CriteriaOperation.EQ, purchaseOrderFilterDto.getId());
+
+			if (Objects.nonNull(purchaseOrderFilterDto.getUuid()))
+				groyyoSpecificationBuilder.with(FilterConstants.UUID, CriteriaOperation.EQ, purchaseOrderFilterDto.getUuid());
+
+			if (Objects.nonNull(purchaseOrderFilterDto.getName()))
+				groyyoSpecificationBuilder.with(FilterConstants.NAME, CriteriaOperation.EQ, purchaseOrderFilterDto.getName());
+
+			if (Objects.nonNull(purchaseOrderFilterDto.getCreatedAt()))
+				groyyoSpecificationBuilder.with(FilterConstants.CREATED_AT, CriteriaOperation.DATE_EQ, purchaseOrderFilterDto.getCreatedAt());
+
+			if (Objects.nonNull(purchaseOrderFilterDto.getCreatedBy()))
+				groyyoSpecificationBuilder.with(FilterConstants.CREATED_BY, CriteriaOperation.EQ, purchaseOrderFilterDto.getCreatedBy());
+
+			if (Objects.nonNull(purchaseOrderFilterDto.getUpdatedAt()))
+				groyyoSpecificationBuilder.with(FilterConstants.UPDATED_AT, CriteriaOperation.DATE_EQ, purchaseOrderFilterDto.getUpdatedAt());
+
+			if (Objects.nonNull(purchaseOrderFilterDto.getUpdatedBy()))
+				groyyoSpecificationBuilder.with(FilterConstants.UPDATED_BY, CriteriaOperation.EQ, purchaseOrderFilterDto.getUpdatedBy());
+
+			if (Objects.nonNull(purchaseOrderFilterDto.getExFtyDate()))
+				groyyoSpecificationBuilder.with(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_EX_FTY_DATE, CriteriaOperation.DATE_EQ, purchaseOrderFilterDto.getExFtyDate());
+
+			if (Objects.nonNull(purchaseOrderFilterDto.getReceiveDate()))
+				groyyoSpecificationBuilder.with(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_RECEIVE_DATE, CriteriaOperation.DATE_EQ, purchaseOrderFilterDto.getReceiveDate());
+
+			if (StringUtils.isNotBlank(purchaseOrderFilterDto.getPurchaseOrderNumber()))
+				groyyoSpecificationBuilder.with(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_NUMBER, CriteriaOperation.LIKE,
+						SymbolConstants.SYMBOL_PERCENT + purchaseOrderFilterDto.getPurchaseOrderNumber() + SymbolConstants.SYMBOL_PERCENT);
+
+			if (StringUtils.isNotBlank(purchaseOrderFilterDto.getFabricName()))
+				groyyoSpecificationBuilder.with(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_FABRIC_NAME, CriteriaOperation.LIKE,
+						SymbolConstants.SYMBOL_PERCENT + purchaseOrderFilterDto.getFabricName() + SymbolConstants.SYMBOL_PERCENT);
+
+			if (StringUtils.isNotBlank(purchaseOrderFilterDto.getBuyerName()))
+				groyyoSpecificationBuilder.with(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_BUYER_NAME, CriteriaOperation.LIKE,
+						SymbolConstants.SYMBOL_PERCENT + purchaseOrderFilterDto.getBuyerName() + SymbolConstants.SYMBOL_PERCENT);
+
+			if (StringUtils.isNotBlank(purchaseOrderFilterDto.getStyleNumber()))
+				groyyoSpecificationBuilder.with(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_STYLE_NUMBER, CriteriaOperation.LIKE,
+						SymbolConstants.SYMBOL_PERCENT + purchaseOrderFilterDto.getStyleNumber() + SymbolConstants.SYMBOL_PERCENT);
+
+			if (StringUtils.isNotBlank(purchaseOrderFilterDto.getStyleName()))
+				groyyoSpecificationBuilder.with(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_STYLE_NAME, CriteriaOperation.LIKE,
+						SymbolConstants.SYMBOL_PERCENT + purchaseOrderFilterDto.getStyleName() + SymbolConstants.SYMBOL_PERCENT);
+
+			if (StringUtils.isNotBlank(purchaseOrderFilterDto.getProductName()))
+				groyyoSpecificationBuilder.with(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_PRODUCT_NAME, CriteriaOperation.LIKE,
+						SymbolConstants.SYMBOL_PERCENT + purchaseOrderFilterDto.getProductName() + SymbolConstants.SYMBOL_PERCENT);
+
+		}
 
 		return groyyoSpecificationBuilder.build();
 	}
