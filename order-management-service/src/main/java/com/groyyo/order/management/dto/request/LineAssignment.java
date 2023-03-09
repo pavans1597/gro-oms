@@ -1,6 +1,6 @@
 package com.groyyo.order.management.dto.request;
 
-import com.groyyo.order.management.entity.LineType;
+import com.groyyo.core.dto.userservice.LineType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

@@ -1,5 +1,6 @@
 package com.groyyo.order.management.entity;
 
+import com.groyyo.core.dto.userservice.LineType;
 import com.groyyo.core.sqlPostgresJpa.entity.AbstractJpaEntity;
 import lombok.*;
 import lombok.experimental.SuperBuilder;

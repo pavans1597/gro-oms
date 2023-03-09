@@ -4,6 +4,7 @@ import com.groyyo.core.base.http.GroyyoRestClient;
 import com.groyyo.core.file.management.client.api.FileManagementApi;
 import com.groyyo.core.masterData.client.api.MasterDataApi;
 import com.groyyo.core.masterData.client.cache.MasterDataCache;
+import com.groyyo.core.user.client.api.UserClientApi;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,13 +19,26 @@ public class ClientConfig {
     @Value("${service.file_management.url}")
     private String fileManagementServiceUrl;
 
+    @Value("${service.user-client.url}")
+    private String userServiceUrl;
+
     @Bean(name = "fileClient")
     public GroyyoRestClient fileDataClient() {
         return new GroyyoRestClient(fileManagementServiceUrl);
     }
 
     @Bean
-    public FileManagementApi fileDataApi() {
+    public UserClientApi fileDataApi() {
+        return new UserClientApi(userDataClient());
+    }
+
+    @Bean(name = "userClient")
+    public GroyyoRestClient userDataClient() {
+        return new GroyyoRestClient(userServiceUrl);
+    }
+
+    @Bean
+    public FileManagementApi userDataApi() {
         return new FileManagementApi(fileDataClient());
     }
 

@@ -4,6 +4,9 @@ import com.groyyo.core.base.common.dto.PageResponse;
 import com.groyyo.core.base.common.dto.ResponseDto;
 import com.groyyo.core.base.constants.InterceptorConstants;
 import com.groyyo.core.base.http.utils.HeaderUtil;
+import com.groyyo.core.dto.userservice.LineResponseDto;
+import com.groyyo.core.dto.userservice.LineType;
+import com.groyyo.core.dto.userservice.UserResponseDto;
 import com.groyyo.order.management.dto.request.LineAssignmentRequestDto;
 import com.groyyo.order.management.dto.request.PurchaseOrderRequestDto;
 import com.groyyo.order.management.dto.request.PurchaseOrderUpdateDto;
@@ -86,25 +89,27 @@ public class PurchaseOrderController {
 		return Objects.isNull(purchaseOrderResponseDto) ? ResponseDto.failure("Unable to update purchaseOrder !!")
 				: ResponseDto.success("PurchaseOrder updated successfully !!", purchaseOrderResponseDto);
 	}
-//	@GetMapping( "fetch/users/{factoryId}/{departmentId}")
-//	public ResponseDto<List<UserResponseDto>> getUsersCheckerAssigmennt(@RequestParam(required = true ) LineType lineType, @RequestParam(required = false, name = "keyword") String keyword , @PathVariable("factoryId") String factoryId , @PathVariable("departmentId") String departmentId ) {
-//
-//		log.info("Request received to get getUsers by FactoryId : {} and departmentId: {}",factoryId,departmentId );
-//
-//		List<UserResponseDto>  userResponseDtoList = lineCheckerService.getLineUsers( factoryId, departmentId, keyword,lineType);
-//
-//		return Objects.isNull(userResponseDtoList) ? ResponseDto.failure(" Users not found ") : ResponseDto.success(" Users found " , userResponseDtoList);
-//	}
-//
-//	@GetMapping( "fetch/lines/{factoryId}")
-//	public ResponseDto<List<LineResponseDto>> getLines(@RequestParam(required = true ) LineType lineType, @RequestParam(required = false, name = "keyword") String keyword , @PathVariable("factoryId") String factoryId , @PathVariable("departmentId") String departmentId ) {
-//
-//		log.info("Request received to get getUsers by FactoryId : {} and departmentId: {}",factoryId,departmentId );
-//
-//		List<LineResponseDto>  userResponseDtoList = lineCheckerService.getLines( factoryId, departmentId, keyword,lineType);
-//
-//		return Objects.isNull(productResponseDto) ? ResponseDto.failure(" Users not found ") : ResponseDto.success(" Users found " , productResponseDto);
-//	}
+	@GetMapping( "fetch/users/{factoryId}/{departmentId}")
+	public ResponseDto<List<UserResponseDto>> getUsers(@RequestParam(required = true ) LineType lineType) {
+		String factoryIdHeaderValue = HeaderUtil.getFactoryIdHeaderValue();
+
+		log.info("Request received to get getUsers by FactoryId : {}",factoryIdHeaderValue );
+
+		ResponseDto<List<UserResponseDto>> lineUsers = lineCheckerService.getLineUsers(factoryIdHeaderValue, lineType);
+
+		return Objects.isNull(lineUsers) ? ResponseDto.failure(" Users not found ") : ResponseDto.success(" Users found " ,lineUsers.getData());
+	}
+
+	@GetMapping( "fetch/lines/{factoryId}")
+	public ResponseDto<List<LineResponseDto>> getLines(@RequestParam(required = true ) LineType lineType) {
+		String factoryIdHeaderValue = HeaderUtil.getFactoryIdHeaderValue();
+
+		log.info("Request received to get getUsers by FactoryId : {} ",factoryIdHeaderValue );
+
+		ResponseDto<List<LineResponseDto>> listResponseDto = lineCheckerService.getLines(factoryIdHeaderValue, lineType);
+
+		return Objects.isNull(listResponseDto) ? ResponseDto.failure(" Users not found ") : ResponseDto.success(" Users found " , listResponseDto.getData());
+	}
 
 
 	@PostMapping("/assign/checkers")
