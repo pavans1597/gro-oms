@@ -1,28 +1,22 @@
 package com.groyyo.order.management.controller;
 
-import java.util.List;
-import java.util.Objects;
-
-import javax.validation.Valid;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.groyyo.core.base.common.dto.PageResponse;
 import com.groyyo.core.base.common.dto.ResponseDto;
+import com.groyyo.order.management.dto.request.LineAssignmentRequestDto;
 import com.groyyo.order.management.dto.request.PurchaseOrderRequestDto;
 import com.groyyo.order.management.dto.request.PurchaseOrderUpdateDto;
 import com.groyyo.order.management.dto.response.PurchaseOrderResponseDto;
+import com.groyyo.order.management.entity.LineCheckerAssignment;
+import com.groyyo.order.management.service.LineCheckerService;
 import com.groyyo.order.management.service.PurchaseOrderQuantityService;
 import com.groyyo.order.management.service.PurchaseOrderService;
-
 import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
+import java.util.List;
+import java.util.Objects;
 
 @Log4j2
 @RestController
@@ -34,6 +28,8 @@ public class PurchaseOrderController {
 
 	@Autowired
 	private PurchaseOrderQuantityService purchaseOrderQuantityService;
+	@Autowired
+	private LineCheckerService lineCheckerService;
 
 	@GetMapping("/get/all")
 	public ResponseDto<List<PurchaseOrderResponseDto>> getAllPurchaseOrders(@RequestParam(value = "status", required = false) Boolean status) {
@@ -88,4 +84,36 @@ public class PurchaseOrderController {
 		return Objects.isNull(purchaseOrderResponseDto) ? ResponseDto.failure("Unable to update purchaseOrder !!")
 				: ResponseDto.success("PurchaseOrder updated successfully !!", purchaseOrderResponseDto);
 	}
+//	@GetMapping( "fetch/users/{factoryId}/{departmentId}")
+//	public ResponseDto<List<UserResponseDto>> getUsersCheckerAssigmennt(@RequestParam(required = true ) LineType lineType, @RequestParam(required = false, name = "keyword") String keyword , @PathVariable("factoryId") String factoryId , @PathVariable("departmentId") String departmentId ) {
+//
+//		log.info("Request received to get getUsers by FactoryId : {} and departmentId: {}",factoryId,departmentId );
+//
+//		List<UserResponseDto>  userResponseDtoList = lineCheckerService.getLineUsers( factoryId, departmentId, keyword,lineType);
+//
+//		return Objects.isNull(userResponseDtoList) ? ResponseDto.failure(" Users not found ") : ResponseDto.success(" Users found " , userResponseDtoList);
+//	}
+//
+//	@GetMapping( "fetch/lines/{factoryId}")
+//	public ResponseDto<List<LineResponseDto>> getLines(@RequestParam(required = true ) LineType lineType, @RequestParam(required = false, name = "keyword") String keyword , @PathVariable("factoryId") String factoryId , @PathVariable("departmentId") String departmentId ) {
+//
+//		log.info("Request received to get getUsers by FactoryId : {} and departmentId: {}",factoryId,departmentId );
+//
+//		List<LineResponseDto>  userResponseDtoList = lineCheckerService.getLines( factoryId, departmentId, keyword,lineType);
+//
+//		return Objects.isNull(productResponseDto) ? ResponseDto.failure(" Users not found ") : ResponseDto.success(" Users found " , productResponseDto);
+//	}
+
+
+	@PostMapping("/assign/checkers/{factoryId}")
+	public ResponseDto<PurchaseOrderResponseDto> assignCheckers(@PathVariable("factoryId") String factoryId , @RequestBody LineAssignmentRequestDto checkerAssignDto) {
+
+		log.info("Request received to update purchaseOrder: {}", checkerAssignDto);
+
+		List<LineCheckerAssignment> lineCheckerAssignments = lineCheckerService.lineCheckerAssignment(checkerAssignDto,factoryId);
+
+		return Objects.isNull(lineCheckerAssignments) ? ResponseDto.failure("Unable to update purchaseOrder !!")
+				: ResponseDto.success("PurchaseOrder updated successfully !!");
+	}
+
 }
