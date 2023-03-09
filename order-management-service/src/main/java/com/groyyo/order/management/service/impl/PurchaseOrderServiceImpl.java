@@ -137,7 +137,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
 		Specification<PurchaseOrder> specification = getSpecificationForPurchaseOrderListing(purchaseOrderFilterDto, purchaseOrderStatus);
 
-		Pageable pageable = PaginationUtility.getPageRequest(page, limit, "updatedAt", Direction.DESC);
+		Pageable pageable = PaginationUtility.getPageRequest(page, limit, FilterConstants.UPDATED_AT, Direction.DESC);
 
 		Page<PurchaseOrder> data = purchaseOrderDbService.findAll(specification, pageable);
 
@@ -238,27 +238,27 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 				groyyoSpecificationBuilder.with(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_RECEIVE_DATE, CriteriaOperation.DATE_EQ, purchaseOrderFilterDto.getReceiveDate());
 
 			if (StringUtils.isNotBlank(purchaseOrderFilterDto.getPurchaseOrderNumber()))
-				groyyoSpecificationBuilder.with(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_NUMBER, CriteriaOperation.LIKE,
+				groyyoSpecificationBuilder.with(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_NUMBER, CriteriaOperation.ILIKE,
 						SymbolConstants.SYMBOL_PERCENT + purchaseOrderFilterDto.getPurchaseOrderNumber() + SymbolConstants.SYMBOL_PERCENT);
 
 			if (StringUtils.isNotBlank(purchaseOrderFilterDto.getFabricName()))
-				groyyoSpecificationBuilder.with(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_FABRIC_NAME, CriteriaOperation.LIKE,
+				groyyoSpecificationBuilder.with(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_FABRIC_NAME, CriteriaOperation.ILIKE,
 						SymbolConstants.SYMBOL_PERCENT + purchaseOrderFilterDto.getFabricName() + SymbolConstants.SYMBOL_PERCENT);
 
 			if (StringUtils.isNotBlank(purchaseOrderFilterDto.getBuyerName()))
-				groyyoSpecificationBuilder.with(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_BUYER_NAME, CriteriaOperation.LIKE,
+				groyyoSpecificationBuilder.with(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_BUYER_NAME, CriteriaOperation.ILIKE,
 						SymbolConstants.SYMBOL_PERCENT + purchaseOrderFilterDto.getBuyerName() + SymbolConstants.SYMBOL_PERCENT);
 
 			if (StringUtils.isNotBlank(purchaseOrderFilterDto.getStyleNumber()))
-				groyyoSpecificationBuilder.with(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_STYLE_NUMBER, CriteriaOperation.LIKE,
+				groyyoSpecificationBuilder.with(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_STYLE_NUMBER, CriteriaOperation.ILIKE,
 						SymbolConstants.SYMBOL_PERCENT + purchaseOrderFilterDto.getStyleNumber() + SymbolConstants.SYMBOL_PERCENT);
 
 			if (StringUtils.isNotBlank(purchaseOrderFilterDto.getStyleName()))
-				groyyoSpecificationBuilder.with(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_STYLE_NAME, CriteriaOperation.LIKE,
+				groyyoSpecificationBuilder.with(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_STYLE_NAME, CriteriaOperation.ILIKE,
 						SymbolConstants.SYMBOL_PERCENT + purchaseOrderFilterDto.getStyleName() + SymbolConstants.SYMBOL_PERCENT);
 
 			if (StringUtils.isNotBlank(purchaseOrderFilterDto.getProductName()))
-				groyyoSpecificationBuilder.with(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_PRODUCT_NAME, CriteriaOperation.LIKE,
+				groyyoSpecificationBuilder.with(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_PRODUCT_NAME, CriteriaOperation.ILIKE,
 						SymbolConstants.SYMBOL_PERCENT + purchaseOrderFilterDto.getProductName() + SymbolConstants.SYMBOL_PERCENT);
 
 		}
