@@ -20,11 +20,14 @@ import com.groyyo.core.base.exception.RecordExistsException;
 import com.groyyo.core.sqlPostgresJpa.specification.utils.GroyyoSpecificationBuilder;
 import com.groyyo.core.sqlPostgresJpa.specification.utils.PaginationUtility;
 import com.groyyo.order.management.adapter.PurchaseOrderAdapter;
+import com.groyyo.order.management.db.service.LineCheckerAssignmentDbService;
 import com.groyyo.order.management.db.service.PurchaseOrderDbService;
 import com.groyyo.order.management.dto.request.PurchaseOrderRequestDto;
 import com.groyyo.order.management.dto.request.PurchaseOrderUpdateDto;
 import com.groyyo.order.management.dto.response.PurchaseOrderResponseDto;
+import com.groyyo.order.management.entity.LineCheckerAssignment;
 import com.groyyo.order.management.entity.PurchaseOrder;
+import com.groyyo.order.management.enums.PurchaseOrderStatus;
 import com.groyyo.order.management.service.PurchaseOrderQuantityService;
 import com.groyyo.order.management.service.PurchaseOrderService;
 
@@ -39,6 +42,9 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
 	@Autowired
 	private PurchaseOrderQuantityService purchaseOrderQuantityService;
+
+	@Autowired
+	private LineCheckerAssignmentDbService lineCheckerAssignmentDbService;
 
 	@Override
 	public List<PurchaseOrderResponseDto> getAllPurchaseOrders(Boolean status) {
@@ -96,7 +102,22 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 			return null;
 		}
 
+		updatePurchaseOrderStatus(purchaseOrder);
+
 		return PurchaseOrderAdapter.buildResponseFromEntity(purchaseOrder);
+	}
+
+	private void updatePurchaseOrderStatus(PurchaseOrder purchaseOrder) {
+
+		purchaseOrder.setPurchaseOrderStatus(PurchaseOrderStatus.YET_TO_START);
+
+		List<LineCheckerAssignment> lineCheckerAssignments = lineCheckerAssignmentDbService.getLineCheckerAssignmentForPurchaseOrder(purchaseOrder.getUuid());
+
+		if (CollectionUtils.isNotEmpty(lineCheckerAssignments)) {
+			purchaseOrder.setPurchaseOrderStatus(PurchaseOrderStatus.ONGOING);
+		}
+
+		purchaseOrderDbService.saveAndFlush(purchaseOrder);
 	}
 
 	@Override

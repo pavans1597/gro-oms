@@ -35,61 +35,61 @@ public class PurchaseOrderAdapter {
                 .build();
     }
 
-    public PurchaseOrder buildPurchaseOrderFromResponse(PurchaseOrderResponseDto purchaseOrderResponseDto) {
+	public PurchaseOrder buildPurchaseOrderFromResponse(PurchaseOrderResponseDto purchaseOrderResponseDto) {
 
-        return PurchaseOrder
-                .builder()
-                .name(purchaseOrderResponseDto.getName())
-                .build();
-    }
+		return PurchaseOrder
+				.builder()
+				.name(purchaseOrderResponseDto.getName())
+				.purchaseOrderStatus(purchaseOrderResponseDto.getPurchaseOrderStatus())
+				.build();
+	}
 
-    public PurchaseOrder clonePurchaseOrderWithRequest(PurchaseOrderRequestDto purchaseOrderRequestDto, PurchaseOrder purchaseOrder) {
+	public PurchaseOrder clonePurchaseOrderWithRequest(PurchaseOrderRequestDto purchaseOrderRequestDto, PurchaseOrder purchaseOrder) {
 
-        if (StringUtils.isNotBlank(purchaseOrderRequestDto.getPurchaseOrderNumber()))
-            purchaseOrder.setName(purchaseOrderRequestDto.getPurchaseOrderNumber());
+		if (StringUtils.isNotBlank(purchaseOrderRequestDto.getPurchaseOrderNumber()))
+			purchaseOrder.setName(purchaseOrderRequestDto.getPurchaseOrderNumber());
 
+		return purchaseOrder;
+	}
 
-        return purchaseOrder;
-    }
+	public PurchaseOrderRequestDto buildRequestFromResponse(PurchaseOrderResponseDto purchaseOrderResponseDto) {
 
-    public PurchaseOrderRequestDto buildRequestFromResponse(PurchaseOrderResponseDto purchaseOrderResponseDto) {
+		PurchaseOrderRequestDto purchaseOrderRequestDto = PurchaseOrderRequestDto.builder().build();
 
-        PurchaseOrderRequestDto purchaseOrderRequestDto = PurchaseOrderRequestDto.builder().build();
+		if (StringUtils.isNotBlank(purchaseOrderResponseDto.getName()))
+			purchaseOrderRequestDto.setPurchaseOrderNumber(purchaseOrderResponseDto.getName());
 
-        if (StringUtils.isNotBlank(purchaseOrderResponseDto.getName()))
-            purchaseOrderRequestDto.setPurchaseOrderNumber(purchaseOrderResponseDto.getName());
+		return purchaseOrderRequestDto;
+	}
 
+	public PurchaseOrderResponseDto buildResponseFromEntity(PurchaseOrder purchaseOrder) {
 
-        return purchaseOrderRequestDto;
-    }
+		return PurchaseOrderResponseDto
+				.builder()
+				.uuid(purchaseOrder.getUuid())
+				.purchaseOrderNumber(purchaseOrder.getName())
+				.purchaseOrderStatus(purchaseOrder.getPurchaseOrderStatus())
+				.styleId(purchaseOrder.getStyleId())
+				.styleNumber(purchaseOrder.getStyleNumber())
+				.styleName(purchaseOrder.getStyleName())
+				.fabricId(purchaseOrder.getFabricId())
+				.fabricName(purchaseOrder.getFabricName())
+				.buyerId(purchaseOrder.getBuyerId())
+				.buyerName(purchaseOrder.getBuyerName())
+				.tolerance(purchaseOrder.getTolerance())
+				.receiveDate(purchaseOrder.getReceiveDate())
+				.exFtyDate(purchaseOrder.getExFtyDate())
+				.seasonId(purchaseOrder.getSeasonId())
+				.fitId(purchaseOrder.getFitId())
+				.partId(purchaseOrder.getPartId())
+				.productId(purchaseOrder.getProductId())
+				.productName(purchaseOrder.getProductName())
+				.build();
+	}
 
-    public PurchaseOrderResponseDto buildResponseFromEntity(PurchaseOrder purchaseOrder) {
+	public List<PurchaseOrderResponseDto> buildResponsesFromEntities(List<PurchaseOrder> purchaseOrders) {
 
-        return PurchaseOrderResponseDto
-                .builder()
-                .uuid(purchaseOrder.getUuid())
-                .purchaseOrderNumber(purchaseOrder.getName())
-                .styleId(purchaseOrder.getStyleId())
-                .styleNumber(purchaseOrder.getStyleNumber())
-                .styleName(purchaseOrder.getStyleName())
-                .fabricId(purchaseOrder.getFabricId())
-                .fabricName(purchaseOrder.getFabricName())
-                .buyerId(purchaseOrder.getBuyerId())
-                .buyerName(purchaseOrder.getBuyerName())
-                .tolerance(purchaseOrder.getTolerance())
-                .receiveDate(purchaseOrder.getReceiveDate())
-                .exFtyDate(purchaseOrder.getExFtyDate())
-                .seasonId(purchaseOrder.getSeasonId())
-                .fitId(purchaseOrder.getFitId())
-                .partId(purchaseOrder.getPartId())
-                .productId(purchaseOrder.getProductId())
-                .productName(purchaseOrder.getProductName())
-                .build();
-    }
-
-    public List<PurchaseOrderResponseDto> buildResponsesFromEntities(List<PurchaseOrder> purchaseOrders) {
-
-        return purchaseOrders.stream().map(PurchaseOrderAdapter::buildResponseFromEntity).collect(Collectors.toList());
-    }
+		return purchaseOrders.stream().map(PurchaseOrderAdapter::buildResponseFromEntity).collect(Collectors.toList());
+	}
 
 }
