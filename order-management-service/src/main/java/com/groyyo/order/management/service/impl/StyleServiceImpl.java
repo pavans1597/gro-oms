@@ -1,5 +1,15 @@
 package com.groyyo.order.management.service.impl;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.groyyo.core.base.common.dto.ResponseDto;
 import com.groyyo.core.base.exception.NoRecordException;
 import com.groyyo.core.base.exception.RecordExistsException;
@@ -13,153 +23,151 @@ import com.groyyo.order.management.dto.request.StyleUpdateDto;
 import com.groyyo.order.management.dto.response.StyleResponseDto;
 import com.groyyo.order.management.entity.Style;
 import com.groyyo.order.management.service.StyleService;
-import lombok.extern.log4j.Log4j2;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
+import lombok.extern.log4j.Log4j2;
 
 @Service
 @Log4j2
 public class StyleServiceImpl implements StyleService {
 
-    @Autowired
-    private StyleDbService styleDbService;
+	@Autowired
+	private StyleDbService styleDbService;
 
-    @Autowired
-    private FileManagementApi fileManagementApi;
+	@Autowired
+	private FileManagementApi fileManagementApi;
 
-    @Override
-    public List<StyleResponseDto> getAllStyles(Boolean status) {
-        log.info("Serving request to get all styles");
+	@Override
+	public List<StyleResponseDto> getAllStyles(Boolean status) {
+		log.info("Serving request to get all styles");
 
-        List<Style> styleEntities = Objects.isNull(status) ? styleDbService.getAllStyles()
-                : styleDbService.getAllStylesForStatus(status);
+		List<Style> styleEntities = Objects.isNull(status) ? styleDbService.getAllStyles()
+				: styleDbService.getAllStylesForStatus(status);
 
-        if (CollectionUtils.isEmpty(styleEntities)) {
-            log.error("No Styles found in the system");
-            return new ArrayList<>();
-        }
-        return styleEntities.stream().map(style -> {
-            StyleResponseDto styleResponseDto = StyleAdapter.buildResponseFromEntity(style);
-            setImagesForStyle(style, styleResponseDto);
-            return styleResponseDto;
-        }).collect(Collectors.toList());
-    }
+		if (CollectionUtils.isEmpty(styleEntities)) {
+			log.error("No Styles found in the system");
+			return new ArrayList<>();
+		}
 
-    @Override
-    public StyleResponseDto getStyleById(String id) {
+		return styleEntities.stream().map(style -> {
+			StyleResponseDto styleResponseDto = StyleAdapter.buildResponseFromEntity(style);
+			setImagesForStyle(style, styleResponseDto);
+			return styleResponseDto;
+		}).collect(Collectors.toList());
+	}
 
-        log.info("Serving request to get a style by id:{}", id);
+	@Override
+	public StyleResponseDto getStyleById(String id) {
 
-        Style style = styleDbService.getStyleById(id);
+		log.info("Serving request to get a style by id:{}", id);
 
-        if (Objects.isNull(style)) {
-            String errorMsg = "Style with id: " + id + " not found in the system ";
-            throw new NoRecordException(errorMsg);
-        }
+		Style style = styleDbService.getStyleById(id);
 
-        return StyleAdapter.buildResponseFromEntity(style);
-    }
+		if (Objects.isNull(style)) {
+			String errorMsg = "Style with id: " + id + " not found in the system ";
+			throw new NoRecordException(errorMsg);
+		}
 
-    @Override
-    public StyleResponseDto addStyle(StyleRequestDto styleRequestDto) {
+		return StyleAdapter.buildResponseFromEntity(style);
+	}
 
-        log.info("Serving request to add a style with request object:{}", styleRequestDto);
+	@Override
+	public StyleResponseDto addStyle(StyleRequestDto styleRequestDto) {
 
-        runValidations(styleRequestDto);
+		log.info("Serving request to add a style with request object:{}", styleRequestDto);
 
-        Style style = StyleAdapter.buildStyleFromRequest(styleRequestDto);
+		runValidations(styleRequestDto);
 
-        style = styleDbService.saveStyle(style);
+		Style style = StyleAdapter.buildStyleFromRequest(styleRequestDto);
 
-        if (Objects.isNull(style)) {
-            log.error("Unable to add style for object: {}", styleRequestDto);
-            return null;
-        }
+		style = styleDbService.saveStyle(style);
 
-        StyleResponseDto styleResponseDto = StyleAdapter.buildResponseFromEntity(style);
-        setImagesForStyle(style, styleResponseDto);
-        return styleResponseDto;
-    }
+		if (Objects.isNull(style)) {
+			log.error("Unable to add style for object: {}", styleRequestDto);
+			return null;
+		}
 
-    private void setImagesForStyle(Style style, StyleResponseDto styleResponseDto) {
-        ResponseDto<FileResponseDto> styleImage = fileManagementApi.getSignedUrl(style.getStyleImageId(), ServiceName.ORDER, true);
-        ResponseDto<FileResponseDto> cadImage = fileManagementApi.getSignedUrl(style.getCadImageId(), ServiceName.ORDER, true);
-        styleResponseDto.setStyleImage(StyleAdapter.buildImageDtoFrom(style.getStyleImageId(), styleImage.getData().getSignedUrl()));
-        styleResponseDto.setCadImage(StyleAdapter.buildImageDtoFrom(style.getCadImageId(), cadImage.getData().getSignedUrl()));
-    }
+		StyleResponseDto styleResponseDto = StyleAdapter.buildResponseFromEntity(style);
+		setImagesForStyle(style, styleResponseDto);
+		return styleResponseDto;
+	}
 
-    @Override
-    public StyleResponseDto updateStyle(StyleUpdateDto styleUpdateDto) {
+	private void setImagesForStyle(Style style, StyleResponseDto styleResponseDto) {
 
-        log.info("Serving request to update a style with request object:{}", styleUpdateDto);
+		if (StringUtils.isNotBlank(style.getStyleImageId())) {
+			ResponseDto<FileResponseDto> styleImage = fileManagementApi.getSignedUrl(style.getStyleImageId(), ServiceName.ORDER, Boolean.TRUE);
+			styleResponseDto.setStyleImage(StyleAdapter.buildImageDtoFrom(style.getStyleImageId(), styleImage.getData().getSignedUrl()));
+		}
 
-        Style style = styleDbService.getStyleById(styleUpdateDto.getId());
+		if (StringUtils.isNotBlank(style.getCadImageId())) {
+			ResponseDto<FileResponseDto> cadImage = fileManagementApi.getSignedUrl(style.getCadImageId(), ServiceName.ORDER, Boolean.TRUE);
+			styleResponseDto.setCadImage(StyleAdapter.buildImageDtoFrom(style.getCadImageId(), cadImage.getData().getSignedUrl()));
+		}
+	}
 
-        if (Objects.isNull(style)) {
-            log.error("Style with id: {} not found in the system", styleUpdateDto.getId());
-            return null;
-        }
+	@Override
+	public StyleResponseDto updateStyle(StyleUpdateDto styleUpdateDto) {
 
-        runValidations(styleUpdateDto);
+		log.info("Serving request to update a style with request object:{}", styleUpdateDto);
 
-        style = StyleAdapter.cloneStyleWithRequest(styleUpdateDto, style);
+		Style style = styleDbService.getStyleById(styleUpdateDto.getId());
 
-        styleDbService.saveStyle(style);
+		if (Objects.isNull(style)) {
+			log.error("Style with id: {} not found in the system", styleUpdateDto.getId());
+			return null;
+		}
 
+		runValidations(styleUpdateDto);
 
-        return StyleAdapter.buildResponseFromEntity(style);
-    }
+		style = StyleAdapter.cloneStyleWithRequest(styleUpdateDto, style);
 
-    @Override
-    public StyleResponseDto activateDeactivateStyle(String id, boolean status) {
+		styleDbService.saveStyle(style);
 
-        log.info("Serving request to activate / deactivate a style with id:{}", id);
+		return StyleAdapter.buildResponseFromEntity(style);
+	}
 
-        Style style = styleDbService.getStyleById(id);
+	@Override
+	public StyleResponseDto activateDeactivateStyle(String id, boolean status) {
 
-        if (Objects.isNull(style)) {
-            String errorMsg = "Style with id: " + id + " not found in the system ";
-            throw new NoRecordException(errorMsg);
-        }
+		log.info("Serving request to activate / deactivate a style with id:{}", id);
 
-        style = styleDbService.activateDeactivateStyle(style, status);
+		Style style = styleDbService.getStyleById(id);
 
-        return StyleAdapter.buildResponseFromEntity(style);
-    }
+		if (Objects.isNull(style)) {
+			String errorMsg = "Style with id: " + id + " not found in the system ";
+			throw new NoRecordException(errorMsg);
+		}
 
-    @Override
-    public void consumeStyle(StyleResponseDto styleResponseDto) {
-        Style style = StyleAdapter.buildStyleFromResponse(styleResponseDto);
+		style = styleDbService.activateDeactivateStyle(style, status);
 
-        if (Objects.isNull(style)) {
-            log.error("Unable to build style from response object: {}", styleResponseDto);
-            return;
-        }
+		return StyleAdapter.buildResponseFromEntity(style);
+	}
 
-        styleDbService.saveStyle(style);
-    }
+	@Override
+	public void consumeStyle(StyleResponseDto styleResponseDto) {
+		Style style = StyleAdapter.buildStyleFromResponse(styleResponseDto);
 
-    private boolean isEntityExistsWithStyleNumber(String styleNumber) {
+		if (Objects.isNull(style)) {
+			log.error("Unable to build style from response object: {}", styleResponseDto);
+			return;
+		}
 
-        return StringUtils.isNotBlank(styleNumber) && styleDbService.isEntityExistsByStyleNumber(styleNumber);
-    }
+		styleDbService.saveStyle(style);
+	}
 
-    private void runValidations(StyleRequestDto styleRequestDto) {
-        validateStyleNumber(styleRequestDto);
-    }
+	private boolean isEntityExistsWithStyleNumber(String styleNumber) {
 
-    private void validateStyleNumber(StyleRequestDto styleRequestDto) {
+		return StringUtils.isNotBlank(styleNumber) && styleDbService.isEntityExistsByStyleNumber(styleNumber);
+	}
 
-        if (isEntityExistsWithStyleNumber(styleRequestDto.getStyleNumber())) {
-            String errorMsg = "Style cannot be created/updated as record already exists with style number: " + styleRequestDto.getStyleNumber();
-            throw new RecordExistsException(errorMsg);
-        }
-    }
+	private void runValidations(StyleRequestDto styleRequestDto) {
+		validateStyleNumber(styleRequestDto);
+	}
+
+	private void validateStyleNumber(StyleRequestDto styleRequestDto) {
+
+		if (isEntityExistsWithStyleNumber(styleRequestDto.getStyleNumber())) {
+			String errorMsg = "Style cannot be created/updated as record already exists with style number: " + styleRequestDto.getStyleNumber();
+			throw new RecordExistsException(errorMsg);
+		}
+	}
 }
