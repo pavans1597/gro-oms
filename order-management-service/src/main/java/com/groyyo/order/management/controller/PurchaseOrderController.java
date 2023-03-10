@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -131,6 +132,16 @@ public class PurchaseOrderController {
 
 		return Objects.isNull(lineCheckerAssignments) ? ResponseDto.failure("Unable to assign Checkers to purchaseOrder !!")
 				: ResponseDto.success(" Checkers Assigned Successfully !!", lineCheckerAssignments);
+	}
+
+	@PutMapping("id/{id}/status/{status}/change")
+	public ResponseDto<Void> changePurchaseOrderStatus(@PathVariable String id, @PathVariable PurchaseOrderStatus purchaseOrderStatus, @RequestParam boolean forceUpdate) {
+
+		log.info("Request received to update status of purchase order with uuid: {} to: {} with force update flag value: {} ", id, purchaseOrderStatus, forceUpdate);
+
+		purchaseOrderService.changeStatusOfPurchaseOrder(id, purchaseOrderStatus, forceUpdate);
+
+		return ResponseDto.success("Updated status of purchase order with id: " + id);
 	}
 
 }
