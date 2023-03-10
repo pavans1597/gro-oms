@@ -102,6 +102,9 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 		PurchaseOrder purchaseOrder = PurchaseOrder.builder().build();
 
 		try {
+
+			addRunTimeStyle(purchaseOrderRequestDto);
+
 			purchaseOrder = PurchaseOrderAdapter.buildPurchaseOrderFromRequest(purchaseOrderRequestDto);
 
 			purchaseOrder = purchaseOrderDbService.savePurchaseOrder(purchaseOrder);
@@ -110,8 +113,6 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 				log.error("Unable to add purchaseOrder for object: {}", purchaseOrderRequestDto);
 				return null;
 			}
-
-			addRunTimeStyle(purchaseOrderRequestDto);
 
 			addPurchaseOrderQuantities(purchaseOrderRequestDto, purchaseOrder);
 
