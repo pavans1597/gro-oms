@@ -3,7 +3,6 @@ package com.groyyo.order.management.entity;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
 
 import com.groyyo.core.sqlPostgresJpa.entity.AbstractJpaEntity;
 
@@ -21,7 +20,7 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @ToString(callSuper = true)
 @Entity(name = "purchase_order_quantity")
-@Table(name = "purchase_order_quantity", uniqueConstraints = { @UniqueConstraint(name = "UK_purchase_order_quantity_name", columnNames = { "name" }) })
+@Table(name = "purchase_order_quantity")
 public class PurchaseOrderQuantity extends AbstractJpaEntity {
 
 	private static final long serialVersionUID = 1L;
