@@ -35,6 +35,9 @@ public class LineCheckerAssignment extends AbstractJpaEntity {
 	@Column(columnDefinition = "varchar(40)", nullable = false)
 	private String lineId;
 
+	@Column(columnDefinition = "varchar(40)", nullable = false)
+	private String lineName;
+
 	@Enumerated(EnumType.STRING)
 	private LineType lineType;
 
