@@ -6,7 +6,7 @@ import com.groyyo.order.management.entity.LineCheckerAssignment;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
-public class LineCheckerAdapter {
+public class LineCheckerAssignmentAdapter {
 
 	public LineCheckerAssignment buildLineCheckerAssignmentFromRequest(LineCheckerAssignmentRequestDto lineCheckerAssignmentRequestDto) {
 

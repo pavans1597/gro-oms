@@ -28,7 +28,7 @@ cache:
 ########## Services URL's ##############
 service:
   user:
-    url: http://localhost:8006/user-service
+    url: http://localhost:8006/user-service/
   masterData:
     url: http://localhost:8003/master-data-service
   raven:

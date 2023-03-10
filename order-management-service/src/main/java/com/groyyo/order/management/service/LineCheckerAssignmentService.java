@@ -9,7 +9,7 @@ import com.groyyo.order.management.entity.LineCheckerAssignment;
 
 import java.util.List;
 
-public interface LineCheckerService {
+public interface LineCheckerAssignmentService {
 
 
 	ResponseDto<List<UserResponseDto>> getLineUsers(String factoryId, LineType lineType);
