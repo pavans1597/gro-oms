@@ -20,6 +20,7 @@ import com.groyyo.core.base.exception.RecordExistsException;
 import com.groyyo.core.sqlPostgresJpa.specification.utils.CriteriaOperation;
 import com.groyyo.core.sqlPostgresJpa.specification.utils.GroyyoSpecificationBuilder;
 import com.groyyo.core.sqlPostgresJpa.specification.utils.PaginationUtility;
+import com.groyyo.order.management.adapter.LineCheckerAssignmentAdapter;
 import com.groyyo.order.management.adapter.PurchaseOrderAdapter;
 import com.groyyo.order.management.constants.FilterConstants;
 import com.groyyo.order.management.constants.SymbolConstants;
@@ -28,6 +29,7 @@ import com.groyyo.order.management.db.service.PurchaseOrderDbService;
 import com.groyyo.order.management.dto.filter.PurchaseOrderFilterDto;
 import com.groyyo.order.management.dto.request.PurchaseOrderRequestDto;
 import com.groyyo.order.management.dto.request.PurchaseOrderUpdateDto;
+import com.groyyo.order.management.dto.request.UserLineDetails;
 import com.groyyo.order.management.dto.response.PurchaseOrderResponseDto;
 import com.groyyo.order.management.dto.response.StyleDto;
 import com.groyyo.order.management.entity.LineCheckerAssignment;
@@ -179,7 +181,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
 	private void addRunTimeStyle(PurchaseOrderRequestDto purchaseOrderRequestDto) {
 
-		String styleUuid = Objects.nonNull(purchaseOrderRequestDto) ? purchaseOrderRequestDto.getStyleRequestDto().getUuid() : null;
+		String styleUuid = Objects.nonNull(purchaseOrderRequestDto) ? purchaseOrderRequestDto.getStyleRequestDto().getId() : null;
 
 		if (StringUtils.isBlank(styleUuid)) {
 
@@ -226,7 +228,9 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
 		List<LineCheckerAssignment> lineCheckerAssignments = lineCheckerAssignmentDbService.getLineCheckerAssignmentForPurchaseOrder(purchaseOrderResponseDto.getUuid());
 
-		purchaseOrderResponseDto.setLineCheckerAssignments(lineCheckerAssignments);
+		List<UserLineDetails> userLineDetails = LineCheckerAssignmentAdapter.buildUserLineDetailsFromEntities(lineCheckerAssignments);
+
+		purchaseOrderResponseDto.setUserLineDetails(userLineDetails);
 	}
 
 	private List<PurchaseOrderResponseDto> convertPurchaseOrderPageDataToResponseDtos(Page<PurchaseOrder> data) {
