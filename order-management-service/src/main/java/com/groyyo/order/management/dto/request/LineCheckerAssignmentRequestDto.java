@@ -12,9 +12,9 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @ToString(callSuper = true)
-public class LineAssignmentRequestDto {
+public class LineCheckerAssignmentRequestDto {
 
-    private List<LineAssignment> assignment;
+    private List<UserLineDetails> assignment;
     private String purchaseOrderId;
     private String salesOrderId;
 

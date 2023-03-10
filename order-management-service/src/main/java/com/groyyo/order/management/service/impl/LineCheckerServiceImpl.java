@@ -1,11 +1,5 @@
 package com.groyyo.order.management.service.impl;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.groyyo.core.base.common.dto.ResponseDto;
 import com.groyyo.core.dto.userservice.LineResponseDto;
 import com.groyyo.core.dto.userservice.LineType;
@@ -13,12 +7,16 @@ import com.groyyo.core.dto.userservice.UserResponseDto;
 import com.groyyo.core.user.client.api.UserClientApi;
 import com.groyyo.order.management.adapter.LineCheckerAdapter;
 import com.groyyo.order.management.db.service.LineCheckerAssignmentDbService;
-import com.groyyo.order.management.dto.request.LineAssignment;
-import com.groyyo.order.management.dto.request.LineAssignmentRequestDto;
+import com.groyyo.order.management.dto.request.LineCheckerAssignmentRequestDto;
+import com.groyyo.order.management.dto.request.UserLineDetails;
 import com.groyyo.order.management.entity.LineCheckerAssignment;
 import com.groyyo.order.management.service.LineCheckerService;
-
 import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @Log4j2
@@ -49,16 +47,16 @@ public class LineCheckerServiceImpl implements LineCheckerService {
 	}
 
 	@Override
-	public List<LineCheckerAssignment> lineCheckerAssignment(LineAssignmentRequestDto lineAssignmentRequestDto, String factoryId) {
+	public List<LineCheckerAssignment> lineCheckerAssignment(LineCheckerAssignmentRequestDto lineCheckerAssignmentRequestDto, String factoryId) {
 		try {
 
-			String purchaseOrderId = lineAssignmentRequestDto.getPurchaseOrderId();
-			String salesOrderId = lineAssignmentRequestDto.getSalesOrderId();
-			List<LineAssignment> assignments = lineAssignmentRequestDto.getAssignment();
+			String purchaseOrderId = lineCheckerAssignmentRequestDto.getPurchaseOrderId();
+			String salesOrderId = lineCheckerAssignmentRequestDto.getSalesOrderId();
+			List<UserLineDetails> assignments = lineCheckerAssignmentRequestDto.getAssignment();
 
 			List<LineCheckerAssignment> lineCheckerAssignments = new ArrayList<>();
-			for (LineAssignment lineAssignment : assignments) {
-				LineCheckerAssignment lineCheckerAssignment = LineCheckerAdapter.buildLineCheckerAssignmentFromRequest(lineAssignment, purchaseOrderId, salesOrderId, factoryId);
+			for (UserLineDetails userLineDetails : assignments) {
+				LineCheckerAssignment lineCheckerAssignment = LineCheckerAdapter.buildLineCheckerAssignmentFromRequest(userLineDetails, purchaseOrderId, salesOrderId, factoryId);
 				lineCheckerAssignments.add(lineCheckerAssignment);
 			}
 			return lineCheckerAssignmentDbService.saveAllLineCheckerAssignemnt(lineCheckerAssignments);

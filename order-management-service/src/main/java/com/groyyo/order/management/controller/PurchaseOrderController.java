@@ -1,19 +1,5 @@
 package com.groyyo.order.management.controller;
 
-import java.util.List;
-import java.util.Objects;
-
-import javax.validation.Valid;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.groyyo.core.base.common.dto.PageResponse;
 import com.groyyo.core.base.common.dto.ResponseDto;
 import com.groyyo.core.base.constants.InterceptorConstants;
@@ -22,7 +8,7 @@ import com.groyyo.core.dto.userservice.LineResponseDto;
 import com.groyyo.core.dto.userservice.LineType;
 import com.groyyo.core.dto.userservice.UserResponseDto;
 import com.groyyo.order.management.dto.filter.PurchaseOrderFilterDto;
-import com.groyyo.order.management.dto.request.LineAssignmentRequestDto;
+import com.groyyo.order.management.dto.request.LineCheckerAssignmentRequestDto;
 import com.groyyo.order.management.dto.request.PurchaseOrderRequestDto;
 import com.groyyo.order.management.dto.request.PurchaseOrderUpdateDto;
 import com.groyyo.order.management.dto.response.PurchaseOrderResponseDto;
@@ -30,8 +16,13 @@ import com.groyyo.order.management.entity.LineCheckerAssignment;
 import com.groyyo.order.management.enums.PurchaseOrderStatus;
 import com.groyyo.order.management.service.LineCheckerService;
 import com.groyyo.order.management.service.PurchaseOrderService;
-
 import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
+import java.util.List;
+import java.util.Objects;
 
 @Log4j2
 @RestController
@@ -124,7 +115,7 @@ public class PurchaseOrderController {
 
 	@SuppressWarnings("unused")
 	@PostMapping("/assign/checkers")
-	public ResponseDto<PurchaseOrderResponseDto> assignCheckers(@RequestBody LineAssignmentRequestDto checkerAssignDto) {
+	public ResponseDto<List<LineCheckerAssignment>> assignCheckers(@RequestBody LineCheckerAssignmentRequestDto checkerAssignDto) {
 		log.info("Request received to update purchaseOrder: {}", checkerAssignDto);
 
 		String headerFactoryIdName = InterceptorConstants.HEADER_FACTORY_ID_NAME;
@@ -132,7 +123,7 @@ public class PurchaseOrderController {
 		List<LineCheckerAssignment> lineCheckerAssignments = lineCheckerService.lineCheckerAssignment(checkerAssignDto, factoryIdHeaderValue);
 
 		return Objects.isNull(lineCheckerAssignments) ? ResponseDto.failure("Unable to update purchaseOrder !!")
-				: ResponseDto.success("PurchaseOrder updated successfully !!");
+				: ResponseDto.success("PurchaseOrder updated successfully !!",lineCheckerAssignments);
 	}
 
 }

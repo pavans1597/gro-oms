@@ -4,7 +4,7 @@ import com.groyyo.core.base.common.dto.ResponseDto;
 import com.groyyo.core.dto.userservice.LineResponseDto;
 import com.groyyo.core.dto.userservice.LineType;
 import com.groyyo.core.dto.userservice.UserResponseDto;
-import com.groyyo.order.management.dto.request.LineAssignmentRequestDto;
+import com.groyyo.order.management.dto.request.LineCheckerAssignmentRequestDto;
 import com.groyyo.order.management.entity.LineCheckerAssignment;
 
 import java.util.List;
@@ -16,5 +16,5 @@ public interface LineCheckerService {
 
 	ResponseDto<List<LineResponseDto>> getLines(String factoryId, LineType lineType);
 
-	List<LineCheckerAssignment> lineCheckerAssignment(LineAssignmentRequestDto lineAssignmentRequestDto, String factoryId);
+	List<LineCheckerAssignment> lineCheckerAssignment(LineCheckerAssignmentRequestDto lineCheckerAssignmentRequestDto, String factoryId);
 }
