@@ -17,10 +17,10 @@ import lombok.ToString;
 @AllArgsConstructor
 public class UserLineDetails {
 
-	String userId;
-	String userName;
-	String lineId;
-	String lineName;
+	private String userId;
+	private String userName;
+	private String lineId;
+	private String lineName;
 	private LineType lineType;
 
 }

@@ -72,7 +72,7 @@ public class LineCheckerAssignmentServiceImpl implements LineCheckerAssignmentSe
 				lineCheckerAssignments.add(lineCheckerAssignment);
 			}
 
-			if (CollectionUtils.isNotEmpty(assignments)) {
+			if (CollectionUtils.isNotEmpty(lineCheckerAssignments)) {
 
 				lineCheckerAssignments = lineCheckerAssignmentDbService.saveAllLineCheckerAssignemnt(lineCheckerAssignments);
 

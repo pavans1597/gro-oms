@@ -2,8 +2,11 @@ package com.groyyo.order.management.dto.response;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import com.groyyo.core.dto.userservice.LineType;
 import com.groyyo.core.master.dto.response.BaseResponseDto;
 import com.groyyo.order.management.dto.request.UserLineDetails;
 import com.groyyo.order.management.enums.PurchaseOrderStatus;
@@ -62,4 +65,7 @@ public class PurchaseOrderResponseDto extends BaseResponseDto {
 
 	@Builder.Default
 	private List<UserLineDetails> userLineDetails = new ArrayList<UserLineDetails>();
+
+	@Builder.Default
+	private Map<LineType, List<UserLineDetails>> userLineDetailsMap = new HashMap<LineType, List<UserLineDetails>>();
 }
