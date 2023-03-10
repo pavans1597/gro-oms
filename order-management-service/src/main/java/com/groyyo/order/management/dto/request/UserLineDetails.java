@@ -10,7 +10,7 @@ import lombok.ToString;
 @Setter
 @NoArgsConstructor
 @ToString
-public class LineAssignment  {
+public class UserLineDetails {
 
     String userId ;
     String userName;

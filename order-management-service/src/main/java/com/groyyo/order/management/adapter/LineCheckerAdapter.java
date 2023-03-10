@@ -1,14 +1,14 @@
 package com.groyyo.order.management.adapter;
 
-import com.groyyo.order.management.dto.request.LineAssignment;
-import com.groyyo.order.management.dto.request.LineAssignmentRequestDto;
+import com.groyyo.order.management.dto.request.LineCheckerAssignmentRequestDto;
+import com.groyyo.order.management.dto.request.UserLineDetails;
 import com.groyyo.order.management.entity.LineCheckerAssignment;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class LineCheckerAdapter {
 
-	public LineCheckerAssignment buildLineCheckerAssignmentFromRequest(LineAssignmentRequestDto lineAssignmentRequestDto) {
+	public LineCheckerAssignment buildLineCheckerAssignmentFromRequest(LineCheckerAssignmentRequestDto lineCheckerAssignmentRequestDto) {
 
 		return LineCheckerAssignment
 				.builder()
@@ -23,14 +23,14 @@ public class LineCheckerAdapter {
 				.build();
 	}
 
-	public LineCheckerAssignment buildLineCheckerAssignmentFromRequest(LineAssignment lineAssignment, String purchaseOrderId, String salesOrderId, String factoryId) {
+	public LineCheckerAssignment buildLineCheckerAssignmentFromRequest(UserLineDetails userLineDetails, String purchaseOrderId, String salesOrderId, String factoryId) {
 
 		return LineCheckerAssignment
 				.builder()
-				.userName(lineAssignment.getUserName())
-				.userId(lineAssignment.getUserId())
-				.lineId(lineAssignment.getLineId())
-				.lineType(lineAssignment.getLineType())
+				.userName(userLineDetails.getUserName())
+				.userId(userLineDetails.getUserId())
+				.lineId(userLineDetails.getLineId())
+				.lineType(userLineDetails.getLineType())
 				.purchaseOrderId(purchaseOrderId)
 				.salesOrderId(salesOrderId)
 				.factoryId(factoryId)
