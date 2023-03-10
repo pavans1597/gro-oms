@@ -14,7 +14,7 @@ import com.groyyo.order.management.dto.request.PurchaseOrderUpdateDto;
 import com.groyyo.order.management.dto.response.PurchaseOrderResponseDto;
 import com.groyyo.order.management.entity.LineCheckerAssignment;
 import com.groyyo.order.management.enums.PurchaseOrderStatus;
-import com.groyyo.order.management.service.LineCheckerService;
+import com.groyyo.order.management.service.LineCheckerAssignmentService;
 import com.groyyo.order.management.service.PurchaseOrderService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +33,7 @@ public class PurchaseOrderController {
 	private PurchaseOrderService purchaseOrderService;
 
 	@Autowired
-	private LineCheckerService lineCheckerService;
+	private LineCheckerAssignmentService lineCheckerAssignmentService;
 
 	@GetMapping("/get/all")
 	public ResponseDto<List<PurchaseOrderResponseDto>> getAllPurchaseOrders(@RequestParam(value = "status", required = false) Boolean status) {
@@ -97,7 +97,7 @@ public class PurchaseOrderController {
 
 		log.info("Request received to get getUsers by FactoryId : {}", factoryIdHeaderValue);
 
-		ResponseDto<List<UserResponseDto>> lineUsers = lineCheckerService.getLineUsers(factoryIdHeaderValue, lineType);
+		ResponseDto<List<UserResponseDto>> lineUsers = lineCheckerAssignmentService.getLineUsers(factoryIdHeaderValue, lineType);
 
 		return Objects.isNull(lineUsers) ? ResponseDto.failure(" Users not found ") : ResponseDto.success(" Users found ", lineUsers.getData());
 	}
@@ -108,22 +108,22 @@ public class PurchaseOrderController {
 
 		log.info("Request received to get getUsers by FactoryId : {} ", factoryIdHeaderValue);
 
-		ResponseDto<List<LineResponseDto>> listResponseDto = lineCheckerService.getLines(factoryIdHeaderValue, lineType);
+		ResponseDto<List<LineResponseDto>> listResponseDto = lineCheckerAssignmentService.getLines(factoryIdHeaderValue, lineType);
 
-		return Objects.isNull(listResponseDto) ? ResponseDto.failure(" Users not found ") : ResponseDto.success(" Users found ", listResponseDto.getData());
+		return Objects.isNull(listResponseDto) ? ResponseDto.failure(" Users not found ") : ResponseDto.success(" Users retrieved successfully ", listResponseDto.getData());
 	}
 
 	@SuppressWarnings("unused")
 	@PostMapping("/assign/checkers")
 	public ResponseDto<List<LineCheckerAssignment>> assignCheckers(@RequestBody LineCheckerAssignmentRequestDto checkerAssignDto) {
-		log.info("Request received to update purchaseOrder: {}", checkerAssignDto);
+		log.info("Request received to update assign Checkers: {}", checkerAssignDto);
 
 		String headerFactoryIdName = InterceptorConstants.HEADER_FACTORY_ID_NAME;
 		String factoryIdHeaderValue = HeaderUtil.getFactoryIdHeaderValue();
-		List<LineCheckerAssignment> lineCheckerAssignments = lineCheckerService.lineCheckerAssignment(checkerAssignDto, factoryIdHeaderValue);
+		List<LineCheckerAssignment> lineCheckerAssignments = lineCheckerAssignmentService.lineCheckerAssignment(checkerAssignDto, factoryIdHeaderValue);
 
-		return Objects.isNull(lineCheckerAssignments) ? ResponseDto.failure("Unable to update purchaseOrder !!")
-				: ResponseDto.success("PurchaseOrder updated successfully !!",lineCheckerAssignments);
+		return Objects.isNull(lineCheckerAssignments) ? ResponseDto.failure("Unable to assign Checkers to purchaseOrder !!")
+				: ResponseDto.success(" Checkers Assigned Successfully !!",lineCheckerAssignments);
 	}
 
 }
