@@ -26,4 +26,11 @@ public interface PurchaseOrderService {
 	 */
 	PageResponse<PurchaseOrderResponseDto> getPurchaseOrderListing(PurchaseOrderFilterDto purchaseOrderFilterDto, PurchaseOrderStatus purchaseOrderStatus, int page, int limit);
 
+	/**
+	 * @param purchaseOrderId
+	 * @param desiredPurchaseOrderStatus
+	 * @param forceUpdate
+	 */
+	void changeStatusOfPurchaseOrder(String purchaseOrderId, PurchaseOrderStatus desiredPurchaseOrderStatus, Boolean forceUpdate);
+
 }

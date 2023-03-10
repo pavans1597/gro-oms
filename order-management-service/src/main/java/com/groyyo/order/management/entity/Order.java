@@ -21,12 +21,12 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @ToString(callSuper = true)
 @Entity(name = "order")
-@Table(name = "order", uniqueConstraints = { @UniqueConstraint(name = "UK_order_name", columnNames = { "name" }) })
+@Table(name = "order", schema = "public", uniqueConstraints = { @UniqueConstraint(name = "UK_order_name", columnNames = { "name" }) })
 public class Order extends AbstractJpaEntity {
 
 	private static final long serialVersionUID = 1L;
 
-	@Column(name = "name", nullable = false, columnDefinition = "varchar(40)")
+	@Column(name = "name", columnDefinition = "varchar(40)", nullable = false)
 	private String name;
 
 	@Column(name = "style_id", columnDefinition = "varchar(40)", nullable = false)
