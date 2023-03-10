@@ -99,7 +99,7 @@ public class PurchaseOrderController {
 
 		ResponseDto<List<UserResponseDto>> lineUsers = lineCheckerAssignmentService.getLineUsers(factoryIdHeaderValue, lineType);
 
-		return Objects.isNull(lineUsers) ? ResponseDto.failure(" Users not found ") : ResponseDto.success(" Users found ", lineUsers.getData());
+		return (Objects.isNull(lineUsers) || lineUsers.getData().isEmpty())? ResponseDto.failure(" Users not found ") : ResponseDto.success(" Users retrieved successfully  ", lineUsers.getData());
 	}
 
 	@GetMapping("fetch/lines")
@@ -110,7 +110,7 @@ public class PurchaseOrderController {
 
 		ResponseDto<List<LineResponseDto>> listResponseDto = lineCheckerAssignmentService.getLines(factoryIdHeaderValue, lineType);
 
-		return Objects.isNull(listResponseDto) ? ResponseDto.failure(" Users not found ") : ResponseDto.success(" Users retrieved successfully ", listResponseDto.getData());
+		return (Objects.isNull(listResponseDto) || listResponseDto.getData().isEmpty())? ResponseDto.failure(" Lines not found ") : ResponseDto.success(" Lines retrieved successfully ", listResponseDto.getData());
 	}
 
 	@SuppressWarnings("unused")
