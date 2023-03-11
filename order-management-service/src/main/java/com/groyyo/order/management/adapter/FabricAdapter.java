@@ -79,7 +79,9 @@ public class FabricAdapter {
                 .fabricCategory(fabric.getFabricCategory())
                 .imageUrl(fabric.getImageUrl())
                 .fabricCode(fabric.getFabricCode())
+                .factoryId(fabric.getFactoryId())
                 .status(fabric.isStatus())
+
                 .build();
     }
 

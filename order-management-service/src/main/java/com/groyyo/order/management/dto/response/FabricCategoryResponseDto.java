@@ -15,5 +15,7 @@ import lombok.experimental.SuperBuilder;
 public class FabricCategoryResponseDto extends BaseResponseDto {
 
     private String type;
+    private String factoryId;
+
 
 }

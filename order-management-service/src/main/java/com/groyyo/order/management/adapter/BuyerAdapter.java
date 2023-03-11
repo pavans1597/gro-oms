@@ -47,6 +47,7 @@ public class BuyerAdapter {
                 .uuid(buyer.getUuid())
                 .name(buyer.getName())
                 .status(buyer.isStatus())
+                .factoryId(buyer.getFactoryId())
                 .build();
     }
 

@@ -1,10 +1,6 @@
 package com.groyyo.order.management.dto.response;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 @Getter
@@ -28,5 +24,6 @@ public class PurchaseOrderQuantityResponseDto{
     private Long quantity;
 
     private Long targetQuantity;
+    private String factoryId;
 
 }

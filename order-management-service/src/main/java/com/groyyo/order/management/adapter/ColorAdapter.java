@@ -73,6 +73,7 @@ public class ColorAdapter {
 				.hexCode(color.getHexCode())
 				.masterId(color.getMasterId())
 				.status(color.isStatus())
+				.factoryId(color.getFactoryId())
 				.build();
 	}
 

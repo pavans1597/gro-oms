@@ -64,6 +64,8 @@ public class FitAdapter {
 				.name(fit.getName())
 				.masterId(fit.getMasterId())
 				.status(fit.isStatus())
+				.factoryId(fit.getFactoryId())
+
 				.build();
 	}
 

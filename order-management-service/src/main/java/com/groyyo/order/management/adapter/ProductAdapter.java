@@ -70,6 +70,7 @@ public class ProductAdapter {
 				.lineArt(product.getLineArt())
 				.masterId(product.getMasterId())
 				.status(product.isStatus())
+				.factoryId(product.getFactoryId())
 				.build();
 	}
 

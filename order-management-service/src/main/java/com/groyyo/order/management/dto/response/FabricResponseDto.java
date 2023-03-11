@@ -17,5 +17,6 @@ public class FabricResponseDto extends BaseResponseDto {
     private String fabricCategory;
     private String imageUrl;
     private String fabricCode;
+    private String factoryId;
 
 }

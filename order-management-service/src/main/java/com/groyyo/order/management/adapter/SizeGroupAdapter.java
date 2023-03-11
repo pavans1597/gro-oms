@@ -80,6 +80,7 @@ public class SizeGroupAdapter {
 				.sizeIds(sizeGroup.getSizeIds())
 				.masterId(sizeGroup.getMasterId())
 				.status(sizeGroup.isStatus())
+				.factoryId(sizeGroup.getFactoryId())
 				.build();
 	}
 

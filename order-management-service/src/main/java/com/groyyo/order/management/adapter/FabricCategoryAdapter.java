@@ -64,6 +64,7 @@ public class FabricCategoryAdapter {
                 .name(fabricCategory.getName())
                 .type(fabricCategory.getType())
                 .status(fabricCategory.isStatus())
+                .factoryId(fabricCategory.getFactoryId())
                 .build();
     }
 

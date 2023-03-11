@@ -13,5 +13,6 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @ToString(callSuper = true)
 public class BuyerResponseDto extends BaseResponseDto {
+    private String factoryId;
 
 }

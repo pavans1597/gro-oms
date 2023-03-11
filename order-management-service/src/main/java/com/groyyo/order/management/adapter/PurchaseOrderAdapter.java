@@ -87,6 +87,7 @@ public class PurchaseOrderAdapter {
 				.partId(purchaseOrder.getPartId())
 				.productId(purchaseOrder.getProductId())
 				.productName(purchaseOrder.getProductName())
+				.factoryId(purchaseOrder.getFactoryId())
 				.build();
 	}
 

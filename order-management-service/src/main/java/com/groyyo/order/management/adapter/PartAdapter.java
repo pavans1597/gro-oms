@@ -64,6 +64,7 @@ public class PartAdapter {
 				.name(part.getName())
 				.masterId(part.getMasterId())
 				.status(part.isStatus())
+				.factoryId(part.getFactoryId())
 				.build();
 	}
 

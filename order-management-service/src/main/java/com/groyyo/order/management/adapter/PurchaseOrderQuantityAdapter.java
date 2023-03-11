@@ -73,6 +73,7 @@ public class PurchaseOrderQuantityAdapter {
 				.sizeId(purchaseOrderQuantity.getSizeId())
 				.colourId(purchaseOrderQuantity.getColourId())
 				.targetQuantity(purchaseOrderQuantity.getTargetQuantity())
+				.factoryId(purchaseOrderQuantity.getFactoryId())
 				.build();
 	}
 

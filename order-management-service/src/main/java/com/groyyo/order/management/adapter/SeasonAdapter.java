@@ -1,16 +1,14 @@
 
 package com.groyyo.order.management.adapter;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.apache.commons.lang3.StringUtils;
-
 import com.groyyo.core.master.dto.request.SeasonRequestDto;
 import com.groyyo.core.master.dto.response.SeasonResponseDto;
 import com.groyyo.order.management.entity.Season;
-
 import lombok.experimental.UtilityClass;
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @UtilityClass
 public class SeasonAdapter {
@@ -65,6 +63,7 @@ public class SeasonAdapter {
 				.name(season.getName())
 				.masterId(season.getMasterId())
 				.status(season.isStatus())
+				.factoryId(season.getFactoryId())
 				.build();
 	}
 

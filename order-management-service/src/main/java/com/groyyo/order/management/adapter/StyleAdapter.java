@@ -1,15 +1,13 @@
 package com.groyyo.order.management.adapter;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.apache.commons.lang3.StringUtils;
-
 import com.groyyo.order.management.dto.request.ImageDto;
 import com.groyyo.order.management.dto.response.StyleDto;
 import com.groyyo.order.management.entity.Style;
-
 import lombok.experimental.UtilityClass;
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @UtilityClass
 public class StyleAdapter {
@@ -70,6 +68,7 @@ public class StyleAdapter {
 				.styleNumber(style.getStyleNumber())
 				.productId(style.getProductId())
 				.productName(style.getProductName())
+				.factoryId(style.getFactoryId())
 				.build();
 	}
 

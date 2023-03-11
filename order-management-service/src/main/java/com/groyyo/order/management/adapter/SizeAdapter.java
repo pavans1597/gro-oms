@@ -64,6 +64,7 @@ public class SizeAdapter {
 				.name(size.getName())
 				.masterId(size.getMasterId())
 				.status(size.isStatus())
+				.factoryId(size.getFactoryId())
 				.build();
 	}
 

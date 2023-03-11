@@ -26,4 +26,6 @@ public class StyleDto extends BaseResponseDto {
     private String productId;
 
     private String productName;
+    private String factoryId;
+
 }
