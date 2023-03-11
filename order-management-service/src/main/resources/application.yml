@@ -137,7 +137,8 @@ kafka:
   master:
     updates:
       topic: master-data-updates
-
+  quality-management:
+    topic: kafka-qualityManagement-topic
 ############### healthcheck spring properties ###############
 management:
   health:

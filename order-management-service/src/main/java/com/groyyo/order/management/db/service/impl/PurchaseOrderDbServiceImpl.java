@@ -1,15 +1,15 @@
 package com.groyyo.order.management.db.service.impl;
 
-import java.util.List;
-import java.util.Objects;
-
+import com.groyyo.core.sqlPostgresJpa.service.impl.AbstractJpaServiceImpl;
+import com.groyyo.order.management.db.service.PurchaseOrderDbService;
 import com.groyyo.order.management.entity.PurchaseOrder;
+import com.groyyo.order.management.enums.PurchaseOrderStatus;
+import com.groyyo.order.management.repository.PurchaseOrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.groyyo.core.sqlPostgresJpa.service.impl.AbstractJpaServiceImpl;
-import com.groyyo.order.management.db.service.PurchaseOrderDbService;
-import com.groyyo.order.management.repository.PurchaseOrderRepository;
+import java.util.List;
+import java.util.Objects;
 
 
 @Service
@@ -53,4 +53,26 @@ public class PurchaseOrderDbServiceImpl extends AbstractJpaServiceImpl<PurchaseO
     public boolean isEntityExistsByName(String name) {
         return Objects.nonNull(purchaseOrderRepository.findByName(name));
     }
+
+    @Override
+    public Long getCountByPurchaseOrderStatus(PurchaseOrderStatus purchaseOrderStatus, String factoryId, boolean b) {
+        if(!Objects.isNull(factoryId)){
+//            return purchaseOrderRepository.countByPurchaseOrderStatusAndFactoryId(purchaseOrderStatus,factoryId);
+            return  0L ;
+        }else {
+            return purchaseOrderRepository.countByPurchaseOrderStatusAndStatus(purchaseOrderStatus,true);
+        }
+
+    }
+
+    @Override
+    public Long getTotalCount(String factoryId) {
+        if(!Objects.isNull(factoryId)){
+//            return purchaseOrderRepository.countByFactoryId(factoryId);
+            return  0L ;
+        }else {
+            return purchaseOrderRepository.count();
+        }
+    }
+
 }
