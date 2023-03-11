@@ -27,7 +27,9 @@ public class PurchaseOrderQuantityAdapter {
 				.purchaseOrderId(purchaseOrderId)
 				.quantity(quantity)
 				.sizeId(purchaseOrderQuantityRequest.getSizeId())
+				.sizeName(purchaseOrderQuantityRequest.getSizeName())
 				.colourId(purchaseOrderQuantityRequest.getColourId())
+				.colourName(purchaseOrderQuantityRequest.getColorName())
 				.targetQuantity(targetQuantity)
 				.build();
 	}
@@ -39,6 +41,7 @@ public class PurchaseOrderQuantityAdapter {
 	}
 
 	public PurchaseOrderQuantity buildPurchaseOrderQuantityFromResponse(PurchaseOrderQuantityResponseDto purchaseOrderQuantityResponseDto) {
+
 		return PurchaseOrderQuantity
 				.builder()
 				.name(purchaseOrderQuantityResponseDto.getName())
@@ -71,7 +74,9 @@ public class PurchaseOrderQuantityAdapter {
 				.purchaseOrderId(purchaseOrderQuantity.getPurchaseOrderId())
 				.quantity(purchaseOrderQuantity.getQuantity())
 				.sizeId(purchaseOrderQuantity.getSizeId())
+				.sizeName(purchaseOrderQuantity.getSizeName())
 				.colourId(purchaseOrderQuantity.getColourId())
+				.colorName(purchaseOrderQuantity.getColourName())
 				.targetQuantity(purchaseOrderQuantity.getTargetQuantity())
 				.build();
 	}
