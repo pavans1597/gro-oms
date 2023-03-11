@@ -1,7 +1,7 @@
 package com.groyyo.order.management.adapter;
 
 import com.groyyo.core.dto.PurchaseOrder.TaskAssinmentRequestDto;
-import com.groyyo.order.management.dto.request.UserLineDetails;
+import com.groyyo.core.dto.PurchaseOrder.UserLineDetails;
 import com.groyyo.order.management.entity.PurchaseOrder;
 import lombok.experimental.UtilityClass;
 

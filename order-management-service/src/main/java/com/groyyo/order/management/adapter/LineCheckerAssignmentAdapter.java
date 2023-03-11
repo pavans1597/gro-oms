@@ -1,12 +1,11 @@
 package com.groyyo.order.management.adapter;
 
+import com.groyyo.core.dto.PurchaseOrder.UserLineDetails;
+import com.groyyo.order.management.entity.LineCheckerAssignment;
+import lombok.experimental.UtilityClass;
+
 import java.util.List;
 import java.util.stream.Collectors;
-
-import com.groyyo.order.management.dto.request.UserLineDetails;
-import com.groyyo.order.management.entity.LineCheckerAssignment;
-
-import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class LineCheckerAssignmentAdapter {

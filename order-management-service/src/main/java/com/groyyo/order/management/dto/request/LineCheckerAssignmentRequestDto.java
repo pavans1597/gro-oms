@@ -1,6 +1,7 @@
 package com.groyyo.order.management.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.groyyo.core.dto.PurchaseOrder.UserLineDetails;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

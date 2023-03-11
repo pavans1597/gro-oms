@@ -1,8 +1,8 @@
 package com.groyyo.order.management.repository;
 
+import com.groyyo.core.dto.PurchaseOrder.PurchaseOrderStatus;
 import com.groyyo.core.sqlPostgresJpa.repository.AbstractJpaRepository;
 import com.groyyo.order.management.entity.PurchaseOrder;
-import com.groyyo.order.management.enums.PurchaseOrderStatus;
 import org.springframework.stereotype.Repository;
 
 
