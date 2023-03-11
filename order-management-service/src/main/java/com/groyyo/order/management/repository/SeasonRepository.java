@@ -1,15 +1,21 @@
 package com.groyyo.order.management.repository;
 
-import com.groyyo.order.management.entity.Season;
+import java.util.List;
+
 import org.springframework.stereotype.Repository;
 
 import com.groyyo.core.sqlPostgresJpa.repository.AbstractJpaRepository;
+import com.groyyo.order.management.entity.Season;
 
 @Repository
 public interface SeasonRepository extends AbstractJpaRepository<Season, Long> {
 
-    Season findByName(String name);
+	List<Season> findByOrderByNameAsc();
 
-    Season findByNameAndStatus(String name, Boolean status);
+	List<Season> findByStatusOrderByNameAsc(Boolean status);
+
+	Season findByName(String name);
+
+	Season findByNameAndStatus(String name, Boolean status);
 
 }
