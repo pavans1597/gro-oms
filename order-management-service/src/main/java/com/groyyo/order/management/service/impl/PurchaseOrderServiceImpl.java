@@ -64,8 +64,6 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
 		log.info("Serving request to get all purchaseOrders");
 
-		List<PurchaseOrderResponseDto> purchaseOrderResponseDtos = new ArrayList<PurchaseOrderResponseDto>();
-
 		List<PurchaseOrder> purchaseOrderEntities = Objects.isNull(status) ? purchaseOrderDbService.getAllPurchaseOrders()
 				: purchaseOrderDbService.getAllPurchaseOrdersForStatus(status);
 
@@ -74,19 +72,13 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 			return new ArrayList<>();
 		}
 
-		purchaseOrderResponseDtos = PurchaseOrderAdapter.buildResponsesFromEntities(purchaseOrderEntities);
-		log.info("Found total: {} purchase orders to show in listing ", purchaseOrderResponseDtos.size());
-
-		populateTotalQuantitiesForPurchaseOrder(purchaseOrderResponseDtos);
-		populateLineCheckerAssignmentsForPurchaseOrder(purchaseOrderResponseDtos);
-
-		return purchaseOrderResponseDtos;
+		return buildPurchaseOrderResponseWithQuantitiesAndAssignments(purchaseOrderEntities);
 	}
 
 	@Override
 	public PurchaseOrderResponseDto getPurchaseOrderById(String id) {
 
-		log.info("Serving request to get a purchaseOrder by id:{}", id);
+		log.info("Serving request to get a purchaseOrder by id: {}", id);
 
 		PurchaseOrder purchaseOrder = purchaseOrderDbService.getPurchaseOrderById(id);
 
@@ -95,7 +87,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 			throw new NoRecordException(errorMsg);
 		}
 
-		return PurchaseOrderAdapter.buildResponseFromEntity(purchaseOrder);
+		return buildPurchaseOrderResponseWithQuantitiesAndAssignments(purchaseOrder);
 	}
 
 	@Override
@@ -120,7 +112,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
 		updateVitalFieldsAndSave(purchaseOrder);
 
-		return PurchaseOrderAdapter.buildResponseFromEntity(purchaseOrder);
+		return buildPurchaseOrderResponseWithQuantitiesAndAssignments(purchaseOrder);
 	}
 
 	@Override
@@ -141,7 +133,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
 		purchaseOrderDbService.savePurchaseOrder(purchaseOrder);
 
-		return PurchaseOrderAdapter.buildResponseFromEntity(purchaseOrder);
+		return buildPurchaseOrderResponseWithQuantitiesAndAssignments(purchaseOrder);
 	}
 
 	@Override
@@ -185,13 +177,18 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 		}
 	}
 
-	private void populateTotalQuantitiesForPurchaseOrder(List<PurchaseOrderResponseDto> purchaseOrderResponseDtos) {
+	private void populateTotalQuantitiesForPurchaseOrders(List<PurchaseOrderResponseDto> purchaseOrderResponseDtos) {
 
 		purchaseOrderResponseDtos.forEach(purchaseOrderResponseDto -> {
 
-			purchaseOrderResponseDto.setTotalQuantity(purchaseOrderQuantityService.getTotalQuantityForPurchaseOrder(purchaseOrderResponseDto.getUuid()));
-			purchaseOrderResponseDto.setTotalTargetQuantity(purchaseOrderQuantityService.getTotalTargetQuantityForPurchaseOrder(purchaseOrderResponseDto.getUuid()));
+			populateTotalQuantitiesForPurchaseOrder(purchaseOrderResponseDto);
 		});
+	}
+
+	private void populateTotalQuantitiesForPurchaseOrder(PurchaseOrderResponseDto purchaseOrderResponseDto) {
+
+		purchaseOrderResponseDto.setTotalQuantity(purchaseOrderQuantityService.getTotalQuantityForPurchaseOrder(purchaseOrderResponseDto.getUuid()));
+		purchaseOrderResponseDto.setTotalTargetQuantity(purchaseOrderQuantityService.getTotalTargetQuantityForPurchaseOrder(purchaseOrderResponseDto.getUuid()));
 	}
 
 	private void setTotalQuantitiesForPurchaseOrder(PurchaseOrder purchaseOrder) {
@@ -200,11 +197,11 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 		purchaseOrder.setTotalTargetQuantity(purchaseOrderQuantityService.getTotalTargetQuantityForPurchaseOrder(purchaseOrder.getUuid()));
 	}
 
-	private void populateLineCheckerAssignmentsForPurchaseOrder(List<PurchaseOrderResponseDto> purchaseOrderResponseDtos) {
+	private void populateLineCheckerAssignmentsForPurchaseOrders(List<PurchaseOrderResponseDto> purchaseOrderResponseDtos) {
 
 		purchaseOrderResponseDtos.forEach(purchaseOrderResponseDto -> {
 
-			populateLineCheckerAssignments(purchaseOrderResponseDto);
+			populateLineCheckerAssignmentsForPurchaseOrder(purchaseOrderResponseDto);
 		});
 	}
 
@@ -219,7 +216,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 		}
 	}
 
-	private void populateLineCheckerAssignments(PurchaseOrderResponseDto purchaseOrderResponseDto) {
+	private void populateLineCheckerAssignmentsForPurchaseOrder(PurchaseOrderResponseDto purchaseOrderResponseDto) {
 
 		List<LineCheckerAssignment> lineCheckerAssignments = lineCheckerAssignmentDbService.getLineCheckerAssignmentForPurchaseOrder(purchaseOrderResponseDto.getUuid());
 
@@ -236,10 +233,31 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
 		List<PurchaseOrderResponseDto> purchaseOrderResponseDtos = PurchaseOrderAdapter.buildResponsesFromEntities(purchaseOrders);
 
-		populateTotalQuantitiesForPurchaseOrder(purchaseOrderResponseDtos);
-		populateLineCheckerAssignmentsForPurchaseOrder(purchaseOrderResponseDtos);
+		populateTotalQuantitiesForPurchaseOrders(purchaseOrderResponseDtos);
+		populateLineCheckerAssignmentsForPurchaseOrders(purchaseOrderResponseDtos);
 
 		return purchaseOrderResponseDtos;
+	}
+
+	private List<PurchaseOrderResponseDto> buildPurchaseOrderResponseWithQuantitiesAndAssignments(List<PurchaseOrder> purchaseOrderEntities) {
+
+		List<PurchaseOrderResponseDto> purchaseOrderResponseDtos = PurchaseOrderAdapter.buildResponsesFromEntities(purchaseOrderEntities);
+		log.info("Found total: {} purchase orders to show in listing ", purchaseOrderResponseDtos.size());
+
+		populateTotalQuantitiesForPurchaseOrders(purchaseOrderResponseDtos);
+		populateLineCheckerAssignmentsForPurchaseOrders(purchaseOrderResponseDtos);
+
+		return purchaseOrderResponseDtos;
+	}
+
+	private PurchaseOrderResponseDto buildPurchaseOrderResponseWithQuantitiesAndAssignments(PurchaseOrder purchaseOrder) {
+
+		PurchaseOrderResponseDto purchaseOrderResponseDto = PurchaseOrderAdapter.buildResponseFromEntity(purchaseOrder);
+
+		populateTotalQuantitiesForPurchaseOrder(purchaseOrderResponseDto);
+		populateLineCheckerAssignmentsForPurchaseOrder(purchaseOrderResponseDto);
+
+		return purchaseOrderResponseDto;
 	}
 
 	/**
@@ -305,7 +323,6 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 			if (StringUtils.isNotBlank(purchaseOrderFilterDto.getProductName()))
 				groyyoSpecificationBuilder.with(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_PRODUCT_NAME, CriteriaOperation.LIKE,
 						SymbolConstants.SYMBOL_PERCENT + purchaseOrderFilterDto.getProductName() + SymbolConstants.SYMBOL_PERCENT);
-
 		}
 
 		return groyyoSpecificationBuilder.build();
@@ -325,8 +342,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 		log.info("Current status of purchase order with uuid: {} is: {}", purchaseOrder.getUuid(), currentPurchaseOrderStatus);
 
 		if (desiredPurchaseOrderStatus.getSequenceId() > currentPurchaseOrderStatus.getSequenceId()) {
-			log.info("Changing the status of purchase order from current status: {} to desired status: {}", currentPurchaseOrderStatus.getSequenceId(),
-					desiredPurchaseOrderStatus.getSequenceId());
+			log.info("Changing the status of purchase order from current status: {} to desired status: {}", currentPurchaseOrderStatus, desiredPurchaseOrderStatus);
 			purchaseOrder.setPurchaseOrderStatus(desiredPurchaseOrderStatus);
 		}
 
@@ -334,8 +350,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 			log.info("Cannot move the status to a level: {} lower than the current level: {}", desiredPurchaseOrderStatus.getSequenceId(), currentPurchaseOrderStatus.getSequenceId());
 
 			if (forceUpdate) {
-				log.info("Changing the status of purchase order forcefully from current status: {} to desired status: {}", currentPurchaseOrderStatus.getSequenceId(),
-						desiredPurchaseOrderStatus.getSequenceId());
+				log.info("Changing the status of purchase order forcefully from current status: {} to desired status: {}", currentPurchaseOrderStatus, desiredPurchaseOrderStatus);
 				purchaseOrder.setPurchaseOrderStatus(desiredPurchaseOrderStatus);
 			}
 		}
