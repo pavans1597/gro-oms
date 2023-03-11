@@ -4,6 +4,9 @@ import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class KafkaConstants {
+	public static String KAFKA_QC_TASK_ASSIGNMENT_TYPE = "qcTaskAssignment";
+	public static String KAFKA_QC_TASK_ASSIGNMENT_SUBTYPE_CREATE = "qcTaskAssignmentCreate";
+	public static String KAFKA_QC_TASK_ASSIGNMENT_SUBTYPE_UPDATE = "qcTaskAssignmentUpdate";
 
 	public static String KAFKA_COLOR_TYPE = "color";
 	public static String KAFKA_COLOR_SUBTYPE_CREATE = "colorCreate";

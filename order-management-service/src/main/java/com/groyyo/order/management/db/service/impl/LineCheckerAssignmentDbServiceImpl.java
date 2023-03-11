@@ -1,14 +1,14 @@
 package com.groyyo.order.management.db.service.impl;
 
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
+import com.groyyo.core.dto.userservice.LineType;
 import com.groyyo.core.sqlPostgresJpa.service.impl.AbstractJpaServiceImpl;
 import com.groyyo.order.management.db.service.LineCheckerAssignmentDbService;
 import com.groyyo.order.management.entity.LineCheckerAssignment;
 import com.groyyo.order.management.repository.LineCheckerAssignmentRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class LineCheckerAssignmentDbServiceImpl extends AbstractJpaServiceImpl<LineCheckerAssignment, Long, LineCheckerAssignmentRepository> implements LineCheckerAssignmentDbService {
@@ -57,5 +57,10 @@ public class LineCheckerAssignmentDbServiceImpl extends AbstractJpaServiceImpl<L
 	public List<LineCheckerAssignment> getLineCheckerAssignmentForPurchaseOrder(String purchaseOrderId) {
 
 		return lineCheckerAssignmentRepository.findAllByPurchaseOrderId(purchaseOrderId);
+	}
+
+	@Override
+	public Long countLineCheckerByfactoryId(String factoryId, LineType lineType,boolean status) {
+		return lineCheckerAssignmentRepository.countByFactoryIdAndLineTypeAndStatus(factoryId,lineType,status);
 	}
 }

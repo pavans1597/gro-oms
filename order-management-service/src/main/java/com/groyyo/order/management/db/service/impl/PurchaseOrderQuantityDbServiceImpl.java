@@ -1,15 +1,14 @@
 package com.groyyo.order.management.db.service.impl;
 
-import java.util.List;
-import java.util.Objects;
-
+import com.groyyo.core.sqlPostgresJpa.service.impl.AbstractJpaServiceImpl;
+import com.groyyo.order.management.db.service.PurchaseOrderQuantityDbService;
 import com.groyyo.order.management.entity.PurchaseOrderQuantity;
+import com.groyyo.order.management.repository.PurchaseOrderQuantityRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.groyyo.core.sqlPostgresJpa.service.impl.AbstractJpaServiceImpl;
-import com.groyyo.order.management.db.service.PurchaseOrderQuantityDbService;
-import com.groyyo.order.management.repository.PurchaseOrderQuantityRepository;
+import java.util.List;
+import java.util.Objects;
 
 
 @Service
@@ -46,5 +45,11 @@ public class PurchaseOrderQuantityDbServiceImpl extends AbstractJpaServiceImpl<P
     @Override
     public boolean isEntityExistsByName(String name) {
         return Objects.nonNull(purchaseOrderQuantityRepository.findByName(name));
+    }
+
+    @Override
+    public void getPurchaseOrderQuantityByPurchaseOrderId(String uuid) {
+        return ;
+
     }
 }

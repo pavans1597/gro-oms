@@ -1,9 +1,9 @@
 package com.groyyo.order.management.db.service;
 
-import java.util.List;
-
 import com.groyyo.core.sqlPostgresJpa.service.AbstractJpaService;
 import com.groyyo.order.management.entity.PurchaseOrderQuantity;
+
+import java.util.List;
 
 public interface PurchaseOrderQuantityDbService extends AbstractJpaService<PurchaseOrderQuantity, Long> {
 
@@ -18,4 +18,6 @@ public interface PurchaseOrderQuantityDbService extends AbstractJpaService<Purch
 
     List<PurchaseOrderQuantity> savePurchaseOrderQuantityList(List<PurchaseOrderQuantity> purchaseOrderQuantityList);
     boolean isEntityExistsByName(String name);
+
+    void getPurchaseOrderQuantityByPurchaseOrderId(String uuid);
 }

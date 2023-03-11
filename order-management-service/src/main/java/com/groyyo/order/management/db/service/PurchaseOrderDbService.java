@@ -1,9 +1,10 @@
 package com.groyyo.order.management.db.service;
 
-import java.util.List;
-
+import com.groyyo.core.dto.PurchaseOrder.PurchaseOrderStatus;
 import com.groyyo.core.sqlPostgresJpa.service.AbstractJpaService;
 import com.groyyo.order.management.entity.PurchaseOrder;
+
+import java.util.List;
 
 public interface PurchaseOrderDbService extends AbstractJpaService<PurchaseOrder, Long> {
 
@@ -24,4 +25,8 @@ public interface PurchaseOrderDbService extends AbstractJpaService<PurchaseOrder
 
 
     boolean isEntityExistsByName(String name);
+
+    Long getCountByPurchaseOrderStatus(PurchaseOrderStatus yetToStart, String factoryId, boolean b);
+
+    Long getTotalCount(String factoryId);
 }

@@ -1,8 +1,9 @@
 package com.groyyo.order.management.db.service;
 
-import java.util.List;
-
+import com.groyyo.core.dto.userservice.LineType;
 import com.groyyo.order.management.entity.LineCheckerAssignment;
+
+import java.util.List;
 
 public interface LineCheckerAssignmentDbService {
 
@@ -22,4 +23,6 @@ public interface LineCheckerAssignmentDbService {
 	 * @return
 	 */
 	List<LineCheckerAssignment> getLineCheckerAssignmentForPurchaseOrder(String purchaseOrderId);
+
+	Long countLineCheckerByfactoryId(String factoryId, LineType productionLine,boolean status);
 }
