@@ -34,13 +34,13 @@ public class PurchaseOrderQuantity extends AbstractJpaEntity {
 	@Column(name = "size_id", columnDefinition = "varchar(40)", nullable = false)
 	private String sizeId;
 
-	@Column(name = "size_name", columnDefinition = "varchar(100)", nullable = false)
+	@Column(name = "size_name", columnDefinition = "varchar(100)", nullable = true)
 	private String sizeName;
 
 	@Column(name = "colour_id", columnDefinition = "varchar(40)", nullable = false)
 	private String colourId;
 
-	@Column(name = "colour_name", columnDefinition = "varchar(40)", nullable = false)
+	@Column(name = "colour_name", columnDefinition = "varchar(100)", nullable = true)
 	private String colourName;
 
 	@Column(name = "quantity", columnDefinition = "BIGINT", nullable = false)
