@@ -231,12 +231,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
 		List<PurchaseOrder> purchaseOrders = data.get().collect(Collectors.toList());
 
-		List<PurchaseOrderResponseDto> purchaseOrderResponseDtos = PurchaseOrderAdapter.buildResponsesFromEntities(purchaseOrders);
-
-		populateTotalQuantitiesForPurchaseOrders(purchaseOrderResponseDtos);
-		populateLineCheckerAssignmentsForPurchaseOrders(purchaseOrderResponseDtos);
-
-		return purchaseOrderResponseDtos;
+		return buildPurchaseOrderResponseWithQuantitiesAndAssignments(purchaseOrders);
 	}
 
 	private List<PurchaseOrderResponseDto> buildPurchaseOrderResponseWithQuantitiesAndAssignments(List<PurchaseOrder> purchaseOrderEntities) {

@@ -16,6 +16,9 @@ spec:
       containers:
         - image: groyyoOrgServiceRegistry.azurecr.io/order-management-service-dev:latest
           name: order-management-service
+          env:
+            - name: TZ
+              value: Asia/Kolkata
           resources:
             requests:
               memory: "128Mi"
