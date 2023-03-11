@@ -6,9 +6,9 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.groyyo.core.dto.PurchaseOrder.PurchaseOrderQuantityResponseDto;
 import com.groyyo.order.management.dto.request.PurchaseOrderQuantityCreateDto;
 import com.groyyo.order.management.dto.request.PurchaseOrderQuantityRequestDto;
-import com.groyyo.order.management.dto.response.PurchaseOrderQuantityResponseDto;
 import com.groyyo.order.management.entity.PurchaseOrderQuantity;
 
 import lombok.experimental.UtilityClass;

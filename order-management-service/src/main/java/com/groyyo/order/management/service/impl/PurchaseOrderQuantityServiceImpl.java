@@ -14,11 +14,11 @@ import org.springframework.stereotype.Service;
 
 import com.groyyo.core.base.exception.NoRecordException;
 import com.groyyo.core.base.exception.RecordExistsException;
+import com.groyyo.core.dto.PurchaseOrder.PurchaseOrderQuantityResponseDto;
 import com.groyyo.order.management.adapter.PurchaseOrderQuantityAdapter;
 import com.groyyo.order.management.db.service.PurchaseOrderQuantityDbService;
 import com.groyyo.order.management.dto.request.PurchaseOrderQuantityCreateDto;
 import com.groyyo.order.management.dto.request.PurchaseOrderQuantityRequestDto;
-import com.groyyo.order.management.dto.response.PurchaseOrderQuantityResponseDto;
 import com.groyyo.order.management.entity.PurchaseOrderQuantity;
 import com.groyyo.order.management.service.PurchaseOrderQuantityService;
 
