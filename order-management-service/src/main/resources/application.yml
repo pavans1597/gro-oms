@@ -1,159 +1,159 @@
 ############# Application Context ###############
 server:
-  port: '8008'
-  servlet:
-    context-path: /order-management-service
-  tomcat:
-    max-threads: '50'
-    accesslog:
-      enabled: 'true'
-      prefix: order-management-service
-      pattern: '%h %l %u %t "%r" %I %s %b %F %D'
-      suffix: .log
-      file-date-format: .yyyy-MM-dd
-      rotate: 'true'
-      directory: /var/log/groyyo
+   port: '8008'
+   servlet:
+      context-path: /order-management-service
+   tomcat:
+      max-threads: '50'
+      accesslog:
+         enabled: true
+         prefix: order-management-service
+         pattern: '%h %l %u %t "%r" %I %s %b %F %D'
+         suffix: .log
+         file-date-format: .yyyy-MM-dd
+         rotate: true
+         directory: /var/log/groyyo
 
 ########## Auth Config ##############
 enable:
-  cors: 'true'
-  authorize: 'false'
-  authentication: 'false'
+   cors: true
+   authorize: false
+   authentication: false
 
 ########## Cache Config ##############
 cache:
-  masterData:
-    enable: 'false'
+   masterData:
+      enable: false
 
 ########## Services URL's ##############
 service:
-  user:
-    url: http://localhost:8006/user-service/
-  masterData:
-    url: http://localhost:8003/master-data-service
-  raven:
-    url: https://api.ravenapp.dev/v1
-  file_management:
-    url: https://groyyoconsoledev.groyyo.com/file-management-service
+   user:
+      url: http://localhost:8006/user-service/
+   masterData:
+      url: http://localhost:8003/master-data-service
+   raven:
+      url: https://api.ravenapp.dev/v1
+   file_management:
+      url: https://groyyoconsoledev.groyyo.com/file-management-service
 
 ############## Hibernate Configuration ##############
 hibernate:
-  format_sql: 'true'
-  dialect: org.hibernate.dialect.PostgreSQL92Dialect
-  order_inserts: 'true'
-  order_updates: 'true'
-  cache:
-    provider_class: org.hibernate.cache.NoCacheProvider
-  hbm2ddl:
-    auto: update
-  show_sql: 'true'
+   format_sql: true
+   dialect: org.hibernate.dialect.PostgreSQL92Dialect
+   order_inserts: true
+   order_updates: true
+   cache:
+      provider_class: org.hibernate.cache.NoCacheProvider
+   hbm2ddl:
+      auto: update
+   show_sql: true
 
 ################# Postgresql JDBC Connection config ###############
 jdbc:
-  max:
-    statements: 240
-    idle:
-      time:
-        excess:
-          connections: 20
-      timing: 30
-    pool:
-      size: '20'
-  min:
-    pool:
-      size: '2'
-  test:
-    connection:
-      on:
-        checkin: true
-  initial:
-    pool:
-      size: '2'
-  driver:
-    class:
-      name: org.postgresql.Driver
-  preferred:
-    test:
-      query: SELECT 1
-  acquire:
-    increment: '2'
-  slave:
-    url: jdbc:postgresql://localhost:5432/order_management_service?createDatabaseIfNotExist=true
-    username: postgres
-    password: root
-  master:
-    url: jdbc:postgresql://localhost:5432/order_management_service?createDatabaseIfNotExist=true
-    username: postgres
-    password: root
-  checkout:
-    timeout: '5000'
+   max:
+      statements: 240
+      idle:
+         time:
+            excess:
+               connections: 20
+         timing: 30
+      pool:
+         size: '20'
+   min:
+      pool:
+         size: '2'
+   test:
+      connection:
+         on:
+            checkin: true
+   initial:
+      pool:
+         size: '2'
+   driver:
+      class:
+         name: org.postgresql.Driver
+   preferred:
+      test:
+         query: SELECT 1
+   acquire:
+      increment: '2'
+   slave:
+      url: jdbc:postgresql://localhost:5432/order_management_service?createDatabaseIfNotExist=true
+      username: postgres
+      password: root
+   master:
+      url: jdbc:postgresql://localhost:5432/order_management_service?createDatabaseIfNotExist=true
+      username: postgres
+      password: root
+   checkout:
+      timeout: '5000'
 
 ################## Kafka Properties ####################
 spring:
-  kafka:
-    consumer:
-      fetch-max-wait: 100ms
-      group-id: order-management-consumer-group
-      enable-auto-commit: 'true'
-      auto-offset-reset: earliest
-      properties:
-        fetch:
-          max:
-            bytes: '20971520'
-        max:
-          partition:
+   kafka:
+      consumer:
+         fetch-max-wait: 100ms
+         group-id: order-management-consumer-group
+         enable-auto-commit: true
+         auto-offset-reset: earliest
+         properties:
             fetch:
-              bytes: '10485760'
-      auto-commit-interval: '1000'
-      max-poll-records: '200'
-      fetch-min-size: '10'
-    producer:
-      acks: '1'
-      properties:
-        message:
-          max:
-            bytes: '21943040'
-        max:
-          request:
-            size: '21943040'
-      retries: '1'
-    client-id: orderManagementServiceClient
-    listener:
-      type: batch
-    admin:
-      fail-fast: 'true'
-    bootstrap-servers: pkc-7prvp.centralindia.azure.confluent.cloud:9092
-  application:
-    name: order-management-service
-  main:
-    allow-circular-references: true
+               max:
+                  bytes: '20971520'
+            max:
+               partition:
+                  fetch:
+                     bytes: '10485760'
+         auto-commit-interval: '1000'
+         max-poll-records: '200'
+         fetch-min-size: '10'
+      producer:
+         acks: '1'
+         properties:
+            message:
+               max:
+                  bytes: '21943040'
+            max:
+               request:
+                  size: '21943040'
+         retries: '1'
+      client-id: orderManagementServiceClient
+      listener:
+         type: batch
+      admin:
+         fail-fast: true
+      bootstrap-servers: pkc-7prvp.centralindia.azure.confluent.cloud:9092
+   application:
+      name: order-management-service
+   main:
+      allow-circular-references: true
 
 ############## Kafka Topics #############
 kafka:
-  consumer:
-    autostart: 'false'
-  base:
-    topic: kafka-orderManagement-topic
-  master:
-    updates:
-      topic: master-data-updates
-  quality-management:
-    topic: kafka-qualityManagement-topic
+   consumer:
+      autostart: false
+   base:
+      topic: kafka-orderManagement-topic
+   master:
+      updates:
+         topic: master-data-updates
+   quality-management:
+     topic: qc-taskAssignment-topic
+
 ############### healthcheck spring properties ###############
 management:
-  health:
-    db:
-      enabled: 'true'
-    diskspace:
-      enabled: 'true'
-  endpoint:
-    health:
-      show-details: 'ALWAYS'
-      
+   health:
+      db:
+         enabled: true
+      diskspace:
+         enabled: true
+   endpoint:
+      health:
+         show-details: ALWAYS
+
 ############### package config ###############
 packages:
-  repository:    com.groyyo.order.management.repository
-  entityManager:  com.groyyo.order.management.entity
+   repository: com.groyyo.order.management.repository
+   entityManager: com.groyyo.order.management.entity
 
-debug: 'false'
-
+debug: false

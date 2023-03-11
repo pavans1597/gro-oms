@@ -140,6 +140,8 @@ kafka:
   master:
     updates:
       topic: master-data-updates
+  quality-management:
+    topic: qc-taskAssignment-topic
 
 ############### healthcheck spring properties ###############
 management:
