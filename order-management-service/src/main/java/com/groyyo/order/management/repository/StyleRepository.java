@@ -1,23 +1,29 @@
 package com.groyyo.order.management.repository;
 
+import java.util.List;
+
+import org.springframework.stereotype.Repository;
+
 import com.groyyo.core.sqlPostgresJpa.repository.AbstractJpaRepository;
 import com.groyyo.order.management.entity.Style;
-import org.springframework.stereotype.Repository;
 
 @Repository
 public interface StyleRepository extends AbstractJpaRepository<Style, Long> {
 
-    Style findByName(String name);
+	List<Style> findAllByFactoryId(String factoryId);
 
-    Style findByNameAndStatus(String name, Boolean status);
+	List<Style> findByStatusAndFactoryId(Boolean status, String factoryId);
 
-    Style findByStyleNumber(String styleNumber);
+	Style findByName(String name);
 
+	Style findByNameAndStatus(String name, Boolean status);
 
-    Style findByNameAndFactoryId(String name,String factoryId);
+	Style findByStyleNumber(String styleNumber);
 
-    Style findByNameAndStatusAndFactoryId(String name, Boolean status,String factoryId);
+	Style findByNameAndFactoryId(String name, String factoryId);
 
-    Style findByStyleNumberAndFactoryId(String styleNumber,String factoryId);
+	Style findByNameAndStatusAndFactoryId(String name, Boolean status, String factoryId);
+
+	Style findByStyleNumberAndFactoryId(String styleNumber, String factoryId);
 
 }

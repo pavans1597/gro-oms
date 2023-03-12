@@ -1,27 +1,28 @@
 package com.groyyo.order.management.service.impl;
 
-import com.groyyo.core.base.common.dto.ResponseDto;
-import com.groyyo.core.base.exception.NoRecordException;
-import com.groyyo.core.base.exception.RecordExistsException;
-import com.groyyo.core.base.http.utils.HeaderUtil;
-import com.groyyo.core.dto.fileManagement.dto.response.FileResponseDto;
-import com.groyyo.core.enums.ServiceName;
-import com.groyyo.core.file.management.client.api.FileManagementApi;
-import com.groyyo.order.management.adapter.StyleAdapter;
-import com.groyyo.order.management.db.service.StyleDbService;
-import com.groyyo.order.management.dto.response.StyleDto;
-import com.groyyo.order.management.entity.Style;
-import com.groyyo.order.management.service.StyleService;
-import lombok.extern.log4j.Log4j2;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
+import com.groyyo.core.base.common.dto.ResponseDto;
+import com.groyyo.core.base.exception.NoRecordException;
+import com.groyyo.core.base.exception.RecordExistsException;
+import com.groyyo.core.base.http.utils.HeaderUtil;
+import com.groyyo.core.dto.fileManagement.dto.response.FileResponseDto;
+import com.groyyo.order.management.adapter.StyleAdapter;
+import com.groyyo.order.management.db.service.StyleDbService;
+import com.groyyo.order.management.dto.response.StyleDto;
+import com.groyyo.order.management.entity.Style;
+import com.groyyo.order.management.http.service.FileManagementHttpService;
+import com.groyyo.order.management.service.StyleService;
+
+import lombok.extern.log4j.Log4j2;
 
 @Service
 @Log4j2
@@ -31,7 +32,7 @@ public class StyleServiceImpl implements StyleService {
 	private StyleDbService styleDbService;
 
 	@Autowired
-	private FileManagementApi fileManagementApi;
+	private FileManagementHttpService fileManagementHttpService;
 
 	@Override
 	public List<StyleDto> getAllStyles(Boolean status) {
@@ -39,17 +40,27 @@ public class StyleServiceImpl implements StyleService {
 		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
 
 		List<Style> styleEntities = Objects.isNull(status) ? styleDbService.getAllStyles(factoryId)
-				: styleDbService.getAllStylesForStatus(status,factoryId);
+				: styleDbService.getAllStylesForStatus(status, factoryId);
 
 		if (CollectionUtils.isEmpty(styleEntities)) {
 			log.error("No Styles found in the system");
 			return new ArrayList<>();
 		}
-		return styleEntities.stream().map(style -> {
-			StyleDto styleDto = StyleAdapter.buildResponseFromEntity(style);
-			setImagesForStyle(style, styleDto);
-			return styleDto;
-		}).collect(Collectors.toList());
+
+		return buildResponsesWithImagesForEntities(styleEntities);
+	}
+
+	private List<StyleDto> buildResponsesWithImagesForEntities(List<Style> styleEntities) {
+
+		return styleEntities.stream().map(style -> buildResponseWithImagesForEntity(style)).collect(Collectors.toList());
+	}
+
+	private StyleDto buildResponseWithImagesForEntity(Style style) {
+
+		StyleDto styleDto = StyleAdapter.buildResponseFromEntity(style);
+		setImagesForStyle(style, styleDto);
+
+		return styleDto;
 	}
 
 	@Override
@@ -85,19 +96,28 @@ public class StyleServiceImpl implements StyleService {
 
 		StyleDto styleDto = StyleAdapter.buildResponseFromEntity(style);
 		setImagesForStyle(style, styleDto);
+
 		return styleDto;
 	}
 
 	private void setImagesForStyle(Style style, StyleDto styleDto) {
 
-		if (style.getStyleImageId() != null && !style.getStyleImageId().trim().isEmpty()) {
-			ResponseDto<FileResponseDto> styleImage = fileManagementApi.getSignedUrl(style.getStyleImageId(), ServiceName.ORDER, true);
-			styleDto.setStyleImage(StyleAdapter.buildImageDtoFrom(style.getStyleImageId(), Objects.nonNull(styleImage) ? styleImage.getData().getSignedUrl() : null));
+		if (Objects.isNull(style)) {
+			return;
 		}
 
-		if (style.getCadImageId() != null && !style.getCadImageId().trim().isEmpty()) {
-			ResponseDto<FileResponseDto> cadImage = fileManagementApi.getSignedUrl(style.getCadImageId(), ServiceName.ORDER, true);
-			styleDto.setCadImage(StyleAdapter.buildImageDtoFrom(style.getCadImageId(), Objects.nonNull(cadImage.getData()) ? cadImage.getData().getSignedUrl() : null));
+		if (StringUtils.isNotBlank(style.getStyleImageId())) {
+			ResponseDto<FileResponseDto> styleImage = fileManagementHttpService.getStyleImage(style.getStyleImageId());
+
+			if (Objects.nonNull(styleImage))
+				styleDto.setStyleImage(StyleAdapter.buildImageDtoFrom(style.getStyleImageId(), Objects.nonNull(styleImage) ? styleImage.getData().getSignedUrl() : null));
+		}
+
+		if (StringUtils.isNotBlank(style.getCadImageId())) {
+			ResponseDto<FileResponseDto> cadImage = fileManagementHttpService.getStyleImage(style.getCadImageId());
+
+			if (Objects.nonNull(cadImage))
+				styleDto.setCadImage(StyleAdapter.buildImageDtoFrom(style.getCadImageId(), Objects.nonNull(cadImage.getData()) ? cadImage.getData().getSignedUrl() : null));
 		}
 	}
 

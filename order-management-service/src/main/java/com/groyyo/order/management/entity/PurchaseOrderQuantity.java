@@ -1,12 +1,17 @@
 package com.groyyo.order.management.entity;
 
-import com.groyyo.core.sqlPostgresJpa.entity.AbstractJpaEntity;
-import lombok.*;
-import lombok.experimental.SuperBuilder;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
+
+import com.groyyo.core.sqlPostgresJpa.entity.AbstractJpaEntity;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+import lombok.experimental.SuperBuilder;
 
 @Getter
 @Setter
@@ -38,6 +43,6 @@ public class PurchaseOrderQuantity extends AbstractJpaEntity {
 	@Column(name = "targetQuantity", columnDefinition = "BIGINT", nullable = false)
 	private Long targetQuantity;
 
-	@Column(columnDefinition = "varchar(40)", nullable = false)
+	@Column(columnDefinition = "varchar(40)", nullable = true)
 	private String factoryId;
 }

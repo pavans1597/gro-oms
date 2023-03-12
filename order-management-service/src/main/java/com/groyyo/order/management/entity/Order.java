@@ -1,13 +1,18 @@
 package com.groyyo.order.management.entity;
 
-import com.groyyo.core.sqlPostgresJpa.entity.AbstractJpaEntity;
-import lombok.*;
-import lombok.experimental.SuperBuilder;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
+
+import com.groyyo.core.sqlPostgresJpa.entity.AbstractJpaEntity;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+import lombok.experimental.SuperBuilder;
 
 @Getter
 @Setter
@@ -38,6 +43,7 @@ public class Order extends AbstractJpaEntity {
 
 	@Column(name = "product_name", columnDefinition = "varchar(40)")
 	private String productName;
-	@Column(columnDefinition = "varchar(40)", nullable = false)
+
+	@Column(columnDefinition = "varchar(40)", nullable = true)
 	private String factoryId;
 }

@@ -1,15 +1,16 @@
 package com.groyyo.order.management.db.service.impl;
 
+import java.util.List;
+import java.util.Objects;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.groyyo.core.dto.userservice.LineType;
 import com.groyyo.core.sqlPostgresJpa.service.impl.AbstractJpaServiceImpl;
 import com.groyyo.order.management.db.service.LineCheckerAssignmentDbService;
 import com.groyyo.order.management.entity.LineCheckerAssignment;
 import com.groyyo.order.management.repository.LineCheckerAssignmentRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.Objects;
 
 @Service
 public class LineCheckerAssignmentDbServiceImpl extends AbstractJpaServiceImpl<LineCheckerAssignment, Long, LineCheckerAssignmentRepository> implements LineCheckerAssignmentDbService {
@@ -24,16 +25,13 @@ public class LineCheckerAssignmentDbServiceImpl extends AbstractJpaServiceImpl<L
 
 	@Override
 	public List<LineCheckerAssignment> getAllLineCheckerAssignments(String factoryId) {
-		return (!Objects.isNull(factoryId)?
-				lineCheckerAssignmentRepository.findAllByFactoryId(factoryId)
-				: lineCheckerAssignmentRepository.findAll());
+		return (Objects.nonNull(factoryId) ? lineCheckerAssignmentRepository.findAllByFactoryId(factoryId) : lineCheckerAssignmentRepository.findAll());
 	}
 
 	@Override
-	public List<LineCheckerAssignment> getAllLineCheckerAssignmentsForStatus(boolean status,String factoryId) {
+	public List<LineCheckerAssignment> getAllLineCheckerAssignmentsForStatus(boolean status, String factoryId) {
 
-		return (!Objects.isNull(factoryId)?
-				lineCheckerAssignmentRepository.findByStatusAndFactoryId(status,factoryId)
+		return (Objects.nonNull(factoryId) ? lineCheckerAssignmentRepository.findByStatusAndFactoryId(status, factoryId)
 				: lineCheckerAssignmentRepository.findByStatus(status));
 	}
 
@@ -60,16 +58,14 @@ public class LineCheckerAssignmentDbServiceImpl extends AbstractJpaServiceImpl<L
 	}
 
 	@Override
-	public List<LineCheckerAssignment> getLineCheckerAssignmentForPurchaseOrder(String purchaseOrderId,String factoryId) {
-		return (!Objects.isNull(factoryId)?
-				lineCheckerAssignmentRepository.findAllByPurchaseOrderIdAndFactoryId(purchaseOrderId,factoryId)
+	public List<LineCheckerAssignment> getLineCheckerAssignmentForPurchaseOrder(String purchaseOrderId, String factoryId) {
+		return (!Objects.isNull(factoryId) ? lineCheckerAssignmentRepository.findAllByPurchaseOrderIdAndFactoryId(purchaseOrderId, factoryId)
 				: lineCheckerAssignmentRepository.findAllByPurchaseOrderId(purchaseOrderId));
 	}
 
 	@Override
-	public Long countLineCheckerByfactoryId(String factoryId, LineType lineType,boolean status) {
-		return (!Objects.isNull(factoryId)?
-				lineCheckerAssignmentRepository.countByFactoryIdAndLineTypeAndStatus(factoryId,lineType,status)
-				: lineCheckerAssignmentRepository.countByLineTypeAndStatus(lineType,status));
+	public Long countLineCheckerByfactoryId(String factoryId, LineType lineType, boolean status) {
+		return (!Objects.isNull(factoryId) ? lineCheckerAssignmentRepository.countByFactoryIdAndLineTypeAndStatus(factoryId, lineType, status)
+				: lineCheckerAssignmentRepository.countByLineTypeAndStatus(lineType, status));
 	}
 }

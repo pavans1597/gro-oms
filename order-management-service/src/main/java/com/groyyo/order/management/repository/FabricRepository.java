@@ -1,18 +1,25 @@
 package com.groyyo.order.management.repository;
 
+import java.util.List;
+
+import org.springframework.stereotype.Repository;
+
 import com.groyyo.core.sqlPostgresJpa.repository.AbstractJpaRepository;
 import com.groyyo.order.management.entity.Fabric;
-import org.springframework.stereotype.Repository;
 
 @Repository
 public interface FabricRepository extends AbstractJpaRepository<Fabric, Long> {
 
-    Fabric findByName(String name);
+	List<Fabric> findAllByFactoryId(String factoryId);
 
-    Fabric findByNameAndStatus(String name, Boolean status);
+	List<Fabric> findByStatusAndFactoryId(Boolean status, String factoryId);
 
-    Fabric findByFabricCategory(String fabricCategory);
+	Fabric findByName(String name);
 
-    Fabric findByFabricCategoryAndStatus(String fabricCategory, Boolean status);
+	Fabric findByNameAndStatus(String name, Boolean status);
+
+	Fabric findByFabricCategory(String fabricCategory);
+
+	Fabric findByFabricCategoryAndStatus(String fabricCategory, Boolean status);
 
 }

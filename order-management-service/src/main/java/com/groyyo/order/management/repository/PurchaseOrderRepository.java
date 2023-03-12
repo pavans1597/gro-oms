@@ -1,25 +1,31 @@
 package com.groyyo.order.management.repository;
 
+import java.util.List;
+
+import org.springframework.stereotype.Repository;
+
 import com.groyyo.core.dto.PurchaseOrder.PurchaseOrderStatus;
 import com.groyyo.core.sqlPostgresJpa.repository.AbstractJpaRepository;
 import com.groyyo.order.management.entity.PurchaseOrder;
-import org.springframework.stereotype.Repository;
-
 
 @Repository
 public interface PurchaseOrderRepository extends AbstractJpaRepository<PurchaseOrder, Long> {
 
-    PurchaseOrder findByName(String name);
+	List<PurchaseOrder> findAllByFactoryId(String factoryId);
 
-    PurchaseOrder findByNameAndStatus(String name, Boolean status);
+	List<PurchaseOrder> findByStatusAndFactoryId(Boolean status, String factoryId);
 
-    Long countByPurchaseOrderStatusAndFactoryIdAndStatus(PurchaseOrderStatus purchaseOrderStatus, String factoryId, boolean status);
+	PurchaseOrder findByName(String name);
 
-    Long countByPurchaseOrderStatus(PurchaseOrderStatus purchaseOrderStatus);
+	PurchaseOrder findByNameAndStatus(String name, Boolean status);
 
-    Long countByPurchaseOrderStatusAndStatus(PurchaseOrderStatus purchaseOrderStatus, boolean b);
+	Long countByPurchaseOrderStatusAndFactoryIdAndStatus(PurchaseOrderStatus purchaseOrderStatus, String factoryId, boolean status);
 
-    Long countByFactoryId(String factoryId);
+	Long countByPurchaseOrderStatus(PurchaseOrderStatus purchaseOrderStatus);
+
+	Long countByPurchaseOrderStatusAndStatus(PurchaseOrderStatus purchaseOrderStatus, boolean b);
+
+	Long countByFactoryId(String factoryId);
 
 //    Long countByFactoryId(String factoryId);
 }

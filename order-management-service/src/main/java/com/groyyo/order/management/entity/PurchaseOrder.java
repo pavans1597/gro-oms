@@ -1,12 +1,26 @@
 package com.groyyo.order.management.entity;
 
+import java.util.Date;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import javax.persistence.UniqueConstraint;
+
 import com.groyyo.core.dto.PurchaseOrder.PurchaseOrderStatus;
 import com.groyyo.core.sqlPostgresJpa.entity.AbstractJpaEntity;
-import lombok.*;
-import lombok.experimental.SuperBuilder;
 
-import javax.persistence.*;
-import java.util.Date;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+import lombok.experimental.SuperBuilder;
 
 @Getter
 @Setter
@@ -86,6 +100,7 @@ public class PurchaseOrder extends AbstractJpaEntity {
 
 	@Column(name = "targetQuantity", columnDefinition = "BIGINT", nullable = true)
 	private Long totalTargetQuantity;
-	@Column(columnDefinition = "varchar(40)", nullable = false)
+
+	@Column(columnDefinition = "varchar(40)", nullable = true)
 	private String factoryId;
 }
