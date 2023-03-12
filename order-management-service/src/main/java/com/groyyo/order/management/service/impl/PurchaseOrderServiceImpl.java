@@ -288,6 +288,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
 		PurchaseOrderResponseDto purchaseOrderResponseDto = PurchaseOrderAdapter.buildResponseFromEntity(purchaseOrder);
 
+		populatePurchaseOrderQuantitiesForPurchaseOrder(purchaseOrderResponseDto);
 		populateTotalQuantitiesForPurchaseOrder(purchaseOrderResponseDto);
 		populateLineCheckerAssignmentsForPurchaseOrder(purchaseOrderResponseDto);
 
