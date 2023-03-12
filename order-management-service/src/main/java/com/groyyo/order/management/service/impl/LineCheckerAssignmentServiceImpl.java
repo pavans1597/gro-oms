@@ -91,7 +91,7 @@ public class LineCheckerAssignmentServiceImpl implements LineCheckerAssignmentSe
 				 */
 				purchaseOrderService.changeStatusOfPurchaseOrder(purchaseOrderId, PurchaseOrderStatus.ONGOING, Boolean.TRUE);
 
-				publishQcTaskAssignment(purchaseOrderResponseDto);
+				publishQcTaskAssignment(purchaseOrderId);
 
 			}
 
@@ -105,7 +105,9 @@ public class LineCheckerAssignmentServiceImpl implements LineCheckerAssignmentSe
 		return lineCheckerAssignments;
 	}
 
-	private void publishQcTaskAssignment(PurchaseOrderResponseDto purchaseOrderResponseDto) {
+	private void publishQcTaskAssignment(String purchaseOrderId) {
+
+		PurchaseOrderResponseDto purchaseOrderResponseDto = purchaseOrderService.getPurchaseOrderById(purchaseOrderId);
 
 		log.info("Going to publish purchase order dto: {}", purchaseOrderResponseDto);
 
