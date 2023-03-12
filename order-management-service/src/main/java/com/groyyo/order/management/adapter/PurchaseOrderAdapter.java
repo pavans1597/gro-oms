@@ -20,7 +20,7 @@ public class PurchaseOrderAdapter {
 		return PurchaseOrder
 				.builder()
 				.name(purchaseOrderRequestDto.getPurchaseOrderNumber())
-				.styleId(Objects.nonNull(purchaseOrderRequestDto.getStyleRequestDto()) ? purchaseOrderRequestDto.getStyleRequestDto().getId() : null)
+				.styleId(Objects.nonNull(purchaseOrderRequestDto.getStyleRequestDto()) ? purchaseOrderRequestDto.getStyleRequestDto().getUuid() : null)
 				.styleNumber(Objects.nonNull(purchaseOrderRequestDto.getStyleRequestDto()) ? purchaseOrderRequestDto.getStyleRequestDto().getStyleNumber() : null)
 				.styleName(Objects.nonNull(purchaseOrderRequestDto.getStyleRequestDto()) ? purchaseOrderRequestDto.getStyleRequestDto().getName() : null)
 				.fabricId(purchaseOrderRequestDto.getFabricId())

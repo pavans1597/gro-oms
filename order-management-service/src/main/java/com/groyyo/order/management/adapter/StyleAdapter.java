@@ -66,6 +66,7 @@ public class StyleAdapter {
 		return StyleDto
 				.builder()
 				.id(style.getUuid())
+				.uuid(style.getUuid())
 				.name(style.getName())
 				.styleNumber(style.getStyleNumber())
 				.productId(style.getProductId())

@@ -191,7 +191,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
 	private void addRunTimeStyle(PurchaseOrderRequestDto purchaseOrderRequestDto) {
 
-		String styleUuid = Objects.nonNull(purchaseOrderRequestDto) ? purchaseOrderRequestDto.getStyleRequestDto().getId() : null;
+		String styleUuid = Objects.nonNull(purchaseOrderRequestDto) ? purchaseOrderRequestDto.getStyleRequestDto().getUuid() : null;
 
 		if (StringUtils.isBlank(styleUuid)) {
 
