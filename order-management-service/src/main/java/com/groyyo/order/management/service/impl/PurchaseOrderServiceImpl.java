@@ -262,6 +262,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 		List<PurchaseOrderResponseDto> purchaseOrderResponseDtos = PurchaseOrderAdapter.buildResponsesFromEntities(purchaseOrderEntities);
 		log.info("Found total: {} purchase orders to show in listing ", purchaseOrderResponseDtos.size());
 
+		populateStyleDtosForPurchaseOrders(purchaseOrderResponseDtos);
 		populatePurchaseOrderQuantitiesForPurchaseOrders(purchaseOrderResponseDtos);
 		populateTotalQuantitiesForPurchaseOrders(purchaseOrderResponseDtos);
 		populateLineCheckerAssignmentsForPurchaseOrders(purchaseOrderResponseDtos);
@@ -285,6 +286,8 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 		if (StringUtils.isNotBlank(purchaseOrderResponseDto.getStyleId())) {
 
 			StyleDto styleDto = styleService.getStyleById(purchaseOrderResponseDto.getStyleId());
+
+			purchaseOrderResponseDto.setStyleDto(styleDto);
 		}
 	}
 
@@ -292,6 +295,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
 		PurchaseOrderResponseDto purchaseOrderResponseDto = PurchaseOrderAdapter.buildResponseFromEntity(purchaseOrder);
 
+		populateStyleDtoForPurchaseOrder(purchaseOrderResponseDto);
 		populatePurchaseOrderQuantitiesForPurchaseOrder(purchaseOrderResponseDto);
 		populateTotalQuantitiesForPurchaseOrder(purchaseOrderResponseDto);
 		populateLineCheckerAssignmentsForPurchaseOrder(purchaseOrderResponseDto);
