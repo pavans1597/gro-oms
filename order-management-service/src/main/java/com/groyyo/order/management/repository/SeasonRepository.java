@@ -1,11 +1,10 @@
 package com.groyyo.order.management.repository;
 
-import java.util.List;
-
-import org.springframework.stereotype.Repository;
-
 import com.groyyo.core.sqlPostgresJpa.repository.AbstractJpaRepository;
 import com.groyyo.order.management.entity.Season;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 @Repository
 public interface SeasonRepository extends AbstractJpaRepository<Season, Long> {
@@ -18,4 +17,7 @@ public interface SeasonRepository extends AbstractJpaRepository<Season, Long> {
 
 	Season findByNameAndStatus(String name, Boolean status);
 
+	List<Season> findByFactoryIdOrderByNameAsc(String factoryId);
+
+	List<Season> findByStatusAndFactoryIdOrderByNameAsc(boolean status, String factoryId);
 }

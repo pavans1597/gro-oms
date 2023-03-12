@@ -1,34 +1,34 @@
 package com.groyyo.order.management.adapter;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.apache.commons.lang3.StringUtils;
-
 import com.groyyo.core.master.dto.request.SizeRequestDto;
 import com.groyyo.core.master.dto.response.SizeResponseDto;
 import com.groyyo.order.management.entity.Size;
-
 import lombok.experimental.UtilityClass;
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @UtilityClass
 public class SizeAdapter {
 
-	public Size buildSizeFromRequest(SizeRequestDto sizeRequestDto) {
+	public Size buildSizeFromRequest(SizeRequestDto sizeRequestDto,String factoryId) {
 
 		return Size
 				.builder()
 				.name(sizeRequestDto.getName())
 				.masterId(sizeRequestDto.getMasterId())
+				.factoryId(factoryId)
 				.build();
 	}
 
-	public Size buildSizeFromResponse(SizeResponseDto sizeResponseDto) {
+	public Size buildSizeFromResponse(SizeResponseDto sizeResponseDto,String factoryId) {
 
 		return Size
 				.builder()
 				.name(sizeResponseDto.getName())
 				.masterId(sizeResponseDto.getMasterId())
+				.factoryId(factoryId)
 				.build();
 	}
 

@@ -13,11 +13,13 @@ public interface PurchaseOrderRepository extends AbstractJpaRepository<PurchaseO
 
     PurchaseOrder findByNameAndStatus(String name, Boolean status);
 
-//    Long countByPurchaseOrderStatusAndFactoryId(PurchaseOrderStatus purchaseOrderStatus, String factoryId);
+    Long countByPurchaseOrderStatusAndFactoryIdAndStatus(PurchaseOrderStatus purchaseOrderStatus, String factoryId, boolean status);
 
     Long countByPurchaseOrderStatus(PurchaseOrderStatus purchaseOrderStatus);
 
     Long countByPurchaseOrderStatusAndStatus(PurchaseOrderStatus purchaseOrderStatus, boolean b);
+
+    Long countByFactoryId(String factoryId);
 
 //    Long countByFactoryId(String factoryId);
 }

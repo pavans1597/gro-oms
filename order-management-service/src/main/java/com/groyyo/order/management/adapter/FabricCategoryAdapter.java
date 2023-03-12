@@ -13,21 +13,23 @@ import java.util.stream.Collectors;
 @UtilityClass
 public class FabricCategoryAdapter {
 
-    public FabricCategory buildFabricCategoryFromRequest(FabricCategoryRequestDto fabricCategoryRequestDto) {
+    public FabricCategory buildFabricCategoryFromRequest(FabricCategoryRequestDto fabricCategoryRequestDto,String factoryId) {
 
         return FabricCategory
                 .builder()
                 .name(fabricCategoryRequestDto.getName())
                 .type(fabricCategoryRequestDto.getType())
+                .factoryId(factoryId)
                 .build();
     }
 
-    public FabricCategory buildFabricCategoryFromResponse(FabricCategoryResponseDto fabricCategoryResponseDto) {
+    public FabricCategory buildFabricCategoryFromResponse(FabricCategoryResponseDto fabricCategoryResponseDto,String factoryId) {
 
         return FabricCategory
                 .builder()
                 .name(fabricCategoryResponseDto.getName())
                 .type(fabricCategoryResponseDto.getType())
+                .factoryId(factoryId)
                 .build();
     }
 

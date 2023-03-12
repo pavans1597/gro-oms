@@ -1,18 +1,9 @@
 package com.groyyo.order.management.service.impl;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
-
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.groyyo.core.base.common.dto.ResponseDto;
 import com.groyyo.core.base.exception.NoRecordException;
 import com.groyyo.core.base.exception.RecordExistsException;
+import com.groyyo.core.base.http.utils.HeaderUtil;
 import com.groyyo.core.dto.fileManagement.dto.response.FileResponseDto;
 import com.groyyo.core.enums.ServiceName;
 import com.groyyo.core.file.management.client.api.FileManagementApi;
@@ -21,8 +12,16 @@ import com.groyyo.order.management.db.service.StyleDbService;
 import com.groyyo.order.management.dto.response.StyleDto;
 import com.groyyo.order.management.entity.Style;
 import com.groyyo.order.management.service.StyleService;
-
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 @Log4j2
@@ -37,9 +36,10 @@ public class StyleServiceImpl implements StyleService {
 	@Override
 	public List<StyleDto> getAllStyles(Boolean status) {
 		log.info("Serving request to get all styles");
+		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
 
-		List<Style> styleEntities = Objects.isNull(status) ? styleDbService.getAllStyles()
-				: styleDbService.getAllStylesForStatus(status);
+		List<Style> styleEntities = Objects.isNull(status) ? styleDbService.getAllStyles(factoryId)
+				: styleDbService.getAllStylesForStatus(status,factoryId);
 
 		if (CollectionUtils.isEmpty(styleEntities)) {
 			log.error("No Styles found in the system");

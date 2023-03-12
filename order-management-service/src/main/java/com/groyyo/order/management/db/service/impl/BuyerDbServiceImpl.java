@@ -1,15 +1,14 @@
 package com.groyyo.order.management.db.service.impl;
 
-import java.util.List;
-import java.util.Objects;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.groyyo.core.sqlPostgresJpa.service.impl.AbstractJpaServiceImpl;
 import com.groyyo.order.management.db.service.BuyerDbService;
 import com.groyyo.order.management.entity.Buyer;
 import com.groyyo.order.management.repository.BuyerRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Objects;
 
 
 @Service
@@ -24,13 +23,15 @@ public class BuyerDbServiceImpl extends AbstractJpaServiceImpl<Buyer, Long, Buye
     }
 
     @Override
-    public List<Buyer> getAllBuyers() {
-        return buyerRepository.findAll();
+    public List<Buyer> getAllBuyers(String factoryId) {
+        return  (!Objects.isNull(factoryId))? buyerRepository.findAllByFactoryId(factoryId) :
+         buyerRepository.findAll();
     }
 
     @Override
-    public List<Buyer> getAllBuyersForStatus(boolean status) {
-        return buyerRepository.findByStatus(status);
+    public List<Buyer> getAllBuyersForStatus(boolean status,String factoryId) {
+        return  (!Objects.isNull(factoryId))? buyerRepository.findByStatusAndFactoryId(status,factoryId) :
+                buyerRepository.findByStatus(status);
     }
 
     @Override

@@ -1,36 +1,36 @@
 package com.groyyo.order.management.adapter;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.apache.commons.lang3.StringUtils;
-
 import com.groyyo.core.master.dto.request.ProductRequestDto;
 import com.groyyo.core.master.dto.response.ProductResponseDto;
 import com.groyyo.order.management.entity.Product;
-
 import lombok.experimental.UtilityClass;
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @UtilityClass
 public class ProductAdapter {
 
-	public Product buildProductFromRequest(ProductRequestDto productRequestDto) {
+	public Product buildProductFromRequest(ProductRequestDto productRequestDto,String factoryId) {
 
 		return Product
 				.builder()
 				.name(productRequestDto.getName())
 				.lineArt(productRequestDto.getLineArt())
 				.masterId(productRequestDto.getMasterId())
+				.factoryId(factoryId)
 				.build();
 	}
 
-	public Product buildProductFromResponse(ProductResponseDto productResponseDto) {
+	public Product buildProductFromResponse(ProductResponseDto productResponseDto,String factoryId) {
 
 		return Product
 				.builder()
 				.name(productResponseDto.getName())
 				.lineArt(productResponseDto.getLineArt())
 				.masterId(productResponseDto.getMasterId())
+				.factoryId(factoryId)
 				.build();
 	}
 

@@ -22,13 +22,17 @@ public class FabricDbServiceImpl extends AbstractJpaServiceImpl<Fabric, Long, Fa
     }
 
     @Override
-    public List<Fabric> getAllFabrics() {
-        return fabricRepository.findAll();
+    public List<Fabric> getAllFabrics(String factoryId) {
+        return (!Objects.isNull(factoryId)?
+                fabricRepository.findAllByFactoryId(factoryId)
+                : fabricRepository.findAll());
     }
 
     @Override
-    public List<Fabric> getAllFabricsForStatus(boolean status) {
-        return fabricRepository.findByStatus(status);
+    public List<Fabric> getAllFabricsForStatus(boolean status,String factoryId) {
+        return (!Objects.isNull(factoryId)?
+                fabricRepository.findByStatusAndFactoryId(status, factoryId)
+                : fabricRepository.findByStatus(status));
     }
 
     @Override

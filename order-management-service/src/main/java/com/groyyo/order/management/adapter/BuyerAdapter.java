@@ -14,19 +14,21 @@ import java.util.stream.Collectors;
 @UtilityClass
 public class BuyerAdapter {
 
-    public Buyer buildBuyerFromRequest(BuyerRequestDto buyerRequestDto) {
+    public Buyer buildBuyerFromRequest(BuyerRequestDto buyerRequestDto,String factoryId) {
 
         return Buyer
                 .builder()
                 .name(buyerRequestDto.getName())
+                .factoryId(factoryId)
                 .build();
     }
 
-    public Buyer buildBuyerFromResponse(BuyerResponseDto buyerResponseDto) {
+    public Buyer buildBuyerFromResponse(BuyerResponseDto buyerResponseDto,String factoryId) {
 
         return Buyer
                 .builder()
                 .name(buyerResponseDto.getName())
+                .factoryId(factoryId)
                 .build();
     }
 

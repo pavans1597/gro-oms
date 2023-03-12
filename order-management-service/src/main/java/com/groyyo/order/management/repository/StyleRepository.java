@@ -13,4 +13,11 @@ public interface StyleRepository extends AbstractJpaRepository<Style, Long> {
 
     Style findByStyleNumber(String styleNumber);
 
+
+    Style findByNameAndFactoryId(String name,String factoryId);
+
+    Style findByNameAndStatusAndFactoryId(String name, Boolean status,String factoryId);
+
+    Style findByStyleNumberAndFactoryId(String styleNumber,String factoryId);
+
 }

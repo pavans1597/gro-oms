@@ -13,4 +13,8 @@ public interface LineCheckerAssignmentRepository extends AbstractJpaRepository<L
 	Long countByFactoryIdAndLineType(String factoryId, LineType lineType);
 
 	Long countByFactoryIdAndLineTypeAndStatus(String factoryId, LineType lineType, boolean status);
+
+	List<LineCheckerAssignment> findAllByPurchaseOrderIdAndFactoryId(String purchaseOrderId, String factoryId);
+
+	Long countByLineTypeAndStatus(LineType lineType, boolean status);
 }

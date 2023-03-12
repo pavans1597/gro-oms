@@ -24,13 +24,19 @@ public class PurchaseOrderDbServiceImpl extends AbstractJpaServiceImpl<PurchaseO
     }
 
     @Override
-    public List<PurchaseOrder> getAllPurchaseOrders() {
-        return purchaseOrderRepository.findAll();
+    public List<PurchaseOrder> getAllPurchaseOrders(String factoryId) {
+
+        return (!Objects.isNull(factoryId)?
+
+                purchaseOrderRepository.findAllByFactoryId(factoryId)
+        : purchaseOrderRepository.findAll());
     }
 
     @Override
-    public List<PurchaseOrder> getAllPurchaseOrdersForStatus(boolean status) {
-        return purchaseOrderRepository.findByStatus(status);
+    public List<PurchaseOrder> getAllPurchaseOrdersForStatus(boolean status,String factoryId) {
+        return (!Objects.isNull(factoryId)?
+                purchaseOrderRepository.findByStatusAndFactoryId(status,factoryId)
+ :                 purchaseOrderRepository.findByStatus(status));
     }
 
     @Override
@@ -55,24 +61,18 @@ public class PurchaseOrderDbServiceImpl extends AbstractJpaServiceImpl<PurchaseO
     }
 
     @Override
-    public Long getCountByPurchaseOrderStatus(PurchaseOrderStatus purchaseOrderStatus, String factoryId, boolean b) {
-        if(!Objects.isNull(factoryId)){
-//            return purchaseOrderRepository.countByPurchaseOrderStatusAndFactoryId(purchaseOrderStatus,factoryId);
-            return  0L ;
-        }else {
-            return purchaseOrderRepository.countByPurchaseOrderStatusAndStatus(purchaseOrderStatus,true);
-        }
-
+    public Long getCountByPurchaseOrderStatus(PurchaseOrderStatus purchaseOrderStatus, String factoryId, boolean status) {
+        return (!Objects.isNull(factoryId))?
+             purchaseOrderRepository.countByPurchaseOrderStatusAndFactoryIdAndStatus(purchaseOrderStatus,factoryId,status):
+             purchaseOrderRepository.countByPurchaseOrderStatusAndStatus(purchaseOrderStatus,status);
     }
 
     @Override
     public Long getTotalCount(String factoryId) {
-        if(!Objects.isNull(factoryId)){
-//            return purchaseOrderRepository.countByFactoryId(factoryId);
-            return  0L ;
-        }else {
-            return purchaseOrderRepository.count();
-        }
+        return (!Objects.isNull(factoryId))?
+                purchaseOrderRepository.countByFactoryId(factoryId)
+                :purchaseOrderRepository.count() ;
+
     }
 
 }

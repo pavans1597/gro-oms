@@ -1,34 +1,34 @@
 package com.groyyo.order.management.adapter;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.apache.commons.lang3.StringUtils;
-
 import com.groyyo.core.master.dto.request.FitRequestDto;
 import com.groyyo.core.master.dto.response.FitResponseDto;
 import com.groyyo.order.management.entity.Fit;
-
 import lombok.experimental.UtilityClass;
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @UtilityClass
 public class FitAdapter {
 
-	public Fit buildFitFromRequest(FitRequestDto fitRequestDto) {
+	public Fit buildFitFromRequest(FitRequestDto fitRequestDto,String factoryId) {
 
 		return Fit
 				.builder()
 				.name(fitRequestDto.getName())
 				.masterId(fitRequestDto.getMasterId())
+				.factoryId(factoryId)
 				.build();
 	}
 
-	public Fit buildFitFromResponse(FitResponseDto fitResponseDto) {
+	public Fit buildFitFromResponse(FitResponseDto fitResponseDto,String factoryId) {
 
 		return Fit
 				.builder()
 				.name(fitResponseDto.getName())
 				.masterId(fitResponseDto.getMasterId())
+				.factoryId(factoryId)
 				.build();
 	}
 

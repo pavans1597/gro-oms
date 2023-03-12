@@ -2,10 +2,10 @@ package com.groyyo.order.management.service.impl;
 
 import com.groyyo.core.base.exception.NoRecordException;
 import com.groyyo.core.base.exception.RecordExistsException;
+import com.groyyo.core.base.http.utils.HeaderUtil;
 import com.groyyo.core.kafka.dto.KafkaDTO;
 import com.groyyo.core.kafka.producer.NotificationProducer;
 import com.groyyo.order.management.adapter.FabricAdapter;
-import com.groyyo.order.management.constants.KafkaConstants;
 import com.groyyo.order.management.db.service.FabricDbService;
 import com.groyyo.order.management.dto.request.FabricRequestDto;
 import com.groyyo.order.management.dto.response.FabricResponseDto;
@@ -39,9 +39,10 @@ public class FabricServiceImpl implements FabricService {
     public List<FabricResponseDto> getAllFabrics(Boolean status) {
 
         log.info("Serving request to get all fabrics");
+        String factoryId = HeaderUtil.getFactoryIdHeaderValue();
 
-        List<Fabric> fabricEntities = Objects.isNull(status) ? fabricDbService.getAllFabrics()
-                : fabricDbService.getAllFabricsForStatus(status);
+        List<Fabric> fabricEntities = Objects.isNull(status) ? fabricDbService.getAllFabrics(factoryId)
+                : fabricDbService.getAllFabricsForStatus(status,factoryId);
 
         if (CollectionUtils.isEmpty(fabricEntities)) {
             log.error("No Fabrics found in the system");
@@ -72,8 +73,9 @@ public class FabricServiceImpl implements FabricService {
         log.info("Serving request to add a fabric with request object: {}", fabricRequestDto);
 
         runValidations(fabricRequestDto);
+        String factoryId = HeaderUtil.getFactoryIdHeaderValue();
 
-        Fabric fabric = FabricAdapter.buildFabricFromRequest(fabricRequestDto);
+        Fabric fabric = FabricAdapter.buildFabricFromRequest(fabricRequestDto,factoryId);
 
         fabric = fabricDbService.saveFabric(fabric);
 
@@ -141,8 +143,9 @@ public class FabricServiceImpl implements FabricService {
                 log.error("Unable to build fabric request from response object: {}", fabricResponseDto);
                 return;
             }
+            String factoryId = HeaderUtil.getFactoryIdHeaderValue();
 
-            Fabric fabric = FabricAdapter.buildFabricFromRequest(fabricRequestDto);
+            Fabric fabric = FabricAdapter.buildFabricFromRequest(fabricRequestDto,factoryId);
 
             if (Objects.isNull(fabric)) {
                 log.error("Unable to build fabric from request object: {}", fabricRequestDto);

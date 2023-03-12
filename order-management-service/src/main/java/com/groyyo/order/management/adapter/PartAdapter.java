@@ -1,34 +1,34 @@
 package com.groyyo.order.management.adapter;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.apache.commons.lang3.StringUtils;
-
 import com.groyyo.core.master.dto.request.PartRequestDto;
 import com.groyyo.core.master.dto.response.PartResponseDto;
 import com.groyyo.order.management.entity.Part;
-
 import lombok.experimental.UtilityClass;
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @UtilityClass
 public class PartAdapter {
 
-	public Part buildPartFromRequest(PartRequestDto partRequestDto) {
+	public Part buildPartFromRequest(PartRequestDto partRequestDto,String factoryId) {
 
 		return Part
 				.builder()
 				.name(partRequestDto.getName())
 				.masterId(partRequestDto.getMasterId())
+				.factoryId(factoryId)
 				.build();
 	}
 
-	public Part buildPartFromResponse(PartResponseDto partResponseDto) {
+	public Part buildPartFromResponse(PartResponseDto partResponseDto,String factoryId) {
 
 		return Part
 				.builder()
 				.name(partResponseDto.getName())
 				.masterId(partResponseDto.getMasterId())
+				.factoryId(factoryId)
 				.build();
 	}
 

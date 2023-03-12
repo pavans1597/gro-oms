@@ -4,7 +4,10 @@ import com.groyyo.core.sqlPostgresJpa.entity.AbstractJpaEntity;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 
 
 @Getter
@@ -30,4 +33,6 @@ public class Fabric extends AbstractJpaEntity {
 
     @Column(name = "fabric_code", nullable = false, columnDefinition = "varchar(40)")
     private String fabricCode;
+    @Column(columnDefinition = "varchar(40)", nullable = false)
+    private String factoryId;
 }

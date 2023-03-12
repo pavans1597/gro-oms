@@ -8,10 +8,10 @@ import java.util.List;
 public interface FabricDbService extends AbstractJpaService<Fabric, Long> {
 
 
-    List<Fabric> getAllFabrics();
+    List<Fabric> getAllFabrics(String factoryId);
 
 
-    List<Fabric> getAllFabricsForStatus(boolean status);
+    List<Fabric> getAllFabricsForStatus(boolean status,String factoryId);
 
 
     Fabric getFabricById(String id);

@@ -1,29 +1,27 @@
 package com.groyyo.order.management.service.impl;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-
+import com.groyyo.core.base.exception.NoRecordException;
+import com.groyyo.core.base.exception.RecordExistsException;
+import com.groyyo.core.base.http.utils.HeaderUtil;
+import com.groyyo.core.kafka.dto.KafkaDTO;
+import com.groyyo.core.kafka.producer.NotificationProducer;
+import com.groyyo.core.master.dto.request.FitRequestDto;
+import com.groyyo.core.master.dto.response.FitResponseDto;
+import com.groyyo.order.management.adapter.FitAdapter;
+import com.groyyo.order.management.db.service.FitDbService;
+import com.groyyo.order.management.entity.Fit;
+import com.groyyo.order.management.service.FitService;
+import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import com.groyyo.core.base.exception.NoRecordException;
-import com.groyyo.core.base.exception.RecordExistsException;
-import com.groyyo.core.kafka.dto.KafkaDTO;
-import com.groyyo.core.kafka.producer.NotificationProducer;
-import com.groyyo.core.master.dto.request.FitRequestDto;
-import com.groyyo.core.master.dto.response.FitResponseDto;
-import com.groyyo.order.management.adapter.FitAdapter;
-import com.groyyo.order.management.constants.KafkaConstants;
-import com.groyyo.order.management.db.service.FitDbService;
-import com.groyyo.order.management.entity.Fit;
-import com.groyyo.order.management.service.FitService;
-
-import lombok.extern.log4j.Log4j2;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 @Service
 @Log4j2
@@ -42,9 +40,10 @@ public class FitServiceImpl implements FitService {
 	public List<FitResponseDto> getAllFits(Boolean status) {
 
 		log.info("Serving request to get all fits");
+		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
 
-		List<Fit> fitEntities = Objects.isNull(status) ? fitDbService.getAllFits()
-				: fitDbService.getAllFitsForStatus(status);
+		List<Fit> fitEntities = Objects.isNull(status) ? fitDbService.getAllFits(factoryId)
+				: fitDbService.getAllFitsForStatus(status,factoryId);
 
 		if (CollectionUtils.isEmpty(fitEntities)) {
 			log.error("No Fits found in the system");
@@ -75,8 +74,9 @@ public class FitServiceImpl implements FitService {
 		log.info("Serving request to add a fit with request object:{}", fitRequestDto);
 
 		runValidations(fitRequestDto);
+		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
 
-		Fit fit = FitAdapter.buildFitFromRequest(fitRequestDto);
+		Fit fit = FitAdapter.buildFitFromRequest(fitRequestDto,factoryId);
 
 		fit = fitDbService.saveFit(fit);
 
@@ -158,7 +158,9 @@ public class FitServiceImpl implements FitService {
 
 	@Override
 	public void consumeFit(FitResponseDto fitResponseDto) {
-		Fit fit = FitAdapter.buildFitFromResponse(fitResponseDto);
+		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+
+		Fit fit = FitAdapter.buildFitFromResponse(fitResponseDto,factoryId);
 
 		if (Objects.isNull(fit)) {
 			log.error("Unable to build fit from response object: {}", fitResponseDto);

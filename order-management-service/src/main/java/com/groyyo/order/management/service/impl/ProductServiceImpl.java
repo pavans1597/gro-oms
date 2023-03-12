@@ -1,18 +1,8 @@
 package com.groyyo.order.management.service.impl;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-
 import com.groyyo.core.base.exception.NoRecordException;
 import com.groyyo.core.base.exception.RecordExistsException;
+import com.groyyo.core.base.http.utils.HeaderUtil;
 import com.groyyo.core.kafka.dto.KafkaDTO;
 import com.groyyo.core.kafka.producer.NotificationProducer;
 import com.groyyo.core.master.dto.request.ProductRequestDto;
@@ -21,8 +11,17 @@ import com.groyyo.order.management.adapter.ProductAdapter;
 import com.groyyo.order.management.db.service.ProductDbService;
 import com.groyyo.order.management.entity.Product;
 import com.groyyo.order.management.service.ProductService;
-
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 @Service
 @Log4j2
@@ -41,9 +40,10 @@ public class ProductServiceImpl implements ProductService {
 	public List<ProductResponseDto> getAllProducts(Boolean status) {
 
 		log.info("Serving request to get all products");
+		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
 
-		List<Product> productEntities = Objects.isNull(status) ? productDbService.getAllProducts()
-				: productDbService.getAllProductsForStatus(status);
+		List<Product> productEntities = Objects.isNull(status) ? productDbService.getAllProducts(factoryId)
+				: productDbService.getAllProductsForStatus(status,factoryId);
 
 		if (CollectionUtils.isEmpty(productEntities)) {
 			log.error("No Products found in the system");
@@ -74,8 +74,9 @@ public class ProductServiceImpl implements ProductService {
 		log.info("Serving request to add a product with request object:{}", productRequestDto);
 
 		runValidations(productRequestDto);
+		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
 
-		Product product = ProductAdapter.buildProductFromRequest(productRequestDto);
+		Product product = ProductAdapter.buildProductFromRequest(productRequestDto,factoryId);
 
 		product = productDbService.saveProduct(product);
 
@@ -138,7 +139,9 @@ public class ProductServiceImpl implements ProductService {
 
 	@Override
 	public void consumeProduct(ProductResponseDto productResponseDto) {
-		Product product = ProductAdapter.buildProductFromResponse(productResponseDto);
+		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+
+		Product product = ProductAdapter.buildProductFromResponse(productResponseDto,factoryId);
 
 		if (Objects.isNull(product)) {
 			log.error("Unable to build product from response object: {}", productResponseDto);

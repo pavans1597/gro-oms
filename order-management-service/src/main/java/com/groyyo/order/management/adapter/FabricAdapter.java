@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 @UtilityClass
 public class FabricAdapter {
 
-    public Fabric buildFabricFromRequest(FabricRequestDto fabricRequestDto) {
+    public Fabric buildFabricFromRequest(FabricRequestDto fabricRequestDto,String factoryId) {
 
         return Fabric
                 .builder()
@@ -21,10 +21,11 @@ public class FabricAdapter {
                 .fabricCategory(fabricRequestDto.getFabricCategory())
                 .imageUrl(fabricRequestDto.getImageUrl())
                 .fabricCode(fabricRequestDto.getFabricCode())
+                .factoryId(factoryId)
                 .build();
     }
 
-    public Fabric buildFabricFromResponse(FabricResponseDto fabricResponseDto) {
+    public Fabric buildFabricFromResponse(FabricResponseDto fabricResponseDto,String factoryId) {
 
         return Fabric
                 .builder()
@@ -32,6 +33,7 @@ public class FabricAdapter {
                 .fabricCategory(fabricResponseDto.getFabricCategory())
                 .imageUrl(fabricResponseDto.getImageUrl())
                 .fabricCode(fabricResponseDto.getFabricCode())
+                .factoryId(factoryId)
                 .build();
     }
 

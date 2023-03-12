@@ -1,12 +1,11 @@
 
 package com.groyyo.order.management.repository;
 
-import java.util.List;
-
-import org.springframework.stereotype.Repository;
-
 import com.groyyo.core.sqlPostgresJpa.repository.AbstractJpaRepository;
 import com.groyyo.order.management.entity.Color;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 @Repository
 public interface ColorRepository extends AbstractJpaRepository<Color, Long> {
@@ -25,4 +24,8 @@ public interface ColorRepository extends AbstractJpaRepository<Color, Long> {
 
 	Color findByMasterId(String masterId);
 
+
+	List<Color> findByStatusAndFactoryIdOrderByNameAsc(boolean status, String factoryId);
+
+	List<Color> findByFactoryIdOrderByNameAsc(String factoryId);
 }

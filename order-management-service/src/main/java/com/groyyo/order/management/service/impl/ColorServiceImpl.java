@@ -1,18 +1,8 @@
 package com.groyyo.order.management.service.impl;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-
 import com.groyyo.core.base.exception.NoRecordException;
 import com.groyyo.core.base.exception.RecordExistsException;
+import com.groyyo.core.base.http.utils.HeaderUtil;
 import com.groyyo.core.kafka.dto.KafkaDTO;
 import com.groyyo.core.kafka.producer.NotificationProducer;
 import com.groyyo.core.master.dto.request.ColorRequestDto;
@@ -21,8 +11,17 @@ import com.groyyo.order.management.adapter.ColorAdapter;
 import com.groyyo.order.management.db.service.ColorDbService;
 import com.groyyo.order.management.entity.Color;
 import com.groyyo.order.management.service.ColorService;
-
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 @Log4j2
 @Service
@@ -41,9 +40,10 @@ public class ColorServiceImpl implements ColorService {
 	public List<ColorResponseDto> getAllColors(Boolean status) {
 
 		log.info("Serving request to get all colors");
+		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
 
-		List<Color> colorEntities = Objects.isNull(status) ? colorDbService.getAllColors()
-				: colorDbService.getAllColorsForStatus(status);
+		List<Color> colorEntities = Objects.isNull(status) ? colorDbService.getAllColors(factoryId)
+				: colorDbService.getAllColorsForStatus(status,factoryId);
 
 		if (CollectionUtils.isEmpty(colorEntities)) {
 			log.error("No Colors found in the system");
@@ -74,8 +74,9 @@ public class ColorServiceImpl implements ColorService {
 		log.info("Serving request to add a color with request object: {}", colorRequestDto);
 
 		runValidations(colorRequestDto);
+		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
 
-		Color color = ColorAdapter.buildColorFromRequest(colorRequestDto);
+		Color color = ColorAdapter.buildColorFromRequest(colorRequestDto,factoryId);
 
 		color = colorDbService.saveColor(color);
 
@@ -141,8 +142,9 @@ public class ColorServiceImpl implements ColorService {
 				log.error("Unable to build color request from response object: {}", colorResponseDto);
 				return;
 			}
+			String factoryId = HeaderUtil.getFactoryIdHeaderValue();
 
-			Color color = ColorAdapter.buildColorFromRequest(colorRequestDto);
+			Color color = ColorAdapter.buildColorFromRequest(colorRequestDto,factoryId);
 
 			if (Objects.isNull(color)) {
 				log.error("Unable to build color from request object: {}", colorRequestDto);

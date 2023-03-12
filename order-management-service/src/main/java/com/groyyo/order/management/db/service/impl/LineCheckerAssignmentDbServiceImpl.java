@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class LineCheckerAssignmentDbServiceImpl extends AbstractJpaServiceImpl<LineCheckerAssignment, Long, LineCheckerAssignmentRepository> implements LineCheckerAssignmentDbService {
@@ -22,13 +23,18 @@ public class LineCheckerAssignmentDbServiceImpl extends AbstractJpaServiceImpl<L
 	}
 
 	@Override
-	public List<LineCheckerAssignment> getAllLineCheckerAssignments() {
-		return lineCheckerAssignmentRepository.findAll();
+	public List<LineCheckerAssignment> getAllLineCheckerAssignments(String factoryId) {
+		return (!Objects.isNull(factoryId)?
+				lineCheckerAssignmentRepository.findAllByFactoryId(factoryId)
+				: lineCheckerAssignmentRepository.findAll());
 	}
 
 	@Override
-	public List<LineCheckerAssignment> getAllLineCheckerAssignmentsForStatus(boolean status) {
-		return lineCheckerAssignmentRepository.findByStatus(status);
+	public List<LineCheckerAssignment> getAllLineCheckerAssignmentsForStatus(boolean status,String factoryId) {
+
+		return (!Objects.isNull(factoryId)?
+				lineCheckerAssignmentRepository.findByStatusAndFactoryId(status,factoryId)
+				: lineCheckerAssignmentRepository.findByStatus(status));
 	}
 
 	@Override
@@ -54,13 +60,16 @@ public class LineCheckerAssignmentDbServiceImpl extends AbstractJpaServiceImpl<L
 	}
 
 	@Override
-	public List<LineCheckerAssignment> getLineCheckerAssignmentForPurchaseOrder(String purchaseOrderId) {
-
-		return lineCheckerAssignmentRepository.findAllByPurchaseOrderId(purchaseOrderId);
+	public List<LineCheckerAssignment> getLineCheckerAssignmentForPurchaseOrder(String purchaseOrderId,String factoryId) {
+		return (!Objects.isNull(factoryId)?
+				lineCheckerAssignmentRepository.findAllByPurchaseOrderIdAndFactoryId(purchaseOrderId,factoryId)
+				: lineCheckerAssignmentRepository.findAllByPurchaseOrderId(purchaseOrderId));
 	}
 
 	@Override
 	public Long countLineCheckerByfactoryId(String factoryId, LineType lineType,boolean status) {
-		return lineCheckerAssignmentRepository.countByFactoryIdAndLineTypeAndStatus(factoryId,lineType,status);
+		return (!Objects.isNull(factoryId)?
+				lineCheckerAssignmentRepository.countByFactoryIdAndLineTypeAndStatus(factoryId,lineType,status)
+				: lineCheckerAssignmentRepository.countByLineTypeAndStatus(lineType,status));
 	}
 }

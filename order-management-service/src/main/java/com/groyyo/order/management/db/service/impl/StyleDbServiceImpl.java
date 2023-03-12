@@ -1,15 +1,14 @@
 package com.groyyo.order.management.db.service.impl;
 
-import java.util.List;
-import java.util.Objects;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.groyyo.core.sqlPostgresJpa.service.impl.AbstractJpaServiceImpl;
 import com.groyyo.order.management.db.service.StyleDbService;
 import com.groyyo.order.management.entity.Style;
 import com.groyyo.order.management.repository.StyleRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Objects;
 
 
 @Service
@@ -24,13 +23,19 @@ public class StyleDbServiceImpl extends AbstractJpaServiceImpl<Style, Long, Styl
     }
 
     @Override
-    public List<Style> getAllStyles() {
-        return styleRepository.findAll();
+    public List<Style> getAllStyles(String factoryId) {
+
+       return (Objects.isNull(factoryId)?
+                styleRepository.findAll():
+               styleRepository.findAllByFactoryId(factoryId));
+
     }
 
     @Override
-    public List<Style> getAllStylesForStatus(boolean status) {
-        return styleRepository.findByStatus(status);
+    public List<Style> getAllStylesForStatus(boolean status,String factoryId) {
+        return !Objects.isNull(factoryId)?
+    styleRepository.findByStatusAndFactoryId(status,factoryId)
+        : styleRepository.findByStatus(status);
     }
 
     @Override
@@ -51,6 +56,8 @@ public class StyleDbServiceImpl extends AbstractJpaServiceImpl<Style, Long, Styl
 
     @Override
     public boolean isEntityExistsByStyleNumber(String styleNumber) {
-        return Objects.nonNull(styleRepository.findByStyleNumber(styleNumber));
+
+        return Objects.nonNull(styleRepository.findByStyleNumber(styleNumber)) ;
+
     }
 }

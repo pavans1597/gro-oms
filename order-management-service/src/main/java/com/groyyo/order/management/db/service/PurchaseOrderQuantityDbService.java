@@ -8,7 +8,7 @@ import java.util.List;
 public interface PurchaseOrderQuantityDbService extends AbstractJpaService<PurchaseOrderQuantity, Long> {
 
 
-    List<PurchaseOrderQuantity> getAllPurchaseOrderQuantitiesForPurchaseOrder(String purchaseOrderId);
+    List<PurchaseOrderQuantity> getAllPurchaseOrderQuantitiesForPurchaseOrder(String purchaseOrderId,String factoryId);
 
 
     PurchaseOrderQuantity getPurchaseOrderQuantityById(String id);

@@ -23,8 +23,10 @@ public class PurchaseOrderQuantityDbServiceImpl extends AbstractJpaServiceImpl<P
     }
 
     @Override
-    public List<PurchaseOrderQuantity> getAllPurchaseOrderQuantitiesForPurchaseOrder(String purchaseOrderId) {
-        return purchaseOrderQuantityRepository.findAllByPurchaseOrderId(purchaseOrderId);
+    public List<PurchaseOrderQuantity> getAllPurchaseOrderQuantitiesForPurchaseOrder(String purchaseOrderId,String factoryId) {
+        return (!Objects.isNull(factoryId)?
+                purchaseOrderQuantityRepository.findAllByPurchaseOrderIdAndFactoryId(purchaseOrderId,factoryId)
+        : purchaseOrderQuantityRepository.findAllByPurchaseOrderId(purchaseOrderId));
     }
 
     @Override

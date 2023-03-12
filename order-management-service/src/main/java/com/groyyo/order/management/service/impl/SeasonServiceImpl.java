@@ -1,18 +1,8 @@
 package com.groyyo.order.management.service.impl;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-
 import com.groyyo.core.base.exception.NoRecordException;
 import com.groyyo.core.base.exception.RecordExistsException;
+import com.groyyo.core.base.http.utils.HeaderUtil;
 import com.groyyo.core.kafka.dto.KafkaDTO;
 import com.groyyo.core.kafka.producer.NotificationProducer;
 import com.groyyo.core.master.dto.request.SeasonRequestDto;
@@ -22,8 +12,17 @@ import com.groyyo.order.management.constants.KafkaConstants;
 import com.groyyo.order.management.db.service.SeasonDbService;
 import com.groyyo.order.management.entity.Season;
 import com.groyyo.order.management.service.SeasonService;
-
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author nipunaggarwal
@@ -46,9 +45,10 @@ public class SeasonServiceImpl implements SeasonService {
 	public List<SeasonResponseDto> getAllSeasons(Boolean status) {
 
 		log.info("Serving request to get all seasons");
+		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
 
-		List<Season> seasonEntities = Objects.isNull(status) ? seasonDbService.getAllSeasons()
-				: seasonDbService.getAllSeasonsForStatus(status);
+		List<Season> seasonEntities = Objects.isNull(status) ? seasonDbService.getAllSeasons(factoryId)
+				: seasonDbService.getAllSeasonsForStatus(status,factoryId);
 
 		if (CollectionUtils.isEmpty(seasonEntities)) {
 			log.error("No Seasons found in the system");

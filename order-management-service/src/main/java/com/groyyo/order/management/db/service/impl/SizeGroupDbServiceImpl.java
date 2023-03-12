@@ -1,15 +1,14 @@
 package com.groyyo.order.management.db.service.impl;
 
-import java.util.List;
-import java.util.Objects;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.groyyo.core.sqlPostgresJpa.service.impl.AbstractJpaServiceImpl;
 import com.groyyo.order.management.db.service.SizeGroupDbService;
 import com.groyyo.order.management.entity.SizeGroup;
 import com.groyyo.order.management.repository.SizeGroupRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Objects;
 
 @Service
 public class SizeGroupDbServiceImpl extends AbstractJpaServiceImpl<SizeGroup, Long, SizeGroupRepository> implements SizeGroupDbService {
@@ -23,13 +22,17 @@ public class SizeGroupDbServiceImpl extends AbstractJpaServiceImpl<SizeGroup, Lo
 	}
 
 	@Override
-	public List<SizeGroup> getAllSizeGroups() {
-		return sizeGroupRepository.findByOrderByNameAsc();
+	public List<SizeGroup> getAllSizeGroups(String factoryId) {
+		return (!Objects.isNull(factoryId)?
+				sizeGroupRepository.findByFactoryIdOrderByNameAsc(factoryId)
+		 : sizeGroupRepository.findByOrderByNameAsc());
 	}
 
 	@Override
-	public List<SizeGroup> getAllSizeGroupsForStatus(boolean status) {
-		return sizeGroupRepository.findByStatusOrderByNameAsc(status);
+	public List<SizeGroup> getAllSizeGroupsForStatus(boolean status,String factoryId) {
+		return (!Objects.isNull(factoryId)?
+				sizeGroupRepository.findByStatusAndFactoryIdOrderByNameAsc(status,factoryId)
+		: sizeGroupRepository.findByStatusOrderByNameAsc(status));
 	}
 
 	@Override

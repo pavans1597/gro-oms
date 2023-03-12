@@ -1,17 +1,17 @@
 package com.groyyo.order.management.db.service;
 
-import java.util.List;
-
 import com.groyyo.core.sqlPostgresJpa.service.AbstractJpaService;
 import com.groyyo.order.management.entity.Part;
+
+import java.util.List;
 
 public interface PartDbService extends AbstractJpaService<Part, Long> {
 
 
-    List<Part> getAllParts();
+    List<Part> getAllParts(String factoryId);
 
 
-    List<Part> getAllPartsForStatus(boolean status);
+    List<Part> getAllPartsForStatus(boolean status,String factoryId);
 
 
     Part getPartById(String id);

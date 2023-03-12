@@ -7,9 +7,9 @@ import java.util.List;
 
 public interface LineCheckerAssignmentDbService {
 
-	List<LineCheckerAssignment> getAllLineCheckerAssignments();
+	List<LineCheckerAssignment> getAllLineCheckerAssignments(String factoryId);
 
-	List<LineCheckerAssignment> getAllLineCheckerAssignmentsForStatus(boolean status);
+	List<LineCheckerAssignment> getAllLineCheckerAssignmentsForStatus(boolean status,String factoryId);
 
 	LineCheckerAssignment getLineCheckerAssignmentById(String id);
 
@@ -22,7 +22,7 @@ public interface LineCheckerAssignmentDbService {
 	/**
 	 * @return
 	 */
-	List<LineCheckerAssignment> getLineCheckerAssignmentForPurchaseOrder(String purchaseOrderId);
+	List<LineCheckerAssignment> getLineCheckerAssignmentForPurchaseOrder(String purchaseOrderId,String factoryId);
 
 	Long countLineCheckerByfactoryId(String factoryId, LineType productionLine,boolean status);
 }

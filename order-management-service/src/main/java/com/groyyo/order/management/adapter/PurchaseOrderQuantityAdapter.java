@@ -1,22 +1,20 @@
 package com.groyyo.order.management.adapter;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
-
-import org.apache.commons.lang3.StringUtils;
-
 import com.groyyo.order.management.dto.request.PurchaseOrderQuantityCreateDto;
 import com.groyyo.order.management.dto.request.PurchaseOrderQuantityRequestDto;
 import com.groyyo.order.management.dto.response.PurchaseOrderQuantityResponseDto;
 import com.groyyo.order.management.entity.PurchaseOrderQuantity;
-
 import lombok.experimental.UtilityClass;
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @UtilityClass
 public class PurchaseOrderQuantityAdapter {
 
-	public PurchaseOrderQuantity buildPurchaseOrderQuantityFromRequest(PurchaseOrderQuantityRequestDto purchaseOrderQuantityRequest, String purchaseOrderId, Double tolerance) {
+	public PurchaseOrderQuantity buildPurchaseOrderQuantityFromRequest(PurchaseOrderQuantityRequestDto purchaseOrderQuantityRequest, String purchaseOrderId, Double tolerance,String factoryId) {
 
 		Long quantity = purchaseOrderQuantityRequest.getQuantity();
 		Long targetQuantity = Objects.nonNull(quantity) ? (long) (quantity + (quantity * tolerance) / 100) : 0L;
@@ -29,19 +27,21 @@ public class PurchaseOrderQuantityAdapter {
 				.sizeId(purchaseOrderQuantityRequest.getSizeId())
 				.colourId(purchaseOrderQuantityRequest.getColourId())
 				.targetQuantity(targetQuantity)
+				.factoryId(factoryId)
 				.build();
 	}
 
-	public List<PurchaseOrderQuantity> buildPurchaseOrderQuantityListFromRequestList(List<PurchaseOrderQuantityRequestDto> purchaseOrderQuantityRequest, String purchaseOrderId, Double tolerance) {
+	public List<PurchaseOrderQuantity> buildPurchaseOrderQuantityListFromRequestList(List<PurchaseOrderQuantityRequestDto> purchaseOrderQuantityRequest, String purchaseOrderId, Double tolerance,String factoryId) {
 
-		return purchaseOrderQuantityRequest.stream().map(purchaseOrderQuantity -> buildPurchaseOrderQuantityFromRequest(purchaseOrderQuantity, purchaseOrderId, tolerance))
+		return purchaseOrderQuantityRequest.stream().map(purchaseOrderQuantity -> buildPurchaseOrderQuantityFromRequest(purchaseOrderQuantity, purchaseOrderId, tolerance,factoryId))
 				.collect(Collectors.toList());
 	}
 
-	public PurchaseOrderQuantity buildPurchaseOrderQuantityFromResponse(PurchaseOrderQuantityResponseDto purchaseOrderQuantityResponseDto) {
+	public PurchaseOrderQuantity buildPurchaseOrderQuantityFromResponse(PurchaseOrderQuantityResponseDto purchaseOrderQuantityResponseDto,String factoryId) {
 		return PurchaseOrderQuantity
 				.builder()
 				.name(purchaseOrderQuantityResponseDto.getName())
+				.factoryId(factoryId)
 				.build();
 	}
 

@@ -1,9 +1,8 @@
 package com.groyyo.order.management.repository;
 
+import com.groyyo.core.sqlPostgresJpa.repository.AbstractJpaRepository;
 import com.groyyo.order.management.entity.PurchaseOrderQuantity;
 import org.springframework.stereotype.Repository;
-
-import com.groyyo.core.sqlPostgresJpa.repository.AbstractJpaRepository;
 
 import java.util.List;
 
@@ -15,6 +14,8 @@ public interface PurchaseOrderQuantityRepository extends AbstractJpaRepository<P
 
     PurchaseOrderQuantity findByNameAndStatus(String name, Boolean status);
 
+
     List<PurchaseOrderQuantity> findAllByPurchaseOrderId(String purchaseOrderId);
 
+    List<PurchaseOrderQuantity> findAllByPurchaseOrderIdAndFactoryId(String purchaseOrderId, String factoryId);
 }

@@ -1,20 +1,8 @@
 package com.groyyo.order.management.service.impl;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Collectors;
-
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-
 import com.groyyo.core.base.exception.NoRecordException;
 import com.groyyo.core.base.exception.RecordExistsException;
+import com.groyyo.core.base.http.utils.HeaderUtil;
 import com.groyyo.core.kafka.dto.KafkaDTO;
 import com.groyyo.core.kafka.producer.NotificationProducer;
 import com.groyyo.core.master.dto.request.SizeGroupRequestDto;
@@ -28,8 +16,15 @@ import com.groyyo.order.management.db.service.SizeGroupDbService;
 import com.groyyo.order.management.entity.Size;
 import com.groyyo.order.management.entity.SizeGroup;
 import com.groyyo.order.management.service.SizeGroupService;
-
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Log4j2
@@ -51,9 +46,10 @@ public class SizeGroupServiceImpl implements SizeGroupService {
 	public List<SizeGroupResponseDto> getAllSizeGroups(Boolean status) {
 
 		log.info("Serving request to get all sizeGroups");
+		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
 
-		List<SizeGroup> sizeGroupEntities = Objects.isNull(status) ? sizeGroupDbService.getAllSizeGroups()
-				: sizeGroupDbService.getAllSizeGroupsForStatus(status);
+		List<SizeGroup> sizeGroupEntities = Objects.isNull(status) ? sizeGroupDbService.getAllSizeGroups(factoryId)
+				: sizeGroupDbService.getAllSizeGroupsForStatus(status,factoryId);
 
 		if (CollectionUtils.isEmpty(sizeGroupEntities)) {
 			log.error("No SizeGroups found in the system");
@@ -92,8 +88,10 @@ public class SizeGroupServiceImpl implements SizeGroupService {
 		log.info("Serving request to add a sizeGroup with request object:{}", sizeGroupRequestDto);
 
 		runValidations(sizeGroupRequestDto);
+		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
 
-		SizeGroup sizeGroup = SizeGroupAdapter.buildSizeGroupFromRequest(sizeGroupRequestDto);
+
+		SizeGroup sizeGroup = SizeGroupAdapter.buildSizeGroupFromRequest(sizeGroupRequestDto,factoryId);
 
 		sizeGroup = sizeGroupDbService.saveSizeGroup(sizeGroup);
 
@@ -168,7 +166,9 @@ public class SizeGroupServiceImpl implements SizeGroupService {
 
 	@Override
 	public void consumeSizeGroup(SizeGroupResponseDto sizeGroupResponseDto) {
-		SizeGroup sizeGroup = SizeGroupAdapter.buildSizeGroupFromResponse(sizeGroupResponseDto);
+		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+
+		SizeGroup sizeGroup = SizeGroupAdapter.buildSizeGroupFromResponse(sizeGroupResponseDto,factoryId);
 
 		if (Objects.isNull(sizeGroup)) {
 			log.error("Unable to build sizeGroup from response object: {}", sizeGroupResponseDto);
@@ -243,7 +243,7 @@ public class SizeGroupServiceImpl implements SizeGroupService {
 	}
 
 	/**
-	 * @param sizeIds
+	 * @param
 	 * @return
 	 */
 	private Map<String, SizeResponseDto> getSizesFromSizeIds(SizeGroupResponseDto sizeGroupResponseDto) {

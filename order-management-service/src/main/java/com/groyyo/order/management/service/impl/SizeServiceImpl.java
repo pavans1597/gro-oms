@@ -1,18 +1,8 @@
 package com.groyyo.order.management.service.impl;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-
 import com.groyyo.core.base.exception.NoRecordException;
 import com.groyyo.core.base.exception.RecordExistsException;
+import com.groyyo.core.base.http.utils.HeaderUtil;
 import com.groyyo.core.kafka.dto.KafkaDTO;
 import com.groyyo.core.kafka.producer.NotificationProducer;
 import com.groyyo.core.master.dto.request.SizeRequestDto;
@@ -21,8 +11,17 @@ import com.groyyo.order.management.adapter.SizeAdapter;
 import com.groyyo.order.management.db.service.SizeDbService;
 import com.groyyo.order.management.entity.Size;
 import com.groyyo.order.management.service.SizeService;
-
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 @Service
 @Log4j2
@@ -41,9 +40,10 @@ public class SizeServiceImpl implements SizeService {
 	public List<SizeResponseDto> getAllSizes(Boolean status) {
 
 		log.info("Serving request to get all sizes");
+		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
 
-		List<Size> sizeEntities = Objects.isNull(status) ? sizeDbService.getAllSizes()
-				: sizeDbService.getAllSizesForStatus(status);
+		List<Size> sizeEntities = Objects.isNull(status) ? sizeDbService.getAllSizes(factoryId)
+				: sizeDbService.getAllSizesForStatus(status,factoryId);
 
 		if (CollectionUtils.isEmpty(sizeEntities)) {
 			log.error("No Sizes found in the system");
@@ -74,8 +74,9 @@ public class SizeServiceImpl implements SizeService {
 		log.info("Serving request to add a size with request object:{}", sizeRequestDto);
 
 		runValidations(sizeRequestDto);
+		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
 
-		Size size = SizeAdapter.buildSizeFromRequest(sizeRequestDto);
+		Size size = SizeAdapter.buildSizeFromRequest(sizeRequestDto,factoryId);
 
 		size = sizeDbService.saveSize(size);
 
@@ -139,7 +140,9 @@ public class SizeServiceImpl implements SizeService {
 
 	@Override
 	public void consumeSize(SizeResponseDto sizeResponseDto) {
-		Size size = SizeAdapter.buildSizeFromResponse(sizeResponseDto);
+		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+
+		Size size = SizeAdapter.buildSizeFromResponse(sizeResponseDto,factoryId);
 
 		if (Objects.isNull(size)) {
 			log.error("Unable to build size from response object: {}", sizeResponseDto);

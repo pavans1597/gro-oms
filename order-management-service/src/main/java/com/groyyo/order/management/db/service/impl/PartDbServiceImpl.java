@@ -1,15 +1,14 @@
 package com.groyyo.order.management.db.service.impl;
 
-import java.util.List;
-import java.util.Objects;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.groyyo.core.sqlPostgresJpa.service.impl.AbstractJpaServiceImpl;
 import com.groyyo.order.management.db.service.PartDbService;
 import com.groyyo.order.management.entity.Part;
 import com.groyyo.order.management.repository.PartRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Objects;
 
 @Service
 public class PartDbServiceImpl extends AbstractJpaServiceImpl<Part, Long, PartRepository> implements PartDbService {
@@ -23,13 +22,17 @@ public class PartDbServiceImpl extends AbstractJpaServiceImpl<Part, Long, PartRe
 	}
 
 	@Override
-	public List<Part> getAllParts() {
-		return partRepository.findByOrderByNameAsc();
+	public List<Part> getAllParts(String factoryId) {
+		return (!Objects.isNull(factoryId)?
+				partRepository.findByFactoryIdOrderByNameAsc(factoryId)
+		: partRepository.findByOrderByNameAsc());
 	}
 
 	@Override
-	public List<Part> getAllPartsForStatus(boolean status) {
-		return partRepository.findByStatusOrderByNameAsc(status);
+	public List<Part> getAllPartsForStatus(boolean status,String factoryId) {
+		return (!Objects.isNull(factoryId)?
+				partRepository.findByStatusAndFactoryIdOrderByNameAsc(status,factoryId)
+		: partRepository.findByStatusOrderByNameAsc(status));
 	}
 
 	@Override

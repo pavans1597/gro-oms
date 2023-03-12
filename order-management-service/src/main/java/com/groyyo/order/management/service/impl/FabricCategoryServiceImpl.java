@@ -2,10 +2,10 @@ package com.groyyo.order.management.service.impl;
 
 import com.groyyo.core.base.exception.NoRecordException;
 import com.groyyo.core.base.exception.RecordExistsException;
+import com.groyyo.core.base.http.utils.HeaderUtil;
 import com.groyyo.core.kafka.dto.KafkaDTO;
 import com.groyyo.core.kafka.producer.NotificationProducer;
 import com.groyyo.order.management.adapter.FabricCategoryAdapter;
-import com.groyyo.order.management.constants.KafkaConstants;
 import com.groyyo.order.management.db.service.FabricCategoryDbService;
 import com.groyyo.order.management.dto.request.FabricCategoryRequestDto;
 import com.groyyo.order.management.dto.response.FabricCategoryResponseDto;
@@ -39,9 +39,10 @@ public class FabricCategoryServiceImpl implements FabricCategoryService {
     public List<FabricCategoryResponseDto> getAllFabricCategorys(Boolean status) {
 
         log.info("Serving request to get all fabricCategorys");
+        String factoryId = HeaderUtil.getFactoryIdHeaderValue();
 
-        List<FabricCategory> fabricCategoryEntities = Objects.isNull(status) ? fabricCategoryDbService.getAllFabricCategorys()
-                : fabricCategoryDbService.getAllFabricCategorysForStatus(status);
+        List<FabricCategory> fabricCategoryEntities = Objects.isNull(status) ? fabricCategoryDbService.getAllFabricCategorys(factoryId)
+                : fabricCategoryDbService.getAllFabricCategorysForStatus(status,factoryId);
 
         if (CollectionUtils.isEmpty(fabricCategoryEntities)) {
             log.error("No FabricCategorys found in the system");
@@ -72,8 +73,9 @@ public class FabricCategoryServiceImpl implements FabricCategoryService {
         log.info("Serving request to add a fabricCategory with request object: {}", fabricCategoryRequestDto);
 
         runValidations(fabricCategoryRequestDto);
+        String factoryId = HeaderUtil.getFactoryIdHeaderValue();
 
-        FabricCategory fabricCategory = FabricCategoryAdapter.buildFabricCategoryFromRequest(fabricCategoryRequestDto);
+        FabricCategory fabricCategory = FabricCategoryAdapter.buildFabricCategoryFromRequest(fabricCategoryRequestDto,factoryId);
 
         fabricCategory = fabricCategoryDbService.saveFabricCategory(fabricCategory);
 
@@ -140,8 +142,9 @@ public class FabricCategoryServiceImpl implements FabricCategoryService {
                 log.error("Unable to build fabricCategory request from response object: {}", fabricCategoryResponseDto);
                 return;
             }
+            String factoryId = HeaderUtil.getFactoryIdHeaderValue();
 
-            FabricCategory fabricCategory = FabricCategoryAdapter.buildFabricCategoryFromRequest(fabricCategoryRequestDto);
+            FabricCategory fabricCategory = FabricCategoryAdapter.buildFabricCategoryFromRequest(fabricCategoryRequestDto,factoryId);
 
             if (Objects.isNull(fabricCategory)) {
                 log.error("Unable to build fabricCategory from request object: {}", fabricCategoryRequestDto);

@@ -3,6 +3,7 @@ package com.groyyo.order.management.service.impl;
 import com.groyyo.core.base.common.dto.PageResponse;
 import com.groyyo.core.base.exception.NoRecordException;
 import com.groyyo.core.base.exception.RecordExistsException;
+import com.groyyo.core.base.http.utils.HeaderUtil;
 import com.groyyo.core.dto.PurchaseOrder.PurchaseOrderResponseDto;
 import com.groyyo.core.dto.PurchaseOrder.PurchaseOrderStatus;
 import com.groyyo.core.dto.PurchaseOrder.UserLineDetails;
@@ -67,9 +68,10 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 	public List<PurchaseOrderResponseDto> getAllPurchaseOrders(Boolean status) {
 
 		log.info("Serving request to get all purchaseOrders");
+		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
 
-		List<PurchaseOrder> purchaseOrderEntities = Objects.isNull(status) ? purchaseOrderDbService.getAllPurchaseOrders()
-				: purchaseOrderDbService.getAllPurchaseOrdersForStatus(status);
+		List<PurchaseOrder> purchaseOrderEntities = Objects.isNull(status) ? purchaseOrderDbService.getAllPurchaseOrders(factoryId)
+				: purchaseOrderDbService.getAllPurchaseOrdersForStatus(status,factoryId);
 
 		if (CollectionUtils.isEmpty(purchaseOrderEntities)) {
 			log.error("No PurchaseOrders found in the system");
@@ -102,8 +104,9 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 		PurchaseOrder purchaseOrder = PurchaseOrder.builder().build();
 
 		addRunTimeStyle(purchaseOrderRequestDto);
+		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
 
-		purchaseOrder = PurchaseOrderAdapter.buildPurchaseOrderFromRequest(purchaseOrderRequestDto);
+		purchaseOrder = PurchaseOrderAdapter.buildPurchaseOrderFromRequest(purchaseOrderRequestDto,factoryId);
 
 		purchaseOrder = purchaseOrderDbService.savePurchaseOrder(purchaseOrder);
 
@@ -245,7 +248,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
 		purchaseOrder.setPurchaseOrderStatus(PurchaseOrderStatus.YET_TO_START);
 
-		List<LineCheckerAssignment> lineCheckerAssignments = lineCheckerAssignmentDbService.getLineCheckerAssignmentForPurchaseOrder(purchaseOrder.getUuid());
+		List<LineCheckerAssignment> lineCheckerAssignments = lineCheckerAssignmentDbService.getLineCheckerAssignmentForPurchaseOrder(purchaseOrder.getUuid(),purchaseOrder.getFactoryId());
 
 		if (CollectionUtils.isNotEmpty(lineCheckerAssignments)) {
 			purchaseOrder.setPurchaseOrderStatus(PurchaseOrderStatus.ONGOING);
@@ -254,7 +257,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
 	private void populateLineCheckerAssignmentsForPurchaseOrder(PurchaseOrderResponseDto purchaseOrderResponseDto) {
 
-		List<LineCheckerAssignment> lineCheckerAssignments = lineCheckerAssignmentDbService.getLineCheckerAssignmentForPurchaseOrder(purchaseOrderResponseDto.getUuid());
+		List<LineCheckerAssignment> lineCheckerAssignments = lineCheckerAssignmentDbService.getLineCheckerAssignmentForPurchaseOrder(purchaseOrderResponseDto.getUuid(),purchaseOrderResponseDto.getFactoryId());
 
 		List<UserLineDetails> userLineDetails = LineCheckerAssignmentAdapter.buildUserLineDetailsFromEntities(lineCheckerAssignments);
 		purchaseOrderResponseDto.setUserLineDetails(userLineDetails);

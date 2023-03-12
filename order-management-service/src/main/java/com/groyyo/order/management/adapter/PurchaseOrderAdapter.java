@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 @UtilityClass
 public class PurchaseOrderAdapter {
 
-	public PurchaseOrder buildPurchaseOrderFromRequest(PurchaseOrderRequestDto purchaseOrderRequestDto) {
+	public PurchaseOrder buildPurchaseOrderFromRequest(PurchaseOrderRequestDto purchaseOrderRequestDto,String factoryId) {
 
 		return PurchaseOrder
 				.builder()
@@ -33,15 +33,17 @@ public class PurchaseOrderAdapter {
 				.partId(purchaseOrderRequestDto.getPartId())
 				.productId(Objects.nonNull(purchaseOrderRequestDto.getStyleRequestDto()) ? purchaseOrderRequestDto.getStyleRequestDto().getProductId() : null)
 				.productName(Objects.nonNull(purchaseOrderRequestDto.getStyleRequestDto()) ? purchaseOrderRequestDto.getStyleRequestDto().getProductName() : null)
+				.factoryId(factoryId)
 				.build();
 	}
 
-	public PurchaseOrder buildPurchaseOrderFromResponse(PurchaseOrderResponseDto purchaseOrderResponseDto) {
+	public PurchaseOrder buildPurchaseOrderFromResponse(PurchaseOrderResponseDto purchaseOrderResponseDto,String factoryId) {
 
 		return PurchaseOrder
 				.builder()
 				.name(purchaseOrderResponseDto.getName())
 				.purchaseOrderStatus(purchaseOrderResponseDto.getPurchaseOrderStatus())
+				.factoryId(factoryId)
 				.build();
 	}
 

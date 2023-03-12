@@ -9,10 +9,10 @@ import java.util.List;
 public interface PurchaseOrderDbService extends AbstractJpaService<PurchaseOrder, Long> {
 
 
-    List<PurchaseOrder> getAllPurchaseOrders();
+    List<PurchaseOrder> getAllPurchaseOrders(String factoryId);
 
 
-    List<PurchaseOrder> getAllPurchaseOrdersForStatus(boolean status);
+    List<PurchaseOrder> getAllPurchaseOrdersForStatus(boolean status,String factoryId);
 
 
     PurchaseOrder getPurchaseOrderById(String id);
