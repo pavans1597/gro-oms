@@ -30,7 +30,7 @@ public class PurchaseOrderPublisher {
 
 	public void publishQcTaskAssignment(PurchaseOrderResponseDto purchaseOrderResponseDto) {
 
-		KafkaDTO kafkaDTO = new KafkaDTO(KafkaConstants.KAFKA_QC_TASK_ASSIGNMENT_TYPE, KafkaConstants.KAFKA_QC_TASK_ASSIGNMENT_SUBTYPE_CREATE, PurchaseOrderResponseDto.class.getName(),
+		KafkaDTO kafkaDTO = new KafkaDTO(KafkaConstants.KAFKA_QC_TASK_ASSIGNMENT_TYPE, KafkaConstants.KAFKA_QC_TASK_ASSIGNMENT_SUBTYPE_CREATE, KafkaDTO.class.getName(),
 				purchaseOrderResponseDto);
 
 		notificationProducer.publish(kafkaQualityManagementUpdatesTopic, kafkaDTO.getClassName(), kafkaDTO);
