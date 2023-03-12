@@ -1,9 +1,25 @@
 package com.groyyo.order.management.service.impl;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+
 import com.groyyo.core.base.common.dto.PageResponse;
 import com.groyyo.core.base.exception.NoRecordException;
 import com.groyyo.core.base.exception.RecordExistsException;
 import com.groyyo.core.base.http.utils.HeaderUtil;
+import com.groyyo.core.dto.PurchaseOrder.PurchaseOrderQuantityResponseDto;
 import com.groyyo.core.dto.PurchaseOrder.PurchaseOrderResponseDto;
 import com.groyyo.core.dto.PurchaseOrder.PurchaseOrderStatus;
 import com.groyyo.core.dto.PurchaseOrder.UserLineDetails;
@@ -29,21 +45,8 @@ import com.groyyo.order.management.entity.PurchaseOrder;
 import com.groyyo.order.management.service.PurchaseOrderQuantityService;
 import com.groyyo.order.management.service.PurchaseOrderService;
 import com.groyyo.order.management.service.StyleService;
-import lombok.extern.log4j.Log4j2;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort.Direction;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Collectors;
+import lombok.extern.log4j.Log4j2;
 
 @Service
 @Log4j2
@@ -71,7 +74,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
 
 		List<PurchaseOrder> purchaseOrderEntities = Objects.isNull(status) ? purchaseOrderDbService.getAllPurchaseOrders(factoryId)
-				: purchaseOrderDbService.getAllPurchaseOrdersForStatus(status,factoryId);
+				: purchaseOrderDbService.getAllPurchaseOrdersForStatus(status, factoryId);
 
 		if (CollectionUtils.isEmpty(purchaseOrderEntities)) {
 			log.error("No PurchaseOrders found in the system");
@@ -106,7 +109,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 		addRunTimeStyle(purchaseOrderRequestDto);
 		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
 
-		purchaseOrder = PurchaseOrderAdapter.buildPurchaseOrderFromRequest(purchaseOrderRequestDto,factoryId);
+		purchaseOrder = PurchaseOrderAdapter.buildPurchaseOrderFromRequest(purchaseOrderRequestDto, factoryId);
 
 		purchaseOrder = purchaseOrderDbService.savePurchaseOrder(purchaseOrder);
 
@@ -160,33 +163,14 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 	}
 
 	@Override
-	public OrdersCountResponseDto getOrdersDetailsCounts(String factoryId, LineType linesType) {
-		if(linesType.equals(LineType.FINISH_LINE)){
-			Long yetToStartCount = purchaseOrderDbService.getCountByPurchaseOrderStatus(PurchaseOrderStatus.COMPLETED, factoryId,true);
-		}else{
-			Long yetToStartCount = purchaseOrderDbService.getCountByPurchaseOrderStatus(PurchaseOrderStatus.YET_TO_START, factoryId, true);
-
-		}
-		Long completedCount = purchaseOrderDbService.getCountByPurchaseOrderStatus(PurchaseOrderStatus.COMPLETED, factoryId, true);
-		Long onGoing = purchaseOrderDbService.getCountByPurchaseOrderStatus(PurchaseOrderStatus.ONGOING, factoryId, true);
-		Long totalCount = purchaseOrderDbService.getTotalCount( factoryId);
-//		return DashBoardAnalyticsAdapter.buildOrderCountResponseByCounts(yetToStartCount, completedCount,
-//				onGoing, totalCount
-//		);
-
-		return null ;
-
-	}
-
-	@Override
 	public CheckersCountResponseDto getCheckersDetailsCounts(String factoryId, LineType linesType) {
 
 		long plUsersCount = userClientApi.getUsers(factoryId, LineType.PRODUCTION_LINE).getData().size();
-		long assignedUserCount = lineCheckerAssignmentDbService.countLineCheckerByfactoryId(factoryId, LineType.PRODUCTION_LINE,true);
+		long assignedUserCount = lineCheckerAssignmentDbService.countLineCheckerByfactoryId(factoryId, LineType.PRODUCTION_LINE, true);
 		CheckersCountResponseDto countResponseDto = CheckersCountResponseDto.builder()
 				.assigned(assignedUserCount)
 				.totalChecker(plUsersCount)
-				.available(plUsersCount-assignedUserCount)
+				.available(plUsersCount - assignedUserCount)
 				.build();
 		return countResponseDto;
 	}
@@ -226,14 +210,13 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
 	private void populateTotalQuantitiesForPurchaseOrder(PurchaseOrderResponseDto purchaseOrderResponseDto) {
 
-		purchaseOrderResponseDto.setTotalQuantity(purchaseOrderQuantityService.getTotalQuantityForPurchaseOrder(purchaseOrderResponseDto.getUuid()));
-		purchaseOrderResponseDto.setTotalTargetQuantity(purchaseOrderQuantityService.getTotalTargetQuantityForPurchaseOrder(purchaseOrderResponseDto.getUuid()));
+		purchaseOrderResponseDto.setTotalQuantity(getTotalQuantityForPurchaseOrder(purchaseOrderResponseDto));
+		purchaseOrderResponseDto.setTotalTargetQuantity(getTotalTargetQuantityForPurchaseOrder(purchaseOrderResponseDto));
 	}
 
 	private void setTotalQuantitiesForPurchaseOrder(PurchaseOrder purchaseOrder) {
 
-		purchaseOrder.setTotalQuantity(purchaseOrderQuantityService.getTotalQuantityForPurchaseOrder(purchaseOrder.getUuid()));
-		purchaseOrder.setTotalTargetQuantity(purchaseOrderQuantityService.getTotalTargetQuantityForPurchaseOrder(purchaseOrder.getUuid()));
+		populatePurchaseOrderQuantitiesForPurchaseOrder(purchaseOrder);
 	}
 
 	private void populateLineCheckerAssignmentsForPurchaseOrders(List<PurchaseOrderResponseDto> purchaseOrderResponseDtos) {
@@ -248,7 +231,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
 		purchaseOrder.setPurchaseOrderStatus(PurchaseOrderStatus.YET_TO_START);
 
-		List<LineCheckerAssignment> lineCheckerAssignments = lineCheckerAssignmentDbService.getLineCheckerAssignmentForPurchaseOrder(purchaseOrder.getUuid(),purchaseOrder.getFactoryId());
+		List<LineCheckerAssignment> lineCheckerAssignments = lineCheckerAssignmentDbService.getLineCheckerAssignmentForPurchaseOrder(purchaseOrder.getUuid(), purchaseOrder.getFactoryId());
 
 		if (CollectionUtils.isNotEmpty(lineCheckerAssignments)) {
 			purchaseOrder.setPurchaseOrderStatus(PurchaseOrderStatus.ONGOING);
@@ -257,7 +240,8 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
 	private void populateLineCheckerAssignmentsForPurchaseOrder(PurchaseOrderResponseDto purchaseOrderResponseDto) {
 
-		List<LineCheckerAssignment> lineCheckerAssignments = lineCheckerAssignmentDbService.getLineCheckerAssignmentForPurchaseOrder(purchaseOrderResponseDto.getUuid(),purchaseOrderResponseDto.getFactoryId());
+		List<LineCheckerAssignment> lineCheckerAssignments = lineCheckerAssignmentDbService.getLineCheckerAssignmentForPurchaseOrder(purchaseOrderResponseDto.getUuid(),
+				purchaseOrderResponseDto.getFactoryId());
 
 		List<UserLineDetails> userLineDetails = LineCheckerAssignmentAdapter.buildUserLineDetailsFromEntities(lineCheckerAssignments);
 		purchaseOrderResponseDto.setUserLineDetails(userLineDetails);
@@ -278,6 +262,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 		List<PurchaseOrderResponseDto> purchaseOrderResponseDtos = PurchaseOrderAdapter.buildResponsesFromEntities(purchaseOrderEntities);
 		log.info("Found total: {} purchase orders to show in listing ", purchaseOrderResponseDtos.size());
 
+		populatePurchaseOrderQuantitiesForPurchaseOrders(purchaseOrderResponseDtos);
 		populateTotalQuantitiesForPurchaseOrders(purchaseOrderResponseDtos);
 		populateLineCheckerAssignmentsForPurchaseOrders(purchaseOrderResponseDtos);
 
@@ -288,10 +273,77 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
 		PurchaseOrderResponseDto purchaseOrderResponseDto = PurchaseOrderAdapter.buildResponseFromEntity(purchaseOrder);
 
+		populatePurchaseOrderQuantitiesForPurchaseOrder(purchaseOrderResponseDto);
 		populateTotalQuantitiesForPurchaseOrder(purchaseOrderResponseDto);
 		populateLineCheckerAssignmentsForPurchaseOrder(purchaseOrderResponseDto);
 
 		return purchaseOrderResponseDto;
+	}
+
+	private List<PurchaseOrderQuantityResponseDto> getPurchaseOrderQuantitiesForPurchaseOrder(String purchaseOrderId) {
+
+		List<PurchaseOrderQuantityResponseDto> purchaseOrderQuantityResponseDtos = purchaseOrderQuantityService.getAllPurchaseOrderQuantitiesForPurchaseOrder(purchaseOrderId);
+
+		return purchaseOrderQuantityResponseDtos;
+	}
+
+	private void populatePurchaseOrderQuantitiesForPurchaseOrder(PurchaseOrderResponseDto purchaseOrderResponseDto) {
+
+		List<PurchaseOrderQuantityResponseDto> purchaseOrderQuantityResponseDtos = getPurchaseOrderQuantitiesForPurchaseOrder(purchaseOrderResponseDto.getUuid());
+
+		purchaseOrderResponseDto.setPurchaseOrderQuantityResponseDtos(purchaseOrderQuantityResponseDtos);
+	}
+
+	private void populatePurchaseOrderQuantitiesForPurchaseOrder(PurchaseOrder purchaseOrder) {
+
+		List<PurchaseOrderQuantityResponseDto> purchaseOrderQuantityResponseDtos = getPurchaseOrderQuantitiesForPurchaseOrder(purchaseOrder.getUuid());
+
+		purchaseOrder.setTotalQuantity(getTotalQuantity(purchaseOrderQuantityResponseDtos));
+		purchaseOrder.setTotalTargetQuantity(getTotalTargetQuantity(purchaseOrderQuantityResponseDtos));
+	}
+
+	private void populatePurchaseOrderQuantitiesForPurchaseOrders(List<PurchaseOrderResponseDto> purchaseOrderResponseDtos) {
+
+		purchaseOrderResponseDtos.stream().forEach(purchaseOrderResponseDto -> {
+
+			populatePurchaseOrderQuantitiesForPurchaseOrder(purchaseOrderResponseDto);
+		});
+	}
+
+	private Long getTotalQuantityForPurchaseOrder(PurchaseOrderResponseDto purchaseOrderResponseDto) {
+
+		List<PurchaseOrderQuantityResponseDto> purchaseOrderQuantityResponseDtos = purchaseOrderResponseDto.getPurchaseOrderQuantityResponseDtos();
+
+		return getTotalQuantity(purchaseOrderQuantityResponseDtos);
+	}
+
+	private Long getTotalQuantity(List<PurchaseOrderQuantityResponseDto> purchaseOrderQuantityResponseDtos) {
+
+		Long totalQuantityOfPurchaseOrder = 0L;
+
+		for (PurchaseOrderQuantityResponseDto purchaseOrderQuantityResponseDto : purchaseOrderQuantityResponseDtos) {
+			totalQuantityOfPurchaseOrder += purchaseOrderQuantityResponseDto.getQuantity();
+		}
+
+		return totalQuantityOfPurchaseOrder;
+	}
+
+	private Long getTotalTargetQuantityForPurchaseOrder(PurchaseOrderResponseDto purchaseOrderResponseDto) {
+
+		List<PurchaseOrderQuantityResponseDto> purchaseOrderQuantityResponseDtos = purchaseOrderResponseDto.getPurchaseOrderQuantityResponseDtos();
+
+		return getTotalTargetQuantity(purchaseOrderQuantityResponseDtos);
+	}
+
+	private Long getTotalTargetQuantity(List<PurchaseOrderQuantityResponseDto> purchaseOrderQuantityResponseDtos) {
+
+		Long totalTargetQuantityOfPurchaseOrder = 0L;
+
+		for (PurchaseOrderQuantityResponseDto purchaseOrderQuantityResponseDto : purchaseOrderQuantityResponseDtos) {
+			totalTargetQuantityOfPurchaseOrder += purchaseOrderQuantityResponseDto.getTargetQuantity();
+		}
+
+		return totalTargetQuantityOfPurchaseOrder;
 	}
 
 	/**
@@ -408,5 +460,10 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 			String errorMsg = "PurchaseOrder cannot be created/updated as record already exists with name: " + purchaseOrderRequestDto.getPurchaseOrderNumber();
 			throw new RecordExistsException(errorMsg);
 		}
+	}
+
+	@Override
+	public OrdersCountResponseDto getOrdersDetailsCounts(String factoryId, LineType linesType) {
+		return null;
 	}
 }
