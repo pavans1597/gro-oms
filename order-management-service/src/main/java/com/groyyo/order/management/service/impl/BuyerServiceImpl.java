@@ -1,5 +1,15 @@
 package com.groyyo.order.management.service.impl;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
 import com.groyyo.core.base.exception.NoRecordException;
 import com.groyyo.core.base.exception.RecordExistsException;
 import com.groyyo.core.base.http.utils.HeaderUtil;
@@ -11,16 +21,8 @@ import com.groyyo.order.management.dto.request.BuyerRequestDto;
 import com.groyyo.order.management.dto.response.BuyerResponseDto;
 import com.groyyo.order.management.entity.Buyer;
 import com.groyyo.order.management.service.BuyerService;
-import lombok.extern.log4j.Log4j2;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import lombok.extern.log4j.Log4j2;
 
 @Service
 @Log4j2
@@ -40,8 +42,10 @@ public class BuyerServiceImpl implements BuyerService {
 
 		log.info("Serving request to get all buyers");
 
-		List<Buyer> buyerEntities = Objects.isNull(status) ? buyerDbService.getAllBuyers("FACTORY_ID")
-				: buyerDbService.getAllBuyersForStatus(status,"FACTORY_ID");
+		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+
+		List<Buyer> buyerEntities = Objects.isNull(status) ? buyerDbService.getAllBuyers(factoryId)
+				: buyerDbService.getAllBuyersForStatus(status, factoryId);
 
 		if (CollectionUtils.isEmpty(buyerEntities)) {
 			log.error("No Buyers found in the system");
@@ -73,7 +77,7 @@ public class BuyerServiceImpl implements BuyerService {
 
 		runValidations(buyerRequestDto);
 		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
-		Buyer buyer = BuyerAdapter.buildBuyerFromRequest(buyerRequestDto,factoryId);
+		Buyer buyer = BuyerAdapter.buildBuyerFromRequest(buyerRequestDto, factoryId);
 
 		buyer = buyerDbService.saveBuyer(buyer);
 
@@ -82,7 +86,8 @@ public class BuyerServiceImpl implements BuyerService {
 			return null;
 		}
 
-		//        publishBuyer(buyerResponseDto, KafkaConstants.KAFKA_SIZE_TYPE, KafkaConstants.KAFKA_SIZE_SUBTYPE_CREATE, kafkaMasterDataUpdatesTopic);
+		// publishBuyer(buyerResponseDto, KafkaConstants.KAFKA_SIZE_TYPE,
+		// KafkaConstants.KAFKA_SIZE_SUBTYPE_CREATE, kafkaMasterDataUpdatesTopic);
 
 		return BuyerAdapter.buildResponseFromEntity(buyer);
 	}
@@ -140,7 +145,7 @@ public class BuyerServiceImpl implements BuyerService {
 	public void consumeBuyer(BuyerResponseDto buyerResponseDto) {
 		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
 
-		Buyer buyer = BuyerAdapter.buildBuyerFromResponse(buyerResponseDto,factoryId);
+		Buyer buyer = BuyerAdapter.buildBuyerFromResponse(buyerResponseDto, factoryId);
 
 		if (Objects.isNull(buyer)) {
 			log.error("Unable to build buyer from response object: {}", buyerResponseDto);
