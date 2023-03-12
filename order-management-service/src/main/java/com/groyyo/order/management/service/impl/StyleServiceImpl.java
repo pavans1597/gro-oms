@@ -14,10 +14,10 @@ import com.groyyo.core.base.common.dto.ResponseDto;
 import com.groyyo.core.base.exception.NoRecordException;
 import com.groyyo.core.base.exception.RecordExistsException;
 import com.groyyo.core.base.http.utils.HeaderUtil;
+import com.groyyo.core.dto.PurchaseOrder.StyleDto;
 import com.groyyo.core.dto.fileManagement.dto.response.FileResponseDto;
 import com.groyyo.order.management.adapter.StyleAdapter;
 import com.groyyo.order.management.db.service.StyleDbService;
-import com.groyyo.order.management.dto.response.StyleDto;
 import com.groyyo.order.management.entity.Style;
 import com.groyyo.order.management.http.service.FileManagementHttpService;
 import com.groyyo.order.management.service.StyleService;
@@ -75,7 +75,11 @@ public class StyleServiceImpl implements StyleService {
 			throw new NoRecordException(errorMsg);
 		}
 
-		return StyleAdapter.buildResponseFromEntity(style);
+		StyleDto styleDto = StyleAdapter.buildResponseFromEntity(style);
+
+		setImagesForStyle(style, styleDto);
+
+		return styleDto;
 	}
 
 	@Override

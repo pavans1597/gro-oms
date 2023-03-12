@@ -22,6 +22,7 @@ import com.groyyo.core.base.http.utils.HeaderUtil;
 import com.groyyo.core.dto.PurchaseOrder.PurchaseOrderQuantityResponseDto;
 import com.groyyo.core.dto.PurchaseOrder.PurchaseOrderResponseDto;
 import com.groyyo.core.dto.PurchaseOrder.PurchaseOrderStatus;
+import com.groyyo.core.dto.PurchaseOrder.StyleDto;
 import com.groyyo.core.dto.PurchaseOrder.UserLineDetails;
 import com.groyyo.core.dto.userservice.LineType;
 import com.groyyo.core.sqlPostgresJpa.specification.utils.CriteriaOperation;
@@ -39,7 +40,6 @@ import com.groyyo.order.management.dto.request.PurchaseOrderRequestDto;
 import com.groyyo.order.management.dto.request.PurchaseOrderUpdateDto;
 import com.groyyo.order.management.dto.request.dashboarddtos.CheckersCountResponseDto;
 import com.groyyo.order.management.dto.request.dashboarddtos.OrdersCountResponseDto;
-import com.groyyo.order.management.dto.response.StyleDto;
 import com.groyyo.order.management.entity.LineCheckerAssignment;
 import com.groyyo.order.management.entity.PurchaseOrder;
 import com.groyyo.order.management.service.PurchaseOrderQuantityService;
@@ -191,7 +191,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
 	private void addRunTimeStyle(PurchaseOrderRequestDto purchaseOrderRequestDto) {
 
-		String styleUuid = Objects.nonNull(purchaseOrderRequestDto) ? purchaseOrderRequestDto.getStyleRequestDto().getUuid() : null;
+		String styleUuid = Objects.nonNull(purchaseOrderRequestDto) ? purchaseOrderRequestDto.getStyleRequestDto().getId() : null;
 
 		if (StringUtils.isBlank(styleUuid)) {
 
@@ -267,6 +267,25 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 		populateLineCheckerAssignmentsForPurchaseOrders(purchaseOrderResponseDtos);
 
 		return purchaseOrderResponseDtos;
+	}
+
+	private void populateStyleDtosForPurchaseOrders(List<PurchaseOrderResponseDto> purchaseOrderResponseDtos) {
+
+		purchaseOrderResponseDtos.stream().forEach(purchaseOrderResponseDto -> {
+
+			populateStyleDtoForPurchaseOrder(purchaseOrderResponseDto);
+		});
+	}
+
+	/**
+	 * @param purchaseOrderResponseDto
+	 */
+	private void populateStyleDtoForPurchaseOrder(PurchaseOrderResponseDto purchaseOrderResponseDto) {
+
+		if (StringUtils.isNotBlank(purchaseOrderResponseDto.getStyleId())) {
+
+			StyleDto styleDto = styleService.getStyleById(purchaseOrderResponseDto.getStyleId());
+		}
 	}
 
 	private PurchaseOrderResponseDto buildPurchaseOrderResponseWithQuantitiesAndAssignments(PurchaseOrder purchaseOrder) {

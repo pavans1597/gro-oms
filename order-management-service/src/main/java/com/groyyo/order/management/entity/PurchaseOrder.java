@@ -83,11 +83,20 @@ public class PurchaseOrder extends AbstractJpaEntity {
 	@Column(name = "season_id", columnDefinition = "varchar(40)", nullable = false)
 	private String seasonId;
 
+	@Column(name = "season_name", columnDefinition = "varchar(40)", nullable = true)
+	private String seasonName;
+
 	@Column(name = "fit_id", columnDefinition = "varchar(40)", nullable = false)
 	private String fitId;
 
+	@Column(name = "fit_name", columnDefinition = "varchar(40)", nullable = true)
+	private String fitName;
+
 	@Column(name = "part_id", columnDefinition = "varchar(40)", nullable = false)
 	private String partId;
+
+	@Column(name = "part_name", columnDefinition = "varchar(40)", nullable = true)
+	private String partName;
 
 	@Column(name = "order_id", columnDefinition = "varchar(40)", nullable = true)
 	private String orderId;

@@ -37,6 +37,12 @@ public class PurchaseOrderQuantity extends AbstractJpaEntity {
 	@Column(name = "size_name", columnDefinition = "varchar(100)", nullable = true)
 	private String sizeName;
 
+	@Column(name = "size_group_id", columnDefinition = "varchar(40)", nullable = true)
+	private String sizeGroupId;
+
+	@Column(name = "size_group_name", columnDefinition = "varchar(100)", nullable = true)
+	private String sizeGroupName;
+
 	@Column(name = "colour_id", columnDefinition = "varchar(40)", nullable = false)
 	private String colourId;
 

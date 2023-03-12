@@ -1,24 +1,26 @@
 package com.groyyo.order.management.adapter;
 
-import com.groyyo.core.dto.PurchaseOrder.PurchaseOrderResponseDto;
-import com.groyyo.order.management.dto.request.PurchaseOrderRequestDto;
-import com.groyyo.order.management.entity.PurchaseOrder;
-import lombok.experimental.UtilityClass;
-import org.apache.commons.lang3.StringUtils;
-
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
+
+import com.groyyo.core.dto.PurchaseOrder.PurchaseOrderResponseDto;
+import com.groyyo.order.management.dto.request.PurchaseOrderRequestDto;
+import com.groyyo.order.management.entity.PurchaseOrder;
+
+import lombok.experimental.UtilityClass;
+
 @UtilityClass
 public class PurchaseOrderAdapter {
 
-	public PurchaseOrder buildPurchaseOrderFromRequest(PurchaseOrderRequestDto purchaseOrderRequestDto,String factoryId) {
+	public PurchaseOrder buildPurchaseOrderFromRequest(PurchaseOrderRequestDto purchaseOrderRequestDto, String factoryId) {
 
 		return PurchaseOrder
 				.builder()
 				.name(purchaseOrderRequestDto.getPurchaseOrderNumber())
-				.styleId(Objects.nonNull(purchaseOrderRequestDto.getStyleRequestDto()) ? purchaseOrderRequestDto.getStyleRequestDto().getUuid() : null)
+				.styleId(Objects.nonNull(purchaseOrderRequestDto.getStyleRequestDto()) ? purchaseOrderRequestDto.getStyleRequestDto().getId() : null)
 				.styleNumber(Objects.nonNull(purchaseOrderRequestDto.getStyleRequestDto()) ? purchaseOrderRequestDto.getStyleRequestDto().getStyleNumber() : null)
 				.styleName(Objects.nonNull(purchaseOrderRequestDto.getStyleRequestDto()) ? purchaseOrderRequestDto.getStyleRequestDto().getName() : null)
 				.fabricId(purchaseOrderRequestDto.getFabricId())
@@ -29,15 +31,18 @@ public class PurchaseOrderAdapter {
 				.receiveDate(purchaseOrderRequestDto.getReceiveDate())
 				.exFtyDate(purchaseOrderRequestDto.getExFtyDate())
 				.seasonId(purchaseOrderRequestDto.getSeasonId())
+				.seasonName(purchaseOrderRequestDto.getSeasonName())
 				.fitId(purchaseOrderRequestDto.getFitId())
+				.fitName(purchaseOrderRequestDto.getFitName())
 				.partId(purchaseOrderRequestDto.getPartId())
+				.partName(purchaseOrderRequestDto.getPartName())
 				.productId(Objects.nonNull(purchaseOrderRequestDto.getStyleRequestDto()) ? purchaseOrderRequestDto.getStyleRequestDto().getProductId() : null)
 				.productName(Objects.nonNull(purchaseOrderRequestDto.getStyleRequestDto()) ? purchaseOrderRequestDto.getStyleRequestDto().getProductName() : null)
 				.factoryId(factoryId)
 				.build();
 	}
 
-	public PurchaseOrder buildPurchaseOrderFromResponse(PurchaseOrderResponseDto purchaseOrderResponseDto,String factoryId) {
+	public PurchaseOrder buildPurchaseOrderFromResponse(PurchaseOrderResponseDto purchaseOrderResponseDto, String factoryId) {
 
 		return PurchaseOrder
 				.builder()
@@ -83,8 +88,11 @@ public class PurchaseOrderAdapter {
 				.receiveDate(purchaseOrder.getReceiveDate())
 				.exFtyDate(purchaseOrder.getExFtyDate())
 				.seasonId(purchaseOrder.getSeasonId())
+				.seasonName(purchaseOrder.getSeasonName())
 				.fitId(purchaseOrder.getFitId())
+				.fitName(purchaseOrder.getFitName())
 				.partId(purchaseOrder.getPartId())
+				.partName(purchaseOrder.getPartName())
 				.productId(purchaseOrder.getProductId())
 				.productName(purchaseOrder.getProductName())
 				.factoryId(purchaseOrder.getFactoryId())

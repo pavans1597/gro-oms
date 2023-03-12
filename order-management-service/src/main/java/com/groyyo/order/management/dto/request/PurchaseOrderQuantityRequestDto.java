@@ -19,6 +19,10 @@ public class PurchaseOrderQuantityRequestDto {
 
 	private String sizeName;
 
+	private String sizeGroupId;
+
+	private String sizeGroupName;
+
 	private Long quantity;
 
 	private String colourId;
