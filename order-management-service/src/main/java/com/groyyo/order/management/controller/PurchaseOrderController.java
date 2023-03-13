@@ -1,5 +1,20 @@
 package com.groyyo.order.management.controller;
 
+import java.util.List;
+import java.util.Objects;
+
+import javax.validation.Valid;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.groyyo.core.base.common.dto.PageResponse;
 import com.groyyo.core.base.common.dto.ResponseDto;
 import com.groyyo.core.base.http.utils.HeaderUtil;
@@ -12,16 +27,12 @@ import com.groyyo.order.management.dto.filter.PurchaseOrderFilterDto;
 import com.groyyo.order.management.dto.request.LineCheckerAssignmentRequestDto;
 import com.groyyo.order.management.dto.request.PurchaseOrderRequestDto;
 import com.groyyo.order.management.dto.request.PurchaseOrderUpdateDto;
+import com.groyyo.order.management.dto.response.PurchaseOrderStatusCountDto;
 import com.groyyo.order.management.entity.LineCheckerAssignment;
 import com.groyyo.order.management.service.LineCheckerAssignmentService;
 import com.groyyo.order.management.service.PurchaseOrderService;
-import lombok.extern.log4j.Log4j2;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
-import java.util.List;
-import java.util.Objects;
+import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 @RestController
@@ -67,6 +78,16 @@ public class PurchaseOrderController {
 		PageResponse<PurchaseOrderResponseDto> purchaseOrderResponseDtos = purchaseOrderService.getPurchaseOrderListing(purchaseOrderFilterDto, purchaseOrderStatus, page, limit);
 
 		return ResponseDto.success("Page Response for Purchase Orders", purchaseOrderResponseDtos);
+	}
+
+	@GetMapping("get/status/counts")
+	public ResponseDto<PurchaseOrderStatusCountDto> getAllPurchaseOrderStatusCounts(@RequestParam(value = "status", required = false) Boolean status) {
+
+		log.info("Request received to get purchase order status counts with status: {}", status);
+
+		PurchaseOrderStatusCountDto purchaseOrderStatusCounts = purchaseOrderService.getPurchaseOrderStatusCounts(status);
+
+		return ResponseDto.success("Found purchaseOrder status counts in the system", purchaseOrderStatusCounts);
 	}
 
 	@PostMapping("/add")
