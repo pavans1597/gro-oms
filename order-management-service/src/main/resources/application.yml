@@ -78,13 +78,13 @@ jdbc:
    acquire:
       increment: '2'
    slave:
-      url: jdbc:postgresql://localhost:5432/oms?createDatabaseIfNotExist=true
-      username: pavankumar
-      password: Groyyo1234
+      url: jdbc:postgresql://localhost:5432/order_management_service?createDatabaseIfNotExist=true
+      username: postgres
+      password: root
    master:
-      url: jdbc:postgresql://localhost:5432/oms?createDatabaseIfNotExist=true
-      username: pavankumar
-      password: Groyyo1234
+      url: jdbc:postgresql://localhost:5432/order_management_service?createDatabaseIfNotExist=true
+      username: postgres
+      password: root
    checkout:
       timeout: '5000'
 
