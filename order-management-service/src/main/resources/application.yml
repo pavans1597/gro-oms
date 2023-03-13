@@ -28,9 +28,9 @@ cache:
 ########## Services URL's ##############
 service:
    user:
-      url: http://localhost:8006/user-service/
+      url: https://groyyoconsoledev.groyyo.com/user-service/
    masterData:
-      url: http://localhost:8003/master-data-service
+      url: https://groyyoconsoledev.groyyo.com/master-data-service
    raven:
       url: https://api.ravenapp.dev/v1
    file_management:
@@ -78,18 +78,20 @@ jdbc:
    acquire:
       increment: '2'
    slave:
-      url: jdbc:postgresql://localhost:5432/order_management_service?createDatabaseIfNotExist=true
-      username: postgres
-      password: root
+      url: jdbc:postgresql://localhost:5432/oms?createDatabaseIfNotExist=true
+      username: pavankumar
+      password: Groyyo1234
    master:
-      url: jdbc:postgresql://localhost:5432/order_management_service?createDatabaseIfNotExist=true
-      username: postgres
-      password: root
+      url: jdbc:postgresql://localhost:5432/oms?createDatabaseIfNotExist=true
+      username: pavankumar
+      password: Groyyo1234
    checkout:
       timeout: '5000'
 
 ################## Kafka Properties ####################
 spring:
+   profiles :
+      active :
    kafka:
       consumer:
          fetch-max-wait: 100ms

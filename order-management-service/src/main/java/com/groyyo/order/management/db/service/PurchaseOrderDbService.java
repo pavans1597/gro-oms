@@ -26,7 +26,4 @@ public interface PurchaseOrderDbService extends AbstractJpaService<PurchaseOrder
 
     boolean isEntityExistsByName(String name);
 
-    Long getCountByPurchaseOrderStatus(PurchaseOrderStatus yetToStart, String factoryId, boolean b);
-
-    Long getTotalCount(String factoryId);
 }

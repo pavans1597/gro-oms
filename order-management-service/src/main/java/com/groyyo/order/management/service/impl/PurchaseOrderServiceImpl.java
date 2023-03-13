@@ -169,49 +169,29 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
 	@Override
 	public OrdersCountResponseDto getOrdersDetailsCounts(String factoryId, LineType linesType) {
-
-		Long yetToStartCount = (linesType.equals(LineType.FINISH_LINE)) ? purchaseOrderDbService.getCountByPurchaseOrderStatus(PurchaseOrderStatus.COMPLETED, factoryId, true)
-				: purchaseOrderDbService.getCountByPurchaseOrderStatus(PurchaseOrderStatus.YET_TO_START, factoryId, true);
-
-		Long completedCount = purchaseOrderDbService.getCountByPurchaseOrderStatus(PurchaseOrderStatus.COMPLETED, factoryId, true);
-		Long onGoing = purchaseOrderDbService.getCountByPurchaseOrderStatus(PurchaseOrderStatus.ONGOING, factoryId, true);
-		Long totalCount = purchaseOrderDbService.getTotalCount(factoryId);
-		return DashBoardAnalyticsAdapter.buildOrderCountResponseByCounts(yetToStartCount, completedCount,
-				onGoing, totalCount);
-
+		//TODO get
+//		return DashBoardAnalyticsAdapter.buildOrderCountResponseByCounts(yetToStartCount, completedCount,
+//				onGoing, totalCount);
+		return OrdersCountResponseDto.builder().build();
 	}
 
 	@Override
 	public CheckersCountResponseDto getCheckersDetailsCounts(String factoryId, LineType linesType) {
-
-		long plUsersCount = userClientApi.getUsers(factoryId, LineType.PRODUCTION_LINE).getData().size();
-		long assignedUserCount = lineCheckerAssignmentDbService.countLineCheckerByfactoryId(factoryId, LineType.PRODUCTION_LINE, true);
+			//TODO get numbers to show in Dashboard
 		return CheckersCountResponseDto.builder()
-				.assigned(assignedUserCount)
-				.totalChecker(plUsersCount)
-				.available(plUsersCount - assignedUserCount)
 				.build();
 	}
 
 	@Override
 	public QualityCountResponseDto getQualityCheckDetailsCounts(String factoryId, LineType linesType) {
-
-		return QualityCountResponseDto.builder()
-				.inQualityCheck(0L)
-				.altered(0L)
-				.failed(0L)
-				.passed(0L)
-				.build();
+		//TODO get numbers to show in Dashboard
+		return QualityCountResponseDto.builder().build();
 	}
 
 	@Override
 	public AlterationCountResponseDto getAlterationsCounts(String factoryId, LineType linesType) {
-		return AlterationCountResponseDto.builder()
-				.totalAlteration(0L)
-				.completed(0L)
-				.inProgress(0L)
-				.yetToStart(0L)
-				.build();
+		//TODO get numbers to show in Dashboard
+		return AlterationCountResponseDto.builder().build();
 	}
 
 	private void updateVitalFieldsAndSave(PurchaseOrder purchaseOrder) {

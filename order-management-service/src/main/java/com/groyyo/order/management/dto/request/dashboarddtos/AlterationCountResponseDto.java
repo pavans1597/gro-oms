@@ -11,9 +11,9 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @ToString(callSuper = true)public class AlterationCountResponseDto {
-	private Long totalAlteration;
-	private Long yetToStart;
-	private Long completed;
-	private Long inProgress;
+	private long totalAlteration;
+	private long yetToStart;
+	private long completed;
+	private long inProgress;
 }
 

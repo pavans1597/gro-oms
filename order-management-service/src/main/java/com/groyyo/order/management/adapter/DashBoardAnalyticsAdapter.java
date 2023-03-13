@@ -7,7 +7,7 @@ import lombok.experimental.UtilityClass;
 public class DashBoardAnalyticsAdapter {
 
 
-    public OrdersCountResponseDto buildOrderCountResponseByCounts(Long yetToStartCount, Long completedCount, Long onGoing, Long totalCount) {
+    public OrdersCountResponseDto buildOrderCountResponseByCounts(long yetToStartCount, long completedCount, long onGoing, long totalCount) {
 
         return OrdersCountResponseDto.builder()
                 .totalOrders(totalCount)

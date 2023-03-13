@@ -12,9 +12,9 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @ToString(callSuper = true)
 public class OrdersCountResponseDto{
-	private Long yetToStart;
-	private Long inProgress;
-	private Long totalOrders;
-	private Long completed;
+	private long yetToStart;
+	private long inProgress;
+	private long totalOrders;
+	private long completed;
 }
 

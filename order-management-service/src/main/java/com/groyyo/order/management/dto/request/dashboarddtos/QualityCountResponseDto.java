@@ -12,8 +12,8 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @ToString(callSuper = true)
 public class QualityCountResponseDto {
-	private Long inQualityCheck;
-	private Long failed;
-	private Long passed;
-	private Long altered;
+	private long inQualityCheck;
+	private long failed;
+	private long passed;
+	private long altered;
 }

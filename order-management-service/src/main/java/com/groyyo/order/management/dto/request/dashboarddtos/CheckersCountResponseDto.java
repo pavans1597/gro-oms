@@ -13,7 +13,7 @@ import lombok.experimental.SuperBuilder;
 @ToString(callSuper = true)
 
 public class CheckersCountResponseDto {
-	private Long assigned;
-	private Long totalChecker;
-	private Long available;
+	private long assigned;
+	private long totalChecker;
+	private long available;
 }

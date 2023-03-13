@@ -55,16 +55,5 @@ public class PurchaseOrderDbServiceImpl extends AbstractJpaServiceImpl<PurchaseO
 		return Objects.nonNull(purchaseOrderRepository.findByName(name));
 	}
 
-	@Override
-	public Long getCountByPurchaseOrderStatus(PurchaseOrderStatus purchaseOrderStatus, String factoryId, boolean status) {
-		return (StringUtils.isNotBlank(factoryId)) ? purchaseOrderRepository.countByPurchaseOrderStatusAndFactoryIdAndStatus(purchaseOrderStatus, factoryId, status)
-				: purchaseOrderRepository.countByPurchaseOrderStatusAndStatus(purchaseOrderStatus, status);
-	}
-
-	@Override
-	public Long getTotalCount(String factoryId) {
-		return (StringUtils.isNotBlank(factoryId)) ? purchaseOrderRepository.countByFactoryId(factoryId) : purchaseOrderRepository.count();
-
-	}
 
 }
