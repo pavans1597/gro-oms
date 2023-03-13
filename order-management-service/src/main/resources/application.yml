@@ -90,8 +90,6 @@ jdbc:
 
 ################## Kafka Properties ####################
 spring:
-   profiles :
-      active :
    kafka:
       consumer:
          fetch-max-wait: 100ms
