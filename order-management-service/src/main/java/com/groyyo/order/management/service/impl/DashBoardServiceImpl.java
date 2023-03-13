@@ -1,17 +1,11 @@
 package com.groyyo.order.management.service.impl;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.groyyo.core.dto.userservice.LineType;
-import com.groyyo.order.management.dto.request.dashboarddtos.AlterationCountResponseDto;
-import com.groyyo.order.management.dto.request.dashboarddtos.CheckersCountResponseDto;
-import com.groyyo.order.management.dto.request.dashboarddtos.FinishLineStageResponseDto;
-import com.groyyo.order.management.dto.request.dashboarddtos.OrdersCountResponseDto;
-import com.groyyo.order.management.dto.request.dashboarddtos.ProductionLineStageResponseDto;
-import com.groyyo.order.management.dto.request.dashboarddtos.QualityCountResponseDto;
+import com.groyyo.order.management.dto.request.dashboarddtos.*;
 import com.groyyo.order.management.service.DashBoardService;
 import com.groyyo.order.management.service.PurchaseOrderService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 @Service
 public class DashBoardServiceImpl implements DashBoardService {
@@ -19,27 +13,39 @@ public class DashBoardServiceImpl implements DashBoardService {
 	@Autowired
 	private PurchaseOrderService purchaseOrderService;
 
-	@Override
-	public ProductionLineStageResponseDto getProductionLineStageDetails(String factoryId) {
-		OrdersCountResponseDto ordersDetailsCounts = getOrdersDetailsCounts(factoryId, LineType.PRODUCTION_LINE);
-		QualityCountResponseDto qualityCheckCounts = getQualityCheckCounts(factoryId, LineType.PRODUCTION_LINE);
-		CheckersCountResponseDto checkersDetailsCounts = getCheckersDetailsCounts(factoryId, LineType.PRODUCTION_LINE);
-		AlterationCountResponseDto inAlterationCounts = getInAlterationCounts(factoryId, LineType.PRODUCTION_LINE);
+	public DashBoardLineStageResponseDto getProductionLineStageDetails(String factoryId, LineType linesType) {
+		OrdersCountResponseDto ordersDetailsCounts = getOrdersDetailsCounts(factoryId, linesType);
+		QualityCountResponseDto qualityCheckCounts = getQualityCheckCounts(factoryId, linesType);
+		CheckersCountResponseDto checkersDetailsCounts = getCheckersDetailsCounts(factoryId, linesType);
+		AlterationCountResponseDto inAlterationCounts = getInAlterationCounts(factoryId,linesType);
 		return buildProductLineStageResponseDto(ordersDetailsCounts, qualityCheckCounts, checkersDetailsCounts, inAlterationCounts);
 	}
 
-	@Override
-	public FinishLineStageResponseDto getFinishLineStageDetails(String factoryId) {
-		OrdersCountResponseDto ordersDetailsCounts = getOrdersDetailsCounts(factoryId, LineType.FINISH_LINE);
-		QualityCountResponseDto qualityCheckCounts = getQualityCheckCounts(factoryId, LineType.FINISH_LINE);
-		CheckersCountResponseDto checkersDetailsCounts = getCheckersDetailsCounts(factoryId, LineType.FINISH_LINE);
-		AlterationCountResponseDto inAlterationCounts = getInAlterationCounts(factoryId, LineType.FINISH_LINE);
-		return buildFinishLineStageResponseDto(ordersDetailsCounts, qualityCheckCounts, checkersDetailsCounts, inAlterationCounts);
+	public DashBoardLineStageResponseDto getFinishLineStageDetails(String factoryId, LineType linesType) {
+		OrdersCountResponseDto ordersDetailsCounts = getOrdersDetailsCounts(factoryId, linesType);
+		QualityCountResponseDto qualityCheckCounts = getQualityCheckCounts(factoryId, linesType);
+		CheckersCountResponseDto checkersDetailsCounts = getCheckersDetailsCounts(factoryId, linesType);
+		AlterationCountResponseDto inAlterationCounts = getInAlterationCounts(factoryId, linesType);
+		return buildDashBoardLineStageResponseDto(ordersDetailsCounts, qualityCheckCounts, checkersDetailsCounts, inAlterationCounts);
 	}
 
-	private ProductionLineStageResponseDto buildProductLineStageResponseDto(OrdersCountResponseDto ordersDetailsCounts, QualityCountResponseDto qualityCheckCounts,
-			CheckersCountResponseDto checkersDetailsCounts, AlterationCountResponseDto inAlterationCounts) {
-		return ProductionLineStageResponseDto.builder()
+	@Override
+	public DashBoardLineStageResponseDto getLineStageDetailsByLineType(String factoryId, LineType lineType) {
+		switch (lineType){
+			case PRODUCTION_LINE:
+				DashBoardLineStageResponseDto finishLineStageDetails = getFinishLineStageDetails(factoryId, lineType);
+				return finishLineStageDetails ;
+			case FINISH_LINE:
+				DashBoardLineStageResponseDto productionLineStageDetails = getProductionLineStageDetails(factoryId, lineType);
+				return  productionLineStageDetails ;
+			default :
+				return null;
+		}
+	}
+
+	private DashBoardLineStageResponseDto buildProductLineStageResponseDto(OrdersCountResponseDto ordersDetailsCounts, QualityCountResponseDto qualityCheckCounts,
+																		   CheckersCountResponseDto checkersDetailsCounts, AlterationCountResponseDto inAlterationCounts) {
+		return DashBoardLineStageResponseDto.builder()
 				.qualityCountResponseDto(qualityCheckCounts)
 				.checkersCountResponseDto(checkersDetailsCounts)
 				.alterationCountResponse(inAlterationCounts)
@@ -47,9 +53,9 @@ public class DashBoardServiceImpl implements DashBoardService {
 				.build();
 	}
 
-	private FinishLineStageResponseDto buildFinishLineStageResponseDto(OrdersCountResponseDto ordersDetailsCounts, QualityCountResponseDto qualityCheckCounts,
+	private DashBoardLineStageResponseDto buildDashBoardLineStageResponseDto(OrdersCountResponseDto ordersDetailsCounts, QualityCountResponseDto qualityCheckCounts,
 			CheckersCountResponseDto checkersDetailsCounts, AlterationCountResponseDto inAlterationCounts) {
-		return FinishLineStageResponseDto.builder()
+		return DashBoardLineStageResponseDto.builder()
 				.qualityCountResponseDto(qualityCheckCounts)
 				.checkersCountResponseDto(checkersDetailsCounts)
 				.alterationCountResponse(inAlterationCounts)
@@ -59,7 +65,7 @@ public class DashBoardServiceImpl implements DashBoardService {
 
 	private AlterationCountResponseDto getInAlterationCounts(String factoryId, LineType linesType) {
 		// quality check call
-		return null;
+		return purchaseOrderService.getAlterationsCounts(factoryId, linesType);
 	}
 
 	private CheckersCountResponseDto getCheckersDetailsCounts(String factoryId, LineType linesType) {
@@ -70,9 +76,7 @@ public class DashBoardServiceImpl implements DashBoardService {
 
 	private QualityCountResponseDto getQualityCheckCounts(String factoryId, LineType linesType) {
 		// quality check call
-
-		return null;
-
+		return purchaseOrderService.getQualityCheckDetailsCounts(factoryId, linesType);
 	}
 
 	private OrdersCountResponseDto getOrdersDetailsCounts(String factoryId, LineType linesType) {

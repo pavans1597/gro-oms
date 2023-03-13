@@ -7,8 +7,10 @@ import com.groyyo.core.dto.userservice.LineType;
 import com.groyyo.order.management.dto.filter.PurchaseOrderFilterDto;
 import com.groyyo.order.management.dto.request.PurchaseOrderRequestDto;
 import com.groyyo.order.management.dto.request.PurchaseOrderUpdateDto;
+import com.groyyo.order.management.dto.request.dashboarddtos.AlterationCountResponseDto;
 import com.groyyo.order.management.dto.request.dashboarddtos.CheckersCountResponseDto;
 import com.groyyo.order.management.dto.request.dashboarddtos.OrdersCountResponseDto;
+import com.groyyo.order.management.dto.request.dashboarddtos.QualityCountResponseDto;
 
 import java.util.List;
 
@@ -23,7 +25,7 @@ public interface PurchaseOrderService {
 	PurchaseOrderResponseDto updatePurchaseOrder(PurchaseOrderUpdateDto purchaseOrderUpdateDto);
 
 	/**
-	 * @param pageNumber
+	 * @param
 	 * @param limit
 	 * @return
 	 */
@@ -39,4 +41,8 @@ public interface PurchaseOrderService {
 	OrdersCountResponseDto getOrdersDetailsCounts(String factoryId, LineType linesType);
 
 	CheckersCountResponseDto getCheckersDetailsCounts(String factoryId, LineType linesType);
+
+	QualityCountResponseDto getQualityCheckDetailsCounts(String factoryId, LineType linesType);
+
+	AlterationCountResponseDto getAlterationsCounts(String factoryId, LineType linesType);
 }

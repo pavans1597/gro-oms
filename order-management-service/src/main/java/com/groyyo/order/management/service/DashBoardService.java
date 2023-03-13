@@ -1,12 +1,12 @@
 package com.groyyo.order.management.service;
 
-import com.groyyo.order.management.dto.request.dashboarddtos.FinishLineStageResponseDto;
-import com.groyyo.order.management.dto.request.dashboarddtos.ProductionLineStageResponseDto;
+import com.groyyo.core.dto.userservice.LineType;
+import com.groyyo.order.management.dto.request.dashboarddtos.DashBoardLineStageResponseDto;
 
 public interface DashBoardService {
 
 
-    ProductionLineStageResponseDto getProductionLineStageDetails(String factoryId);
 
-    FinishLineStageResponseDto getFinishLineStageDetails(String factoryId);
+
+    DashBoardLineStageResponseDto getLineStageDetailsByLineType(String factoryId, LineType lineType);
 }

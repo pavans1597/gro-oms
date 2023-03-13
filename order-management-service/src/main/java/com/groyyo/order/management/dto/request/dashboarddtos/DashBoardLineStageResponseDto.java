@@ -12,7 +12,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @ToString(callSuper = true)
-public class FinishLineStageResponseDto extends BaseRequestDto {
+public class DashBoardLineStageResponseDto extends BaseRequestDto {
 
     AlterationCountResponseDto alterationCountResponse;
     CheckersCountResponseDto checkersCountResponseDto;
