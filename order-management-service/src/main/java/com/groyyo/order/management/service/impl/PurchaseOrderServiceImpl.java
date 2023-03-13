@@ -301,7 +301,6 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 		List<PurchaseOrderResponseDto> purchaseOrderResponseDtos = PurchaseOrderAdapter.buildResponsesFromEntities(purchaseOrderEntities);
 		log.info("Found total: {} purchase orders to show in listing ", purchaseOrderResponseDtos.size());
 
-		populateStyleDtosForPurchaseOrders(purchaseOrderResponseDtos);
 		populatePurchaseOrderQuantitiesForPurchaseOrders(purchaseOrderResponseDtos);
 		populateTotalQuantitiesForPurchaseOrders(purchaseOrderResponseDtos);
 		populateLineCheckerAssignmentsForPurchaseOrders(purchaseOrderResponseDtos);
@@ -309,6 +308,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 		return purchaseOrderResponseDtos;
 	}
 
+	@SuppressWarnings("unused")
 	private void populateStyleDtosForPurchaseOrders(List<PurchaseOrderResponseDto> purchaseOrderResponseDtos) {
 
 		purchaseOrderResponseDtos.stream().forEach(purchaseOrderResponseDto -> {
