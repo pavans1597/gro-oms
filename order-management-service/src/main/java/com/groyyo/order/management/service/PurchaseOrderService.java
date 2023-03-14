@@ -1,19 +1,14 @@
 package com.groyyo.order.management.service;
 
-import java.util.List;
-
 import com.groyyo.core.base.common.dto.PageResponse;
 import com.groyyo.core.dto.PurchaseOrder.PurchaseOrderResponseDto;
 import com.groyyo.core.dto.PurchaseOrder.PurchaseOrderStatus;
-import com.groyyo.core.dto.userservice.LineType;
 import com.groyyo.order.management.dto.filter.PurchaseOrderFilterDto;
 import com.groyyo.order.management.dto.request.PurchaseOrderRequestDto;
 import com.groyyo.order.management.dto.request.PurchaseOrderUpdateDto;
-import com.groyyo.order.management.dto.request.dashboarddtos.AlterationCountResponseDto;
-import com.groyyo.order.management.dto.request.dashboarddtos.CheckersCountResponseDto;
-import com.groyyo.order.management.dto.request.dashboarddtos.OrdersCountResponseDto;
-import com.groyyo.order.management.dto.request.dashboarddtos.QualityCountResponseDto;
 import com.groyyo.order.management.dto.response.PurchaseOrderStatusCountDto;
+
+import java.util.List;
 
 public interface PurchaseOrderService {
 
@@ -38,14 +33,6 @@ public interface PurchaseOrderService {
 	 * @param forceUpdate
 	 */
 	void changeStatusOfPurchaseOrder(String purchaseOrderId, PurchaseOrderStatus desiredPurchaseOrderStatus, Boolean forceUpdate);
-
-	OrdersCountResponseDto getOrdersDetailsCounts(String factoryId, LineType linesType);
-
-	CheckersCountResponseDto getCheckersDetailsCounts(String factoryId, LineType linesType);
-
-	QualityCountResponseDto getQualityCheckDetailsCounts(String factoryId, LineType linesType);
-
-	AlterationCountResponseDto getAlterationsCounts(String factoryId, LineType linesType);
 
 	/**
 	 * @param status

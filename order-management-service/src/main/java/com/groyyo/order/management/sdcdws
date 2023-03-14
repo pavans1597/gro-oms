@@ -1,0 +1,81 @@
+{
+  "datasets": [
+    {
+      "metric": "PLDHU",
+      "label": "PL DHU %",
+      "values": [
+        {
+          "date": "2023-02-13",
+          "percentageValue": 1.55,
+        },
+        {
+          "date": "2023-02-13",
+          "percentageValue": 1.55,
+        },
+        {
+          "date": "2023-02-13",
+          "percentageValue": 1.55,
+        },
+        {
+          "date": "2023-02-13",
+          "percentageValue": 1.55,
+        },
+        {
+          "date": "2023-02-13",
+          "percentageValue": 1.55,
+        },
+                 {
+                   "date": "2023-02-13",
+                   "percentageValue": 1.55,
+                 }
+                 ,
+                         {
+                           "date": "2023-02-13",
+                           "percentageValue": 1.55,
+                         }
+
+      ],
+      "meta": {
+        
+      }
+    },
+    {
+      "metric": "FLDHU",
+      "label": "FL DHU %",
+  "values": [
+        {
+          "date": "2023-02-13",
+          "percentageValue": 1.55,
+        },
+        {
+          "date": "2023-02-13",
+          "percentageValue": 1.55,
+        },
+        {
+          "date": "2023-02-13",
+          "percentageValue": 1.55,
+        },
+        {
+          "date": "2023-02-13",
+          "percentageValue": 1.55,
+        },
+        {
+          "date": "2023-02-13",
+          "percentageValue": 1.55,
+        },
+        {
+          "date": "2023-02-13",
+          "percentageValue": 1.55,
+            },
+                     {
+                       "date": "2023-02-13",
+                       "percentageValue": 1.55,
+                     }
+
+      ],
+      "meta": {
+        
+      }
+    }
+  ]
+}
