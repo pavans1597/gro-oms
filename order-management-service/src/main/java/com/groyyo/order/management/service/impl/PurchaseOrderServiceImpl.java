@@ -1,29 +1,10 @@
 package com.groyyo.order.management.service.impl;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Collectors;
-
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort.Direction;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Service;
-
 import com.groyyo.core.base.common.dto.PageResponse;
 import com.groyyo.core.base.exception.NoRecordException;
 import com.groyyo.core.base.exception.RecordExistsException;
 import com.groyyo.core.base.http.utils.HeaderUtil;
-import com.groyyo.core.dto.PurchaseOrder.PurchaseOrderQuantityResponseDto;
-import com.groyyo.core.dto.PurchaseOrder.PurchaseOrderResponseDto;
-import com.groyyo.core.dto.PurchaseOrder.PurchaseOrderStatus;
-import com.groyyo.core.dto.PurchaseOrder.StyleDto;
-import com.groyyo.core.dto.PurchaseOrder.UserLineDetails;
+import com.groyyo.core.dto.PurchaseOrder.*;
 import com.groyyo.core.dto.userservice.LineType;
 import com.groyyo.core.sqlPostgresJpa.specification.utils.CriteriaOperation;
 import com.groyyo.core.sqlPostgresJpa.specification.utils.GroyyoSpecificationBuilder;
@@ -38,18 +19,27 @@ import com.groyyo.order.management.db.service.PurchaseOrderDbService;
 import com.groyyo.order.management.dto.filter.PurchaseOrderFilterDto;
 import com.groyyo.order.management.dto.request.PurchaseOrderRequestDto;
 import com.groyyo.order.management.dto.request.PurchaseOrderUpdateDto;
-import com.groyyo.order.management.dto.request.dashboarddtos.AlterationCountResponseDto;
-import com.groyyo.order.management.dto.request.dashboarddtos.CheckersCountResponseDto;
-import com.groyyo.order.management.dto.request.dashboarddtos.OrdersCountResponseDto;
-import com.groyyo.order.management.dto.request.dashboarddtos.QualityCountResponseDto;
 import com.groyyo.order.management.dto.response.PurchaseOrderStatusCountDto;
 import com.groyyo.order.management.entity.LineCheckerAssignment;
 import com.groyyo.order.management.entity.PurchaseOrder;
 import com.groyyo.order.management.service.PurchaseOrderQuantityService;
 import com.groyyo.order.management.service.PurchaseOrderService;
 import com.groyyo.order.management.service.StyleService;
-
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 @Log4j2
@@ -164,33 +154,6 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 		else
 			return new PageResponse<PurchaseOrderResponseDto>(limit, 0, 0, 0, null);
 
-	}
-
-	@Override
-	public OrdersCountResponseDto getOrdersDetailsCounts(String factoryId, LineType linesType) {
-		// TODO get
-//		return DashBoardAnalyticsAdapter.buildOrderCountResponseByCounts(yetToStartCount, completedCount,
-//				onGoing, totalCount);
-		return OrdersCountResponseDto.builder().build();
-	}
-
-	@Override
-	public CheckersCountResponseDto getCheckersDetailsCounts(String factoryId, LineType linesType) {
-		// TODO get numbers to show in Dashboard
-		return CheckersCountResponseDto.builder()
-				.build();
-	}
-
-	@Override
-	public QualityCountResponseDto getQualityCheckDetailsCounts(String factoryId, LineType linesType) {
-		// TODO get numbers to show in Dashboard
-		return QualityCountResponseDto.builder().build();
-	}
-
-	@Override
-	public AlterationCountResponseDto getAlterationsCounts(String factoryId, LineType linesType) {
-		// TODO get numbers to show in Dashboard
-		return AlterationCountResponseDto.builder().build();
 	}
 
 	private void updateVitalFieldsAndSave(PurchaseOrder purchaseOrder) {

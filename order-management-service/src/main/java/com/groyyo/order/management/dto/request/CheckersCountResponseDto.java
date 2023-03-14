@@ -1,4 +1,4 @@
-package com.groyyo.order.management.dto.request.dashboarddtos;
+package com.groyyo.order.management.dto.request;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,9 +11,9 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @ToString(callSuper = true)
-public class QualityCountResponseDto {
-	private long inQualityCheck;
-	private long failed;
-	private long passed;
-	private long altered;
+
+public class CheckersCountResponseDto {
+	private long assigned;
+	private long totalChecker;
+	private long available;
 }

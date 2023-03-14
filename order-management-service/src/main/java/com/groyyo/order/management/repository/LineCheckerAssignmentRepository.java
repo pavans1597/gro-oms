@@ -1,10 +1,11 @@
 package com.groyyo.order.management.repository;
 
-import java.util.List;
-
 import com.groyyo.core.dto.userservice.LineType;
 import com.groyyo.core.sqlPostgresJpa.repository.AbstractJpaRepository;
 import com.groyyo.order.management.entity.LineCheckerAssignment;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public interface LineCheckerAssignmentRepository extends AbstractJpaRepository<LineCheckerAssignment, Long> {
 
@@ -20,5 +21,6 @@ public interface LineCheckerAssignmentRepository extends AbstractJpaRepository<L
 
 	List<LineCheckerAssignment> findAllByPurchaseOrderIdAndFactoryId(String purchaseOrderId, String factoryId);
 
-	Long countByLineTypeAndStatus(LineType lineType, boolean status);
+	ArrayList<LineCheckerAssignment> findUserIdByFactoryIdAndLineTypeAndStatus(String factoryId, LineType lineType, boolean status);
+
 }
