@@ -1,18 +1,19 @@
 package com.groyyo.order.management.db.service.impl;
 
-import com.groyyo.core.dto.userservice.LineType;
-import com.groyyo.core.sqlPostgresJpa.service.impl.AbstractJpaServiceImpl;
-import com.groyyo.order.management.db.service.LineCheckerAssignmentDbService;
-import com.groyyo.order.management.entity.LineCheckerAssignment;
-import com.groyyo.order.management.repository.LineCheckerAssignmentRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.groyyo.core.dto.userservice.LineType;
+import com.groyyo.core.sqlPostgresJpa.service.impl.AbstractJpaServiceImpl;
+import com.groyyo.order.management.db.service.LineCheckerAssignmentDbService;
+import com.groyyo.order.management.entity.LineCheckerAssignment;
+import com.groyyo.order.management.repository.LineCheckerAssignmentRepository;
 
 @Service
 public class LineCheckerAssignmentDbServiceImpl extends AbstractJpaServiceImpl<LineCheckerAssignment, Long, LineCheckerAssignmentRepository> implements LineCheckerAssignmentDbService {
@@ -51,6 +52,16 @@ public class LineCheckerAssignmentDbServiceImpl extends AbstractJpaServiceImpl<L
 	public LineCheckerAssignment activateDeactivateLineCheckerAssignment(LineCheckerAssignment lineCheckerAssignment, boolean status) {
 		lineCheckerAssignment.setStatus(status);
 		return lineCheckerAssignmentRepository.saveAndFlush(lineCheckerAssignment);
+	}
+
+	@Override
+	public List<LineCheckerAssignment> activateDeactivateLineCheckerAssignments(List<LineCheckerAssignment> lineCheckerAssignments, boolean status) {
+
+		for (LineCheckerAssignment lineCheckerAssignment : lineCheckerAssignments) {
+			lineCheckerAssignment.setStatus(status);
+		}
+
+		return lineCheckerAssignmentRepository.saveAllAndFlush(lineCheckerAssignments);
 	}
 
 	@Override

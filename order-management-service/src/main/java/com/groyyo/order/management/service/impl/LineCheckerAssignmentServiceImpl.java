@@ -1,6 +1,17 @@
 package com.groyyo.order.management.service.impl;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
+import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.groyyo.core.base.common.dto.ResponseDto;
+import com.groyyo.core.base.exception.NoRecordException;
+import com.groyyo.core.base.exception.PreconditionFailedException;
+import com.groyyo.core.base.http.utils.HeaderUtil;
 import com.groyyo.core.dto.PurchaseOrder.PurchaseOrderResponseDto;
 import com.groyyo.core.dto.PurchaseOrder.PurchaseOrderStatus;
 import com.groyyo.core.dto.PurchaseOrder.UserLineDetails;
@@ -11,19 +22,15 @@ import com.groyyo.core.enums.QcUserType;
 import com.groyyo.core.user.client.api.UserClientApi;
 import com.groyyo.order.management.adapter.LineCheckerAssignmentAdapter;
 import com.groyyo.order.management.db.service.LineCheckerAssignmentDbService;
+import com.groyyo.order.management.db.service.PurchaseOrderDbService;
 import com.groyyo.order.management.dto.request.LineCheckerAssignmentRequestDto;
 import com.groyyo.order.management.entity.LineCheckerAssignment;
+import com.groyyo.order.management.entity.PurchaseOrder;
 import com.groyyo.order.management.kafka.publisher.PurchaseOrderPublisher;
 import com.groyyo.order.management.service.LineCheckerAssignmentService;
 import com.groyyo.order.management.service.PurchaseOrderService;
-import lombok.extern.log4j.Log4j2;
-import org.apache.commons.collections4.CollectionUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import lombok.extern.log4j.Log4j2;
 
 @Service
 @Log4j2
@@ -34,6 +41,9 @@ public class LineCheckerAssignmentServiceImpl implements LineCheckerAssignmentSe
 
 	@Autowired
 	private PurchaseOrderService purchaseOrderService;
+
+	@Autowired
+	private PurchaseOrderDbService purchaseOrderDbService;
 
 	@Autowired
 	private LineCheckerAssignmentDbService lineCheckerAssignmentDbService;
@@ -113,4 +123,34 @@ public class LineCheckerAssignmentServiceImpl implements LineCheckerAssignmentSe
 		purchaseOrderPublisher.publishQcTaskAssignment(purchaseOrderResponseDto);
 	}
 
+	@Override
+	public List<LineCheckerAssignment> disableLineAssignmentsOnOrderCompletion(String purchaseOrderId) {
+
+		String errorMsg = "";
+
+		PurchaseOrder purchaseOrder = purchaseOrderDbService.getPurchaseOrderById(purchaseOrderId);
+
+		if (Objects.isNull(purchaseOrder)) {
+			errorMsg = "PurchaseOrder with id: " + purchaseOrderId + " not found in the system ";
+			throw new NoRecordException(errorMsg);
+		}
+
+		PurchaseOrderStatus purchaseOrderStatus = purchaseOrder.getPurchaseOrderStatus();
+
+		if (Objects.nonNull(purchaseOrderStatus) && PurchaseOrderStatus.COMPLETED != purchaseOrderStatus) {
+			errorMsg = "PurchaseOrder with id: " + purchaseOrderId + " is not completed yet. Please mark it completed first to disable assignments ";
+			throw new PreconditionFailedException(errorMsg);
+		}
+
+		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+
+		List<LineCheckerAssignment> lineCheckerAssignments = lineCheckerAssignmentDbService.getAllLineCheckerAssignmentsForStatus(Boolean.TRUE, factoryId);
+
+		if (CollectionUtils.isEmpty(lineCheckerAssignments)) {
+			errorMsg = "No Line Checker Assignments found for purchase order id: " + purchaseOrderId + " and factory id: " + factoryId;
+			throw new NoRecordException(errorMsg);
+		}
+
+		return lineCheckerAssignmentDbService.activateDeactivateLineCheckerAssignments(lineCheckerAssignments, Boolean.FALSE);
+	}
 }

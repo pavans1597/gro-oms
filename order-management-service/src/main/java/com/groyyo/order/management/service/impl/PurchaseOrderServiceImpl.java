@@ -9,7 +9,6 @@ import com.groyyo.core.dto.userservice.LineType;
 import com.groyyo.core.sqlPostgresJpa.specification.utils.CriteriaOperation;
 import com.groyyo.core.sqlPostgresJpa.specification.utils.GroyyoSpecificationBuilder;
 import com.groyyo.core.sqlPostgresJpa.specification.utils.PaginationUtility;
-import com.groyyo.core.user.client.api.UserClientApi;
 import com.groyyo.order.management.adapter.LineCheckerAssignmentAdapter;
 import com.groyyo.order.management.adapter.PurchaseOrderAdapter;
 import com.groyyo.order.management.constants.FilterConstants;
@@ -41,8 +40,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-@Service
 @Log4j2
+@Service
 public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
 	@Autowired
@@ -56,9 +55,6 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
 	@Autowired
 	private StyleService styleService;
-
-	@Autowired
-	private UserClientApi userClientApi;
 
 	@Override
 	public List<PurchaseOrderResponseDto> getAllPurchaseOrders(Boolean status) {
