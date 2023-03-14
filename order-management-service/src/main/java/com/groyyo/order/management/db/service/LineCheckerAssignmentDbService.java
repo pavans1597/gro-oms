@@ -24,5 +24,5 @@ public interface LineCheckerAssignmentDbService {
 	 */
 	List<LineCheckerAssignment> getLineCheckerAssignmentForPurchaseOrder(String purchaseOrderId,String factoryId);
 
-	Long countLineCheckerByfactoryId(String factoryId, LineType productionLine,boolean status);
+	long countLineCheckerByFactoryId(String factoryId, LineType productionLine, boolean status);
 }

@@ -7,6 +7,7 @@ import com.groyyo.core.base.common.dto.ResponseDto;
 import com.groyyo.core.dto.userservice.LineResponseDto;
 import com.groyyo.core.dto.userservice.LineType;
 import com.groyyo.core.dto.userservice.UserResponseDto;
+import com.groyyo.core.enums.QcUserType;
 import com.groyyo.core.user.client.api.UserClientApi;
 import com.groyyo.order.management.http.service.UserManagementHttpService;
 import lombok.extern.log4j.Log4j2;
@@ -28,15 +29,15 @@ public class UserManagementHttpServiceImpl implements UserManagementHttpService 
 
 
 	@Override
-	public ResponseDto<List<UserResponseDto>> getUsersByLineType(String factoryId, LineType lineType) {
+	public ResponseDto<List<UserResponseDto>> getUsersByLineType(String factoryId, LineType lineType, QcUserType qcUserType) {
 
 		try {
 
-			return userClientApi.getUsers(factoryId, lineType);
+			return userClientApi.getUsers(factoryId, lineType,qcUserType);
 
 		} catch (Exception e) {
 
-			log.error("exception occured while calling getLineUsers service ");
+			log.error("exception occured while calling getUsersByLineType service ");
 
 		}
 
@@ -52,12 +53,9 @@ public class UserManagementHttpServiceImpl implements UserManagementHttpService 
 	@Override
 	public ResponseDto<List<LineResponseDto>> getLinesByType(String factoryId, LineType lineType) {
 		try {
-			// call User Client Api to get lines by type
-			return  null;
-
+			return userClientApi.getLinesByType(factoryId, lineType);
 		} catch (Exception e) {
-
-			log.error("exception occured while calling Line service ");
+			log.error("exception occured while calling getLineUsers service ");
 		}
 		return null;
 	}
@@ -66,7 +64,7 @@ public class UserManagementHttpServiceImpl implements UserManagementHttpService 
 		try {
 			return userClientApi.getLines(factoryId);
 		} catch (Exception e) {
-			log.error("exception occured while calling getLineUsers service ");
+			log.error("exception occured while calling getAllLines service ");
 		}
 		return null;
 	}

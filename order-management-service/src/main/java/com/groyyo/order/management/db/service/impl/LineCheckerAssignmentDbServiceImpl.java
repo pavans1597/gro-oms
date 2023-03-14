@@ -1,16 +1,18 @@
 package com.groyyo.order.management.db.service.impl;
 
-import java.util.List;
-import java.util.Objects;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.groyyo.core.dto.userservice.LineType;
 import com.groyyo.core.sqlPostgresJpa.service.impl.AbstractJpaServiceImpl;
 import com.groyyo.order.management.db.service.LineCheckerAssignmentDbService;
 import com.groyyo.order.management.entity.LineCheckerAssignment;
 import com.groyyo.order.management.repository.LineCheckerAssignmentRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class LineCheckerAssignmentDbServiceImpl extends AbstractJpaServiceImpl<LineCheckerAssignment, Long, LineCheckerAssignmentRepository> implements LineCheckerAssignmentDbService {
@@ -64,8 +66,9 @@ public class LineCheckerAssignmentDbServiceImpl extends AbstractJpaServiceImpl<L
 	}
 
 	@Override
-	public Long countLineCheckerByfactoryId(String factoryId, LineType lineType, boolean status) {
-		return (!Objects.isNull(factoryId) ? lineCheckerAssignmentRepository.countByFactoryIdAndLineTypeAndStatus(factoryId, lineType, status)
-				: lineCheckerAssignmentRepository.countByLineTypeAndStatus(lineType, status));
+	public long countLineCheckerByFactoryId(String factoryId, LineType lineType, boolean status) {
+		ArrayList<LineCheckerAssignment> userIdByFactoryIdAndLineTypeAndStatus = lineCheckerAssignmentRepository.findUserIdByFactoryIdAndLineTypeAndStatus(factoryId, lineType, status);
+		Set<String> collect = userIdByFactoryIdAndLineTypeAndStatus.stream().map(LineCheckerAssignment::getUserId).collect(Collectors.toSet());
+		return collect.size();
 	}
 }
