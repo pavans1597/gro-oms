@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import com.groyyo.order.management.dto.request.BulkPurchaseOrderRequestDto;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -531,5 +532,32 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 			String errorMsg = "PurchaseOrder cannot be created/updated as record already exists with name: " + purchaseOrderRequestDto.getPurchaseOrderNumber();
 			throw new RecordExistsException(errorMsg);
 		}
+	}
+
+	@Override
+	public PurchaseOrderResponseDto addBulkPurchaseOrder(List<BulkPurchaseOrderRequestDto> purchaseOrderRequestsDto) {
+
+		PurchaseOrder purchaseOrders = PurchaseOrder.builder().build();
+		purchaseOrderRequestsDto.forEach(purchaseOrderRequestDto->{
+			log.info("Serving request to add a purchaseOrder with request object: {}", purchaseOrderRequestDto);
+			PurchaseOrder purchaseOrder = PurchaseOrder.builder().build();
+//			addRunTimeStyle(purchaseOrderRequestDto);
+			String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+
+//			purchaseOrder = PurchaseOrderAdapter.buildPurchaseOrderFromRequest(purchaseOrderRequestDto, factoryId);
+
+			purchaseOrder = purchaseOrderDbService.savePurchaseOrder(purchaseOrder);
+
+			if (Objects.isNull(purchaseOrder)) {
+				log.error("Unable to add purchaseOrder for object: {}", purchaseOrderRequestDto);
+			}
+
+//			addPurchaseOrderQuantities(purchaseOrderRequestDto, purchaseOrder);
+
+			updateVitalFieldsAndSave(purchaseOrder);
+		});
+
+
+		return buildPurchaseOrderResponseWithQuantitiesAndAssignments(purchaseOrders);
 	}
 }
