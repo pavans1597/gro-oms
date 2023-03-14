@@ -90,7 +90,7 @@ public class PurchaseOrderController {
 		return ResponseDto.success("Found purchaseOrder status counts in the system", purchaseOrderStatusCounts);
 	}
 
-	@PostMapping("/add")
+	@PostMapping("add")
 	public ResponseDto<PurchaseOrderResponseDto> addPurchaseOrder(@RequestBody @Valid PurchaseOrderRequestDto purchaseOrderRequestDto) {
 
 		log.info("Request received to add purchaseOrder: {}", purchaseOrderRequestDto);
@@ -100,7 +100,7 @@ public class PurchaseOrderController {
 		return ResponseDto.success("PurchaseOrder added successfully !!", purchaseOrderResponseDto);
 	}
 
-	@PostMapping("/update")
+	@PostMapping("update")
 	public ResponseDto<PurchaseOrderResponseDto> updatePurchaseOrder(@RequestBody PurchaseOrderUpdateDto purchaseOrderUpdateDto) {
 
 		log.info("Request received to update purchaseOrder: {}", purchaseOrderUpdateDto);
@@ -134,7 +134,7 @@ public class PurchaseOrderController {
 				: ResponseDto.success(" Lines retrieved successfully ", listResponseDto.getData());
 	}
 
-	@PostMapping("/assign/checkers")
+	@PostMapping("assign/checkers")
 	public ResponseDto<List<LineCheckerAssignment>> assignCheckers(@RequestBody LineCheckerAssignmentRequestDto checkerAssignDto) {
 		log.info("Request received to update assign Checkers: {}", checkerAssignDto);
 

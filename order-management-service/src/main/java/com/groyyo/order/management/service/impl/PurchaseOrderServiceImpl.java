@@ -29,7 +29,6 @@ import com.groyyo.core.sqlPostgresJpa.specification.utils.CriteriaOperation;
 import com.groyyo.core.sqlPostgresJpa.specification.utils.GroyyoSpecificationBuilder;
 import com.groyyo.core.sqlPostgresJpa.specification.utils.PaginationUtility;
 import com.groyyo.core.user.client.api.UserClientApi;
-import com.groyyo.order.management.adapter.DashBoardAnalyticsAdapter;
 import com.groyyo.order.management.adapter.LineCheckerAssignmentAdapter;
 import com.groyyo.order.management.adapter.PurchaseOrderAdapter;
 import com.groyyo.order.management.constants.FilterConstants;
@@ -169,7 +168,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
 	@Override
 	public OrdersCountResponseDto getOrdersDetailsCounts(String factoryId, LineType linesType) {
-		//TODO get
+		// TODO get
 //		return DashBoardAnalyticsAdapter.buildOrderCountResponseByCounts(yetToStartCount, completedCount,
 //				onGoing, totalCount);
 		return OrdersCountResponseDto.builder().build();
@@ -177,20 +176,20 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
 	@Override
 	public CheckersCountResponseDto getCheckersDetailsCounts(String factoryId, LineType linesType) {
-			//TODO get numbers to show in Dashboard
+		// TODO get numbers to show in Dashboard
 		return CheckersCountResponseDto.builder()
 				.build();
 	}
 
 	@Override
 	public QualityCountResponseDto getQualityCheckDetailsCounts(String factoryId, LineType linesType) {
-		//TODO get numbers to show in Dashboard
+		// TODO get numbers to show in Dashboard
 		return QualityCountResponseDto.builder().build();
 	}
 
 	@Override
 	public AlterationCountResponseDto getAlterationsCounts(String factoryId, LineType linesType) {
-		//TODO get numbers to show in Dashboard
+		// TODO get numbers to show in Dashboard
 		return AlterationCountResponseDto.builder().build();
 	}
 
@@ -273,7 +272,9 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
 		List<PurchaseOrder> purchaseOrders = data.get().collect(Collectors.toList());
 
-		return buildPurchaseOrderResponseWithQuantitiesAndAssignments(purchaseOrders);
+		List<PurchaseOrderResponseDto> purchaseOrderResponseDtos = buildPurchaseOrderResponseWithQuantitiesAndAssignments(purchaseOrders);
+
+		return purchaseOrderResponseDtos;
 	}
 
 	private List<PurchaseOrderResponseDto> buildPurchaseOrderResponseWithQuantitiesAndAssignments(List<PurchaseOrder> purchaseOrderEntities) {
@@ -421,6 +422,11 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
 		if (Objects.nonNull(purchaseOrderStatus))
 			groyyoSpecificationBuilder.with(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_STATUS, CriteriaOperation.ENUM_EQ, purchaseOrderStatus);
+
+		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+
+		if (StringUtils.isNotBlank(factoryId))
+			groyyoSpecificationBuilder.with(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_FACTORY_ID, CriteriaOperation.EQ, factoryId);
 
 		if (Objects.nonNull(purchaseOrderFilterDto)) {
 

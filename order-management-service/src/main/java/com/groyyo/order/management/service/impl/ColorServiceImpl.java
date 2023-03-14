@@ -76,6 +76,7 @@ public class ColorServiceImpl implements ColorService {
 		log.info("Serving request to add a color with request object: {}", colorRequestDto);
 
 		runValidations(colorRequestDto);
+
 		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
 
 		Color color = ColorAdapter.buildColorFromRequest(colorRequestDto, factoryId);

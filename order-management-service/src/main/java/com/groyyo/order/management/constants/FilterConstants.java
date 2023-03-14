@@ -30,6 +30,7 @@ public class FilterConstants {
 		/*
 		 * Purchase Order Filters
 		 */
+		public final String PURCHASE_ORDER_FACTORY_ID = "factoryId";
 		public final String PURCHASE_ORDER_STATUS = "purchaseOrderStatus";
 		public final String PURCHASE_ORDER_NUMBER = "name";
 		public final String PURCHASE_ORDER_FABRIC_NAME = "fabricName";
