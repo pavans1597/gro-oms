@@ -423,31 +423,42 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 				groyyoSpecificationBuilder.with(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_RECEIVE_DATE, CriteriaOperation.DATE_EQ, purchaseOrderFilterDto.getReceiveDate());
 
 			if (StringUtils.isNotBlank(purchaseOrderFilterDto.getPurchaseOrderNumber()))
-				groyyoSpecificationBuilder.with(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_NUMBER, CriteriaOperation.LIKE,
-						SymbolConstants.SYMBOL_PERCENT + purchaseOrderFilterDto.getPurchaseOrderNumber().toLowerCase() + SymbolConstants.SYMBOL_PERCENT);
+				addExternalSpecificationsForLikeSearch(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_NUMBER, purchaseOrderFilterDto.getPurchaseOrderNumber(), groyyoSpecificationBuilder);
 
 			if (StringUtils.isNotBlank(purchaseOrderFilterDto.getFabricName()))
-				groyyoSpecificationBuilder.with(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_FABRIC_NAME, CriteriaOperation.LIKE,
-						SymbolConstants.SYMBOL_PERCENT + purchaseOrderFilterDto.getFabricName().toLowerCase() + SymbolConstants.SYMBOL_PERCENT);
+				addExternalSpecificationsForLikeSearch(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_FABRIC_NAME, purchaseOrderFilterDto.getFabricName(), groyyoSpecificationBuilder);
 
 			if (StringUtils.isNotBlank(purchaseOrderFilterDto.getBuyerName()))
-				groyyoSpecificationBuilder.with(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_BUYER_NAME, CriteriaOperation.LIKE,
-						SymbolConstants.SYMBOL_PERCENT + purchaseOrderFilterDto.getBuyerName().toLowerCase() + SymbolConstants.SYMBOL_PERCENT);
+				addExternalSpecificationsForLikeSearch(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_BUYER_NAME, purchaseOrderFilterDto.getBuyerName(), groyyoSpecificationBuilder);
 
 			if (StringUtils.isNotBlank(purchaseOrderFilterDto.getStyleNumber()))
-				groyyoSpecificationBuilder.with(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_STYLE_NUMBER, CriteriaOperation.LIKE,
-						SymbolConstants.SYMBOL_PERCENT + purchaseOrderFilterDto.getStyleNumber().toLowerCase() + SymbolConstants.SYMBOL_PERCENT);
+				addExternalSpecificationsForLikeSearch(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_STYLE_NUMBER, purchaseOrderFilterDto.getStyleNumber(), groyyoSpecificationBuilder);
 
 			if (StringUtils.isNotBlank(purchaseOrderFilterDto.getStyleName()))
-				groyyoSpecificationBuilder.with(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_STYLE_NAME, CriteriaOperation.LIKE,
-						SymbolConstants.SYMBOL_PERCENT + purchaseOrderFilterDto.getStyleName().toLowerCase() + SymbolConstants.SYMBOL_PERCENT);
+				addExternalSpecificationsForLikeSearch(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_STYLE_NAME, purchaseOrderFilterDto.getStyleName(), groyyoSpecificationBuilder);
 
 			if (StringUtils.isNotBlank(purchaseOrderFilterDto.getProductName()))
-				groyyoSpecificationBuilder.with(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_PRODUCT_NAME, CriteriaOperation.LIKE,
-						SymbolConstants.SYMBOL_PERCENT + purchaseOrderFilterDto.getProductName().toLowerCase() + SymbolConstants.SYMBOL_PERCENT);
+				addExternalSpecificationsForLikeSearch(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_PRODUCT_NAME, purchaseOrderFilterDto.getProductName(), groyyoSpecificationBuilder);
 		}
 
 		return groyyoSpecificationBuilder.build();
+	}
+
+	private void addExternalSpecificationsForLikeSearch(String fieldName, String fieldValue, GroyyoSpecificationBuilder<PurchaseOrder> groyyoSpecificationBuilder) {
+
+		Specification<PurchaseOrder> specification = new GroyyoSpecificationBuilder<PurchaseOrder>()
+				.with(fieldName, CriteriaOperation.LIKE, SymbolConstants.SYMBOL_PERCENT + fieldValue.toLowerCase() + SymbolConstants.SYMBOL_PERCENT)
+				.build();
+
+		specification = specification.or(new GroyyoSpecificationBuilder<PurchaseOrder>()
+				.with(fieldName, CriteriaOperation.LIKE, SymbolConstants.SYMBOL_PERCENT + fieldValue.toUpperCase() + SymbolConstants.SYMBOL_PERCENT)
+				.build());
+
+		specification = specification.or(new GroyyoSpecificationBuilder<PurchaseOrder>()
+				.with(fieldName, CriteriaOperation.LIKE, SymbolConstants.SYMBOL_PERCENT + fieldValue.substring(0, 1).toUpperCase() + fieldValue.substring(1) + SymbolConstants.SYMBOL_PERCENT)
+				.build());
+
+		groyyoSpecificationBuilder.addExternalSpecification(specification);
 	}
 
 	@Override
