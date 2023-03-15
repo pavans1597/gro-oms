@@ -437,7 +437,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 						SymbolConstants.SYMBOL_PERCENT + purchaseOrderFilterDto.getStyleName() + SymbolConstants.SYMBOL_PERCENT);
 
 			if (StringUtils.isNotBlank(purchaseOrderFilterDto.getProductName()))
-				groyyoSpecificationBuilder.with(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_PRODUCT_NAME, CriteriaOperation.LIKE,
+				groyyoSpecificationBuilder.with(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_PRODUCT_NAME, CriteriaOperation.ILIKE,
 						SymbolConstants.SYMBOL_PERCENT + purchaseOrderFilterDto.getProductName() + SymbolConstants.SYMBOL_PERCENT);
 		}
 
