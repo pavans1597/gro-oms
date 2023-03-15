@@ -1,15 +1,15 @@
 package com.groyyo.order.management.db.service;
 
+import java.util.List;
+
 import com.groyyo.core.dto.userservice.LineType;
 import com.groyyo.order.management.entity.LineCheckerAssignment;
-
-import java.util.List;
 
 public interface LineCheckerAssignmentDbService {
 
 	List<LineCheckerAssignment> getAllLineCheckerAssignments(String factoryId);
 
-	List<LineCheckerAssignment> getAllLineCheckerAssignmentsForStatus(boolean status,String factoryId);
+	List<LineCheckerAssignment> getAllLineCheckerAssignmentsForStatus(boolean status, String factoryId);
 
 	LineCheckerAssignment getLineCheckerAssignmentById(String id);
 
@@ -19,10 +19,41 @@ public interface LineCheckerAssignmentDbService {
 
 	List<LineCheckerAssignment> saveAllLineCheckerAssignemnt(List<LineCheckerAssignment> lineCheckerAssignments);
 
+	long countLineCheckerByFactoryId(String factoryId, LineType lineType, boolean status);
+
 	/**
 	 * @return
 	 */
-	List<LineCheckerAssignment> getLineCheckerAssignmentForPurchaseOrder(String purchaseOrderId,String factoryId);
+	List<LineCheckerAssignment> getLineCheckerAssignmentForPurchaseOrder(String purchaseOrderId, String factoryId);
 
-	Long countLineCheckerByfactoryId(String factoryId, LineType productionLine,boolean status);
+	/**
+	 * @param lineCheckerAssignments
+	 * @param status
+	 * @return
+	 */
+	List<LineCheckerAssignment> activateDeactivateLineCheckerAssignments(List<LineCheckerAssignment> lineCheckerAssignments, boolean status);
+
+	/**
+	 * @param purchaseOrderId
+	 * @param factoryId
+	 * @param status
+	 * @return
+	 */
+	List<LineCheckerAssignment> getLineCheckerAssignmentForPurchaseOrderAndFactoryId(String purchaseOrderId, String factoryId, boolean status);
+
+	/**
+	 * @param purchaseOrderId
+	 * @param factoryId
+	 * @param status
+	 * @return
+	 */
+	List<LineCheckerAssignment> getLineCheckerAssignmentForPurchaseOrderAndFactoryIdAndStatus(String purchaseOrderId, String factoryId, boolean status);
+
+	/**
+	 * @param factoryId
+	 * @param lineType
+	 * @param status
+	 * @return
+	 */
+
 }

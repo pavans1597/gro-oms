@@ -1,8 +1,12 @@
 package com.groyyo.order.management.db.service.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -52,6 +56,16 @@ public class LineCheckerAssignmentDbServiceImpl extends AbstractJpaServiceImpl<L
 	}
 
 	@Override
+	public List<LineCheckerAssignment> activateDeactivateLineCheckerAssignments(List<LineCheckerAssignment> lineCheckerAssignments, boolean status) {
+
+		for (LineCheckerAssignment lineCheckerAssignment : lineCheckerAssignments) {
+			lineCheckerAssignment.setStatus(status);
+		}
+
+		return lineCheckerAssignmentRepository.saveAllAndFlush(lineCheckerAssignments);
+	}
+
+	@Override
 	public List<LineCheckerAssignment> saveAllLineCheckerAssignemnt(List<LineCheckerAssignment> lineCheckerAssignments) {
 
 		return lineCheckerAssignmentRepository.saveAllAndFlush(lineCheckerAssignments);
@@ -64,8 +78,21 @@ public class LineCheckerAssignmentDbServiceImpl extends AbstractJpaServiceImpl<L
 	}
 
 	@Override
-	public Long countLineCheckerByfactoryId(String factoryId, LineType lineType, boolean status) {
-		return (!Objects.isNull(factoryId) ? lineCheckerAssignmentRepository.countByFactoryIdAndLineTypeAndStatus(factoryId, lineType, status)
-				: lineCheckerAssignmentRepository.countByLineTypeAndStatus(lineType, status));
+	public List<LineCheckerAssignment> getLineCheckerAssignmentForPurchaseOrderAndFactoryIdAndStatus(String purchaseOrderId, String factoryId, boolean status) {
+		return (StringUtils.isNotBlank(factoryId) ? lineCheckerAssignmentRepository.findAllByPurchaseOrderIdAndFactoryIdAndStatus(purchaseOrderId, factoryId, status)
+				: lineCheckerAssignmentRepository.findAllByPurchaseOrderIdAndStatus(purchaseOrderId, status));
+	}
+
+	@Override
+	public long countLineCheckerByFactoryId(String factoryId, LineType lineType, boolean status) {
+		ArrayList<LineCheckerAssignment> userIdByFactoryIdAndLineTypeAndStatus = lineCheckerAssignmentRepository.findUserIdByFactoryIdAndLineTypeAndStatus(factoryId, lineType, status);
+		Set<String> collect = userIdByFactoryIdAndLineTypeAndStatus.stream().map(LineCheckerAssignment::getUserId).collect(Collectors.toSet());
+		return collect.size();
+	}
+
+	@Override
+	public List<LineCheckerAssignment> getLineCheckerAssignmentForPurchaseOrderAndFactoryId(String purchaseOrderId, String factoryId, boolean status) {
+		return StringUtils.isNotBlank(factoryId) ? lineCheckerAssignmentRepository.findAllByPurchaseOrderIdAndFactoryId(purchaseOrderId, factoryId)
+				: lineCheckerAssignmentRepository.findAllByPurchaseOrderId(purchaseOrderId);
 	}
 }
