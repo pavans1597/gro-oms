@@ -34,6 +34,22 @@ public interface LineCheckerAssignmentDbService {
 	List<LineCheckerAssignment> activateDeactivateLineCheckerAssignments(List<LineCheckerAssignment> lineCheckerAssignments, boolean status);
 
 	/**
+	 * @param purchaseOrderId
+	 * @param factoryId
+	 * @param status
+	 * @return
+	 */
+	List<LineCheckerAssignment> getLineCheckerAssignmentForPurchaseOrderAndFactoryId(String purchaseOrderId, String factoryId, boolean status);
+
+	/**
+	 * @param purchaseOrderId
+	 * @param factoryId
+	 * @param status
+	 * @return
+	 */
+	List<LineCheckerAssignment> getLineCheckerAssignmentForPurchaseOrderAndFactoryIdAndStatus(String purchaseOrderId, String factoryId, boolean status);
+
+	/**
 	 * @param factoryId
 	 * @param lineType
 	 * @param status

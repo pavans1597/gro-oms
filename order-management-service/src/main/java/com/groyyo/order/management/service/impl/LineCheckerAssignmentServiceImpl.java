@@ -144,7 +144,7 @@ public class LineCheckerAssignmentServiceImpl implements LineCheckerAssignmentSe
 
 		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
 
-		List<LineCheckerAssignment> lineCheckerAssignments = lineCheckerAssignmentDbService.getAllLineCheckerAssignmentsForStatus(Boolean.TRUE, factoryId);
+		List<LineCheckerAssignment> lineCheckerAssignments = lineCheckerAssignmentDbService.getLineCheckerAssignmentForPurchaseOrderAndFactoryIdAndStatus(purchaseOrderId, factoryId, Boolean.TRUE);
 
 		if (CollectionUtils.isEmpty(lineCheckerAssignments)) {
 			errorMsg = "No Line Checker Assignments found for purchase order id: " + purchaseOrderId + " and factory id: " + factoryId;
