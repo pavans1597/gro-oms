@@ -5,6 +5,7 @@ import java.util.Map;
 
 import com.groyyo.core.master.dto.request.ColorRequestDto;
 import com.groyyo.core.master.dto.response.ColorResponseDto;
+import com.groyyo.order.management.entity.Color;
 
 public interface ColorService {
 
@@ -24,4 +25,6 @@ public interface ColorService {
 	 * @param colorByNameMap
 	 */
 	void saveEntityFromCache(Map<String, ColorResponseDto> colorByNameMap);
+
+    Color findOrCreate(String name);
 }

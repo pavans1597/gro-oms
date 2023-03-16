@@ -24,4 +24,6 @@ public interface ProductDbService extends AbstractJpaService<Product, Long> {
 
 
     boolean isEntityExistsByName(String name);
+
+    Product findOrCreate(Product product);
 }

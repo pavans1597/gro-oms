@@ -55,4 +55,14 @@ public class SizeDbServiceImpl extends AbstractJpaServiceImpl<Size, Long, SizeRe
 	public boolean isEntityExistsByName(String name) {
 		return Objects.nonNull(sizeRepository.findByName(name));
 	}
+
+	@Override
+	public Size findOrCreate(Size size) {
+		Size entity = sizeRepository.findByName(size.getName());
+		if (entity == null) {
+			entity = size;
+			save(entity);
+		}
+		return entity;
+	}
 }

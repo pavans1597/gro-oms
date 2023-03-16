@@ -24,4 +24,6 @@ public interface SeasonDbService extends AbstractJpaService<Season, Long> {
 
 
     boolean isEntityExistsByName(String name);
+
+    Season findOrCreate(Season season);
 }

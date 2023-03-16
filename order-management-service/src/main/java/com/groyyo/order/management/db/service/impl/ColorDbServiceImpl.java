@@ -59,4 +59,14 @@ public class ColorDbServiceImpl extends AbstractJpaServiceImpl<Color, Long, Colo
 	public boolean isEntityExistsByHexCode(String hexCode) {
 		return Objects.nonNull(colorRepository.findByHexCode(hexCode));
 	}
+
+	@Override
+	public Color findOrCreate(Color color) {
+		Color entity = colorRepository.findByName(color.getName());
+		if (entity == null) {
+			entity = color;
+			save(entity);
+		}
+		return entity;
+	}
 }

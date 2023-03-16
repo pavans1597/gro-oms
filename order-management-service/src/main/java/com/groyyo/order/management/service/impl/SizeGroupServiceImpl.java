@@ -254,4 +254,11 @@ public class SizeGroupServiceImpl implements SizeGroupService {
 
 		return sizeUuidResponseDtoMap;
 	}
+
+	@Override
+	public SizeGroup findOrCreate(String name, List<Size> sizes) {
+		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+		SizeGroup sizeGroup = SizeGroupAdapter.buildSizeGroupFromName(name, factoryId);
+		return sizeGroupDbService.findOrCreate(sizeGroup);
+	}
 }

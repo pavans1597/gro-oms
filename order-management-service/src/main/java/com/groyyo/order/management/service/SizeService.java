@@ -5,6 +5,7 @@ import java.util.Map;
 
 import com.groyyo.core.master.dto.request.SizeRequestDto;
 import com.groyyo.core.master.dto.response.SizeResponseDto;
+import com.groyyo.order.management.entity.Size;
 
 public interface SizeService {
 
@@ -21,4 +22,6 @@ public interface SizeService {
 	void consumeSize(SizeResponseDto sizeResponseDto);
 
 	void saveEntityFromCache(Map<String, SizeResponseDto> sizeByNameMap);
+
+    Size findOrCreate(String name);
 }

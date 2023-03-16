@@ -28,6 +28,6 @@ public class BulkPurchaseOrderRequestDto {
 
     private Date exFtyDate;
 
-    private List<BulkPartRequestDto> parts;
+    private BulkPartRequestDto part;
 
 }

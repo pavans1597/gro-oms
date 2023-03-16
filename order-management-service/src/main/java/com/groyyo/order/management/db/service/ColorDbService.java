@@ -27,4 +27,6 @@ public interface ColorDbService extends AbstractJpaService<Color, Long> {
 
 
     boolean isEntityExistsByHexCode(String hexCode);
+
+    Color findOrCreate(Color color);
 }

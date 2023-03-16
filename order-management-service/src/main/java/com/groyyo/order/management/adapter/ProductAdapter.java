@@ -79,4 +79,12 @@ public class ProductAdapter {
 		return products.stream().map(ProductAdapter::buildResponseFromEntity).collect(Collectors.toList());
 	}
 
+	public Product buildProductFromName(String name, String factoryId) {
+		return Product
+				.builder()
+				.name(name)
+				.factoryId(factoryId)
+				.build();
+	}
+
 }

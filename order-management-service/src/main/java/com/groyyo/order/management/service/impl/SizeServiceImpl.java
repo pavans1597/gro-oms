@@ -191,4 +191,11 @@ public class SizeServiceImpl implements SizeService {
 			throw new RecordExistsException(errorMsg);
 		}
 	}
+
+	@Override
+	public Size findOrCreate(String name) {
+		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+		Size size = SizeAdapter.buildSizeFromName(name, factoryId);
+		return sizeDbService.findOrCreate(size);
+	}
 }

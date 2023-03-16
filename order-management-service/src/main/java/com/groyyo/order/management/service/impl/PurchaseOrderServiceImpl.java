@@ -6,6 +6,11 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import com.groyyo.order.management.adapter.*;
+import com.groyyo.order.management.dto.request.BulkPurchaseOrderRequestDto;
+import com.groyyo.order.management.dto.request.PurchaseOrderQuantityRequestDto;
+import com.groyyo.order.management.entity.*;
+import com.groyyo.order.management.service.*;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,8 +33,6 @@ import com.groyyo.core.dto.userservice.LineType;
 import com.groyyo.core.sqlPostgresJpa.specification.utils.CriteriaOperation;
 import com.groyyo.core.sqlPostgresJpa.specification.utils.GroyyoSpecificationBuilder;
 import com.groyyo.core.sqlPostgresJpa.specification.utils.PaginationUtility;
-import com.groyyo.order.management.adapter.LineCheckerAssignmentAdapter;
-import com.groyyo.order.management.adapter.PurchaseOrderAdapter;
 import com.groyyo.order.management.constants.FilterConstants;
 import com.groyyo.order.management.constants.SymbolConstants;
 import com.groyyo.order.management.db.service.LineCheckerAssignmentDbService;
@@ -50,489 +53,535 @@ import lombok.extern.log4j.Log4j2;
 @Service
 public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
-	@Autowired
-	private PurchaseOrderDbService purchaseOrderDbService;
+    @Autowired
+    private PurchaseOrderDbService purchaseOrderDbService;
 
-	@Autowired
-	private PurchaseOrderQuantityService purchaseOrderQuantityService;
+    @Autowired
+    private PurchaseOrderQuantityService purchaseOrderQuantityService;
 
-	@Autowired
-	private LineCheckerAssignmentDbService lineCheckerAssignmentDbService;
+    @Autowired
+    private LineCheckerAssignmentDbService lineCheckerAssignmentDbService;
 
-	@Autowired
-	private StyleService styleService;
+    @Autowired
+    private StyleService styleService;
 
-	@Override
-	public List<PurchaseOrderResponseDto> getAllPurchaseOrders(Boolean status) {
+    @Autowired
+    private SeasonService seasonService;
 
-		log.info("Serving request to get all purchaseOrders");
+    @Autowired
+    private PartService partService;
 
-		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+    @Autowired
+    private FitService fitService;
 
-		List<PurchaseOrder> purchaseOrderEntities = Objects.isNull(status) ? purchaseOrderDbService.getAllPurchaseOrders(factoryId)
-				: purchaseOrderDbService.getAllPurchaseOrdersForStatus(status, factoryId);
+    @Autowired
+    private ProductService productService;
 
-		if (CollectionUtils.isEmpty(purchaseOrderEntities)) {
-			log.error("No PurchaseOrders found in the system");
-			return new ArrayList<>();
-		}
+    @Autowired
+    private ColorService colorService;
 
-		return buildPurchaseOrderResponseWithQuantitiesAndAssignments(purchaseOrderEntities);
-	}
+    @Autowired
+    private SizeService sizeService;
 
-	@Override
-	public PurchaseOrderResponseDto getPurchaseOrderById(String id) {
+    @Autowired
+    private SizeGroupService sizeGroupService;
 
-		log.info("Serving request to get a purchaseOrder by id: {}", id);
+    @Override
+    public List<PurchaseOrderResponseDto> getAllPurchaseOrders(Boolean status) {
 
-		PurchaseOrder purchaseOrder = purchaseOrderDbService.getPurchaseOrderById(id);
+        log.info("Serving request to get all purchaseOrders");
 
-		if (Objects.isNull(purchaseOrder)) {
-			String errorMsg = "PurchaseOrder with id: " + id + " not found in the system ";
-			throw new NoRecordException(errorMsg);
-		}
+        String factoryId = HeaderUtil.getFactoryIdHeaderValue();
 
-		return buildPurchaseOrderResponseWithQuantitiesAndAssignments(purchaseOrder);
-	}
+        List<PurchaseOrder> purchaseOrderEntities = Objects.isNull(status) ? purchaseOrderDbService.getAllPurchaseOrders(factoryId)
+                : purchaseOrderDbService.getAllPurchaseOrdersForStatus(status, factoryId);
 
-	@Override
-	public PurchaseOrderResponseDto addPurchaseOrder(PurchaseOrderRequestDto purchaseOrderRequestDto) {
+        if (CollectionUtils.isEmpty(purchaseOrderEntities)) {
+            log.error("No PurchaseOrders found in the system");
+            return new ArrayList<>();
+        }
 
-		log.info("Serving request to add a purchaseOrder with request object: {}", purchaseOrderRequestDto);
+        return buildPurchaseOrderResponseWithQuantitiesAndAssignments(purchaseOrderEntities);
+    }
 
-		PurchaseOrder purchaseOrder = PurchaseOrder.builder().build();
+    @Override
+    public PurchaseOrderResponseDto getPurchaseOrderById(String id) {
 
-		addRunTimeStyle(purchaseOrderRequestDto);
-		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+        log.info("Serving request to get a purchaseOrder by id: {}", id);
 
-		purchaseOrder = PurchaseOrderAdapter.buildPurchaseOrderFromRequest(purchaseOrderRequestDto, factoryId);
+        PurchaseOrder purchaseOrder = purchaseOrderDbService.getPurchaseOrderById(id);
 
-		purchaseOrder = purchaseOrderDbService.savePurchaseOrder(purchaseOrder);
+        if (Objects.isNull(purchaseOrder)) {
+            String errorMsg = "PurchaseOrder with id: " + id + " not found in the system ";
+            throw new NoRecordException(errorMsg);
+        }
 
-		if (Objects.isNull(purchaseOrder)) {
-			log.error("Unable to add purchaseOrder for object: {}", purchaseOrderRequestDto);
-			return null;
-		}
+        return buildPurchaseOrderResponseWithQuantitiesAndAssignments(purchaseOrder);
+    }
 
-		addPurchaseOrderQuantities(purchaseOrderRequestDto, purchaseOrder);
+    @Override
+    public PurchaseOrderResponseDto addPurchaseOrder(PurchaseOrderRequestDto purchaseOrderRequestDto) {
 
-		updateVitalFieldsAndSave(purchaseOrder);
+        log.info("Serving request to add a purchaseOrder with request object: {}", purchaseOrderRequestDto);
 
-		return buildPurchaseOrderResponseWithQuantitiesAndAssignments(purchaseOrder);
-	}
+        PurchaseOrder purchaseOrder = PurchaseOrder.builder().build();
 
-	@Override
-	public PurchaseOrderResponseDto updatePurchaseOrder(PurchaseOrderUpdateDto purchaseOrderUpdateDto) {
+        addRunTimeStyle(purchaseOrderRequestDto);
+        String factoryId = HeaderUtil.getFactoryIdHeaderValue();
 
-		log.info("Serving request to update a purchaseOrder with request object:{}", purchaseOrderUpdateDto);
+        purchaseOrder = PurchaseOrderAdapter.buildPurchaseOrderFromRequest(purchaseOrderRequestDto, factoryId);
 
-		PurchaseOrder purchaseOrder = purchaseOrderDbService.getPurchaseOrderById(purchaseOrderUpdateDto.getId());
+        purchaseOrder = purchaseOrderDbService.savePurchaseOrder(purchaseOrder);
 
-		if (Objects.isNull(purchaseOrder)) {
-			log.error("PurchaseOrder with id: {} not found in the system", purchaseOrderUpdateDto.getId());
-			return null;
-		}
+        if (Objects.isNull(purchaseOrder)) {
+            log.error("Unable to add purchaseOrder for object: {}", purchaseOrderRequestDto);
+            return null;
+        }
 
-		runValidations(purchaseOrderUpdateDto);
+        addPurchaseOrderQuantities(purchaseOrderRequestDto, purchaseOrder);
 
-		purchaseOrder = PurchaseOrderAdapter.clonePurchaseOrderWithRequest(purchaseOrderUpdateDto, purchaseOrder);
+        updateVitalFieldsAndSave(purchaseOrder);
 
-		purchaseOrderDbService.savePurchaseOrder(purchaseOrder);
+        return buildPurchaseOrderResponseWithQuantitiesAndAssignments(purchaseOrder);
+    }
 
-		return buildPurchaseOrderResponseWithQuantitiesAndAssignments(purchaseOrder);
-	}
+    @Override
+    public PurchaseOrderResponseDto updatePurchaseOrder(PurchaseOrderUpdateDto purchaseOrderUpdateDto) {
 
-	@Override
-	public PageResponse<PurchaseOrderResponseDto> getPurchaseOrderListing(PurchaseOrderFilterDto purchaseOrderFilterDto, PurchaseOrderStatus purchaseOrderStatus, int page, int limit) {
+        log.info("Serving request to update a purchaseOrder with request object:{}", purchaseOrderUpdateDto);
 
-		Specification<PurchaseOrder> specification = getSpecificationForPurchaseOrderListing(purchaseOrderFilterDto, purchaseOrderStatus);
+        PurchaseOrder purchaseOrder = purchaseOrderDbService.getPurchaseOrderById(purchaseOrderUpdateDto.getId());
 
-		Pageable pageable = PaginationUtility.getPageRequest(page, limit, FilterConstants.UPDATED_AT, Direction.DESC);
+        if (Objects.isNull(purchaseOrder)) {
+            log.error("PurchaseOrder with id: {} not found in the system", purchaseOrderUpdateDto.getId());
+            return null;
+        }
 
-		Page<PurchaseOrder> data = purchaseOrderDbService.findAll(specification, pageable);
+        runValidations(purchaseOrderUpdateDto);
 
-		if (Objects.nonNull(data))
-			return new PageResponse<PurchaseOrderResponseDto>(limit, data.getNumberOfElements(), data.getTotalPages(), data.getTotalElements(), convertPurchaseOrderPageDataToResponseDtos(data));
-		else
-			return new PageResponse<PurchaseOrderResponseDto>(limit, 0, 0, 0, null);
+        purchaseOrder = PurchaseOrderAdapter.clonePurchaseOrderWithRequest(purchaseOrderUpdateDto, purchaseOrder);
 
-	}
+        purchaseOrderDbService.savePurchaseOrder(purchaseOrder);
 
-	private void updateVitalFieldsAndSave(PurchaseOrder purchaseOrder) {
+        return buildPurchaseOrderResponseWithQuantitiesAndAssignments(purchaseOrder);
+    }
 
-		updatePurchaseOrderStatus(purchaseOrder);
+    @Override
+    public PageResponse<PurchaseOrderResponseDto> getPurchaseOrderListing(PurchaseOrderFilterDto purchaseOrderFilterDto, PurchaseOrderStatus purchaseOrderStatus, int page, int limit) {
 
-		setTotalQuantitiesForPurchaseOrder(purchaseOrder);
+        Specification<PurchaseOrder> specification = getSpecificationForPurchaseOrderListing(purchaseOrderFilterDto, purchaseOrderStatus);
 
-		purchaseOrderDbService.saveAndFlush(purchaseOrder);
-	}
+        Pageable pageable = PaginationUtility.getPageRequest(page, limit, FilterConstants.UPDATED_AT, Direction.DESC);
 
-	private void addPurchaseOrderQuantities(PurchaseOrderRequestDto purchaseOrderRequestDto, PurchaseOrder purchaseOrder) {
+        Page<PurchaseOrder> data = purchaseOrderDbService.findAll(specification, pageable);
 
-		purchaseOrderQuantityService.addBulkPurchaseOrderQuantity(purchaseOrderRequestDto.getPurchaseOrderQuantityRequest(), purchaseOrder.getUuid(), purchaseOrderRequestDto.getTolerance());
-	}
+        if (Objects.nonNull(data))
+            return new PageResponse<PurchaseOrderResponseDto>(limit, data.getNumberOfElements(), data.getTotalPages(), data.getTotalElements(), convertPurchaseOrderPageDataToResponseDtos(data));
+        else
+            return new PageResponse<PurchaseOrderResponseDto>(limit, 0, 0, 0, null);
 
-	private void addRunTimeStyle(PurchaseOrderRequestDto purchaseOrderRequestDto) {
+    }
 
-		String styleUuid = Objects.nonNull(purchaseOrderRequestDto) ? purchaseOrderRequestDto.getStyleRequestDto().getUuid() : null;
+    private void updateVitalFieldsAndSave(PurchaseOrder purchaseOrder) {
 
-		if (StringUtils.isBlank(styleUuid)) {
+        updatePurchaseOrderStatus(purchaseOrder);
 
-			StyleDto styleResponse = styleService.addStyle(purchaseOrderRequestDto.getStyleRequestDto());
-			purchaseOrderRequestDto.setStyleRequestDto(styleResponse);
-		}
-	}
+        setTotalQuantitiesForPurchaseOrder(purchaseOrder);
 
-	private void populateTotalQuantitiesForPurchaseOrders(List<PurchaseOrderResponseDto> purchaseOrderResponseDtos) {
+        purchaseOrderDbService.saveAndFlush(purchaseOrder);
+    }
 
-		purchaseOrderResponseDtos.forEach(purchaseOrderResponseDto -> {
+    private void addPurchaseOrderQuantities(PurchaseOrderRequestDto purchaseOrderRequestDto, PurchaseOrder purchaseOrder) {
 
-			populateTotalQuantitiesForPurchaseOrder(purchaseOrderResponseDto);
-		});
-	}
+        purchaseOrderQuantityService.addBulkPurchaseOrderQuantity(purchaseOrderRequestDto.getPurchaseOrderQuantityRequest(), purchaseOrder.getUuid(), purchaseOrderRequestDto.getTolerance());
+    }
 
-	private void populateTotalQuantitiesForPurchaseOrder(PurchaseOrderResponseDto purchaseOrderResponseDto) {
+    private void addRunTimeStyle(PurchaseOrderRequestDto purchaseOrderRequestDto) {
 
-		purchaseOrderResponseDto.setTotalQuantity(getTotalQuantityForPurchaseOrder(purchaseOrderResponseDto));
-		purchaseOrderResponseDto.setTotalTargetQuantity(getTotalTargetQuantityForPurchaseOrder(purchaseOrderResponseDto));
-	}
+        String styleUuid = Objects.nonNull(purchaseOrderRequestDto) ? purchaseOrderRequestDto.getStyleRequestDto().getUuid() : null;
 
-	private void setTotalQuantitiesForPurchaseOrder(PurchaseOrder purchaseOrder) {
+        if (StringUtils.isBlank(styleUuid)) {
 
-		populatePurchaseOrderQuantitiesForPurchaseOrder(purchaseOrder);
-	}
+            StyleDto styleResponse = styleService.addStyle(purchaseOrderRequestDto.getStyleRequestDto());
+            purchaseOrderRequestDto.setStyleRequestDto(styleResponse);
+        }
+    }
 
-	private void populateLineCheckerAssignmentsForPurchaseOrders(List<PurchaseOrderResponseDto> purchaseOrderResponseDtos) {
+    private void populateTotalQuantitiesForPurchaseOrders(List<PurchaseOrderResponseDto> purchaseOrderResponseDtos) {
 
-		purchaseOrderResponseDtos.forEach(purchaseOrderResponseDto -> {
+        purchaseOrderResponseDtos.forEach(purchaseOrderResponseDto -> {
 
-			populateLineCheckerAssignmentsForPurchaseOrder(purchaseOrderResponseDto);
-		});
-	}
+            populateTotalQuantitiesForPurchaseOrder(purchaseOrderResponseDto);
+        });
+    }
 
-	private void updatePurchaseOrderStatus(PurchaseOrder purchaseOrder) {
+    private void populateTotalQuantitiesForPurchaseOrder(PurchaseOrderResponseDto purchaseOrderResponseDto) {
 
-		purchaseOrder.setPurchaseOrderStatus(PurchaseOrderStatus.YET_TO_START);
+        purchaseOrderResponseDto.setTotalQuantity(getTotalQuantityForPurchaseOrder(purchaseOrderResponseDto));
+        purchaseOrderResponseDto.setTotalTargetQuantity(getTotalTargetQuantityForPurchaseOrder(purchaseOrderResponseDto));
+    }
 
-		List<LineCheckerAssignment> lineCheckerAssignments = lineCheckerAssignmentDbService.getLineCheckerAssignmentForPurchaseOrder(purchaseOrder.getUuid(), purchaseOrder.getFactoryId());
+    private void setTotalQuantitiesForPurchaseOrder(PurchaseOrder purchaseOrder) {
 
-		if (CollectionUtils.isNotEmpty(lineCheckerAssignments)) {
-			purchaseOrder.setPurchaseOrderStatus(PurchaseOrderStatus.ONGOING);
-		}
-	}
+        populatePurchaseOrderQuantitiesForPurchaseOrder(purchaseOrder);
+    }
 
-	private void populateLineCheckerAssignmentsForPurchaseOrder(PurchaseOrderResponseDto purchaseOrderResponseDto) {
+    private void populateLineCheckerAssignmentsForPurchaseOrders(List<PurchaseOrderResponseDto> purchaseOrderResponseDtos) {
 
-		List<LineCheckerAssignment> lineCheckerAssignments = lineCheckerAssignmentDbService.getLineCheckerAssignmentForPurchaseOrder(purchaseOrderResponseDto.getUuid(),
-				purchaseOrderResponseDto.getFactoryId());
+        purchaseOrderResponseDtos.forEach(purchaseOrderResponseDto -> {
 
-		List<UserLineDetails> userLineDetails = LineCheckerAssignmentAdapter.buildUserLineDetailsFromEntities(lineCheckerAssignments);
-		purchaseOrderResponseDto.setUserLineDetails(userLineDetails);
+            populateLineCheckerAssignmentsForPurchaseOrder(purchaseOrderResponseDto);
+        });
+    }
 
-		Map<LineType, List<UserLineDetails>> userDetailsMap = userLineDetails.stream().collect(Collectors.groupingBy(UserLineDetails::getLineType));
-		purchaseOrderResponseDto.setUserLineDetailsMap(userDetailsMap);
-	}
+    private void updatePurchaseOrderStatus(PurchaseOrder purchaseOrder) {
 
-	private List<PurchaseOrderResponseDto> convertPurchaseOrderPageDataToResponseDtos(Page<PurchaseOrder> data) {
+        purchaseOrder.setPurchaseOrderStatus(PurchaseOrderStatus.YET_TO_START);
 
-		List<PurchaseOrder> purchaseOrders = data.get().collect(Collectors.toList());
+        List<LineCheckerAssignment> lineCheckerAssignments = lineCheckerAssignmentDbService.getLineCheckerAssignmentForPurchaseOrder(purchaseOrder.getUuid(), purchaseOrder.getFactoryId());
 
-		List<PurchaseOrderResponseDto> purchaseOrderResponseDtos = buildPurchaseOrderResponseWithQuantitiesAndAssignments(purchaseOrders);
+        if (CollectionUtils.isNotEmpty(lineCheckerAssignments)) {
+            purchaseOrder.setPurchaseOrderStatus(PurchaseOrderStatus.ONGOING);
+        }
+    }
 
-		return purchaseOrderResponseDtos;
-	}
+    private void populateLineCheckerAssignmentsForPurchaseOrder(PurchaseOrderResponseDto purchaseOrderResponseDto) {
 
-	private List<PurchaseOrderResponseDto> buildPurchaseOrderResponseWithQuantitiesAndAssignments(List<PurchaseOrder> purchaseOrderEntities) {
+        List<LineCheckerAssignment> lineCheckerAssignments = lineCheckerAssignmentDbService.getLineCheckerAssignmentForPurchaseOrder(purchaseOrderResponseDto.getUuid(),
+                purchaseOrderResponseDto.getFactoryId());
 
-		List<PurchaseOrderResponseDto> purchaseOrderResponseDtos = PurchaseOrderAdapter.buildResponsesFromEntities(purchaseOrderEntities);
-		log.info("Found total: {} purchase orders to show in listing ", purchaseOrderResponseDtos.size());
+        List<UserLineDetails> userLineDetails = LineCheckerAssignmentAdapter.buildUserLineDetailsFromEntities(lineCheckerAssignments);
+        purchaseOrderResponseDto.setUserLineDetails(userLineDetails);
 
-		populatePurchaseOrderQuantitiesForPurchaseOrders(purchaseOrderResponseDtos);
-		populateTotalQuantitiesForPurchaseOrders(purchaseOrderResponseDtos);
-		populateLineCheckerAssignmentsForPurchaseOrders(purchaseOrderResponseDtos);
+        Map<LineType, List<UserLineDetails>> userDetailsMap = userLineDetails.stream().collect(Collectors.groupingBy(UserLineDetails::getLineType));
+        purchaseOrderResponseDto.setUserLineDetailsMap(userDetailsMap);
+    }
 
-		return purchaseOrderResponseDtos;
-	}
+    private List<PurchaseOrderResponseDto> convertPurchaseOrderPageDataToResponseDtos(Page<PurchaseOrder> data) {
 
-	@SuppressWarnings("unused")
-	private void populateStyleDtosForPurchaseOrders(List<PurchaseOrderResponseDto> purchaseOrderResponseDtos) {
+        List<PurchaseOrder> purchaseOrders = data.get().collect(Collectors.toList());
 
-		purchaseOrderResponseDtos.stream().forEach(purchaseOrderResponseDto -> {
+        List<PurchaseOrderResponseDto> purchaseOrderResponseDtos = buildPurchaseOrderResponseWithQuantitiesAndAssignments(purchaseOrders);
 
-			populateStyleDtoForPurchaseOrder(purchaseOrderResponseDto);
-		});
-	}
+        return purchaseOrderResponseDtos;
+    }
 
-	/**
-	 * @param purchaseOrderResponseDto
-	 */
-	private void populateStyleDtoForPurchaseOrder(PurchaseOrderResponseDto purchaseOrderResponseDto) {
+    private List<PurchaseOrderResponseDto> buildPurchaseOrderResponseWithQuantitiesAndAssignments(List<PurchaseOrder> purchaseOrderEntities) {
 
-		if (StringUtils.isNotBlank(purchaseOrderResponseDto.getStyleId())) {
+        List<PurchaseOrderResponseDto> purchaseOrderResponseDtos = PurchaseOrderAdapter.buildResponsesFromEntities(purchaseOrderEntities);
+        log.info("Found total: {} purchase orders to show in listing ", purchaseOrderResponseDtos.size());
 
-			StyleDto styleDto = styleService.getStyleById(purchaseOrderResponseDto.getStyleId());
+        populatePurchaseOrderQuantitiesForPurchaseOrders(purchaseOrderResponseDtos);
+        populateTotalQuantitiesForPurchaseOrders(purchaseOrderResponseDtos);
+        populateLineCheckerAssignmentsForPurchaseOrders(purchaseOrderResponseDtos);
 
-			purchaseOrderResponseDto.setStyleDto(styleDto);
-		}
-	}
+        return purchaseOrderResponseDtos;
+    }
 
-	private PurchaseOrderResponseDto buildPurchaseOrderResponseWithQuantitiesAndAssignments(PurchaseOrder purchaseOrder) {
+    @SuppressWarnings("unused")
+    private void populateStyleDtosForPurchaseOrders(List<PurchaseOrderResponseDto> purchaseOrderResponseDtos) {
 
-		PurchaseOrderResponseDto purchaseOrderResponseDto = PurchaseOrderAdapter.buildResponseFromEntity(purchaseOrder);
+        purchaseOrderResponseDtos.stream().forEach(purchaseOrderResponseDto -> {
 
-		populateStyleDtoForPurchaseOrder(purchaseOrderResponseDto);
-		populatePurchaseOrderQuantitiesForPurchaseOrder(purchaseOrderResponseDto);
-		populateTotalQuantitiesForPurchaseOrder(purchaseOrderResponseDto);
-		populateLineCheckerAssignmentsForPurchaseOrder(purchaseOrderResponseDto);
+            populateStyleDtoForPurchaseOrder(purchaseOrderResponseDto);
+        });
+    }
 
-		return purchaseOrderResponseDto;
-	}
+    /**
+     * @param purchaseOrderResponseDto
+     */
+    private void populateStyleDtoForPurchaseOrder(PurchaseOrderResponseDto purchaseOrderResponseDto) {
 
-	private List<PurchaseOrderQuantityResponseDto> getPurchaseOrderQuantitiesForPurchaseOrder(String purchaseOrderId) {
+        if (StringUtils.isNotBlank(purchaseOrderResponseDto.getStyleId())) {
 
-		List<PurchaseOrderQuantityResponseDto> purchaseOrderQuantityResponseDtos = purchaseOrderQuantityService.getAllPurchaseOrderQuantitiesForPurchaseOrder(purchaseOrderId);
+            StyleDto styleDto = styleService.getStyleById(purchaseOrderResponseDto.getStyleId());
 
-		return purchaseOrderQuantityResponseDtos;
-	}
+            purchaseOrderResponseDto.setStyleDto(styleDto);
+        }
+    }
 
-	private void populatePurchaseOrderQuantitiesForPurchaseOrder(PurchaseOrderResponseDto purchaseOrderResponseDto) {
+    private PurchaseOrderResponseDto buildPurchaseOrderResponseWithQuantitiesAndAssignments(PurchaseOrder purchaseOrder) {
 
-		List<PurchaseOrderQuantityResponseDto> purchaseOrderQuantityResponseDtos = getPurchaseOrderQuantitiesForPurchaseOrder(purchaseOrderResponseDto.getUuid());
+        PurchaseOrderResponseDto purchaseOrderResponseDto = PurchaseOrderAdapter.buildResponseFromEntity(purchaseOrder);
 
-		purchaseOrderResponseDto.setPurchaseOrderQuantityResponseDtos(purchaseOrderQuantityResponseDtos);
-	}
+        populateStyleDtoForPurchaseOrder(purchaseOrderResponseDto);
+        populatePurchaseOrderQuantitiesForPurchaseOrder(purchaseOrderResponseDto);
+        populateTotalQuantitiesForPurchaseOrder(purchaseOrderResponseDto);
+        populateLineCheckerAssignmentsForPurchaseOrder(purchaseOrderResponseDto);
 
-	private void populatePurchaseOrderQuantitiesForPurchaseOrder(PurchaseOrder purchaseOrder) {
+        return purchaseOrderResponseDto;
+    }
 
-		List<PurchaseOrderQuantityResponseDto> purchaseOrderQuantityResponseDtos = getPurchaseOrderQuantitiesForPurchaseOrder(purchaseOrder.getUuid());
+    private List<PurchaseOrderQuantityResponseDto> getPurchaseOrderQuantitiesForPurchaseOrder(String purchaseOrderId) {
 
-		purchaseOrder.setTotalQuantity(getTotalQuantity(purchaseOrderQuantityResponseDtos));
-		purchaseOrder.setTotalTargetQuantity(getTotalTargetQuantity(purchaseOrderQuantityResponseDtos));
-	}
+        List<PurchaseOrderQuantityResponseDto> purchaseOrderQuantityResponseDtos = purchaseOrderQuantityService.getAllPurchaseOrderQuantitiesForPurchaseOrder(purchaseOrderId);
 
-	private void populatePurchaseOrderQuantitiesForPurchaseOrders(List<PurchaseOrderResponseDto> purchaseOrderResponseDtos) {
+        return purchaseOrderQuantityResponseDtos;
+    }
 
-		purchaseOrderResponseDtos.stream().forEach(purchaseOrderResponseDto -> {
+    private void populatePurchaseOrderQuantitiesForPurchaseOrder(PurchaseOrderResponseDto purchaseOrderResponseDto) {
 
-			populatePurchaseOrderQuantitiesForPurchaseOrder(purchaseOrderResponseDto);
-		});
-	}
+        List<PurchaseOrderQuantityResponseDto> purchaseOrderQuantityResponseDtos = getPurchaseOrderQuantitiesForPurchaseOrder(purchaseOrderResponseDto.getUuid());
 
-	private Long getTotalQuantityForPurchaseOrder(PurchaseOrderResponseDto purchaseOrderResponseDto) {
+        purchaseOrderResponseDto.setPurchaseOrderQuantityResponseDtos(purchaseOrderQuantityResponseDtos);
+    }
 
-		List<PurchaseOrderQuantityResponseDto> purchaseOrderQuantityResponseDtos = purchaseOrderResponseDto.getPurchaseOrderQuantityResponseDtos();
+    private void populatePurchaseOrderQuantitiesForPurchaseOrder(PurchaseOrder purchaseOrder) {
 
-		return getTotalQuantity(purchaseOrderQuantityResponseDtos);
-	}
+        List<PurchaseOrderQuantityResponseDto> purchaseOrderQuantityResponseDtos = getPurchaseOrderQuantitiesForPurchaseOrder(purchaseOrder.getUuid());
 
-	private Long getTotalQuantity(List<PurchaseOrderQuantityResponseDto> purchaseOrderQuantityResponseDtos) {
+        purchaseOrder.setTotalQuantity(getTotalQuantity(purchaseOrderQuantityResponseDtos));
+        purchaseOrder.setTotalTargetQuantity(getTotalTargetQuantity(purchaseOrderQuantityResponseDtos));
+    }
 
-		Long totalQuantityOfPurchaseOrder = 0L;
+    private void populatePurchaseOrderQuantitiesForPurchaseOrders(List<PurchaseOrderResponseDto> purchaseOrderResponseDtos) {
 
-		for (PurchaseOrderQuantityResponseDto purchaseOrderQuantityResponseDto : purchaseOrderQuantityResponseDtos) {
-			totalQuantityOfPurchaseOrder += purchaseOrderQuantityResponseDto.getQuantity();
-		}
+        purchaseOrderResponseDtos.stream().forEach(purchaseOrderResponseDto -> {
 
-		return totalQuantityOfPurchaseOrder;
-	}
+            populatePurchaseOrderQuantitiesForPurchaseOrder(purchaseOrderResponseDto);
+        });
+    }
 
-	private Long getTotalTargetQuantityForPurchaseOrder(PurchaseOrderResponseDto purchaseOrderResponseDto) {
+    private Long getTotalQuantityForPurchaseOrder(PurchaseOrderResponseDto purchaseOrderResponseDto) {
 
-		List<PurchaseOrderQuantityResponseDto> purchaseOrderQuantityResponseDtos = purchaseOrderResponseDto.getPurchaseOrderQuantityResponseDtos();
+        List<PurchaseOrderQuantityResponseDto> purchaseOrderQuantityResponseDtos = purchaseOrderResponseDto.getPurchaseOrderQuantityResponseDtos();
 
-		return getTotalTargetQuantity(purchaseOrderQuantityResponseDtos);
-	}
+        return getTotalQuantity(purchaseOrderQuantityResponseDtos);
+    }
 
-	private Long getTotalTargetQuantity(List<PurchaseOrderQuantityResponseDto> purchaseOrderQuantityResponseDtos) {
+    private Long getTotalQuantity(List<PurchaseOrderQuantityResponseDto> purchaseOrderQuantityResponseDtos) {
 
-		Long totalTargetQuantityOfPurchaseOrder = 0L;
+        Long totalQuantityOfPurchaseOrder = 0L;
 
-		for (PurchaseOrderQuantityResponseDto purchaseOrderQuantityResponseDto : purchaseOrderQuantityResponseDtos) {
-			totalTargetQuantityOfPurchaseOrder += purchaseOrderQuantityResponseDto.getTargetQuantity();
-		}
+        for (PurchaseOrderQuantityResponseDto purchaseOrderQuantityResponseDto : purchaseOrderQuantityResponseDtos) {
+            totalQuantityOfPurchaseOrder += purchaseOrderQuantityResponseDto.getQuantity();
+        }
 
-		return totalTargetQuantityOfPurchaseOrder;
-	}
+        return totalQuantityOfPurchaseOrder;
+    }
 
-	@Override
-	public PurchaseOrderStatusCountDto getPurchaseOrderStatusCounts(Boolean status) {
+    private Long getTotalTargetQuantityForPurchaseOrder(PurchaseOrderResponseDto purchaseOrderResponseDto) {
 
-		PurchaseOrderStatusCountDto purchaseOrderStatusCounts = PurchaseOrderStatusCountDto.builder().build();
+        List<PurchaseOrderQuantityResponseDto> purchaseOrderQuantityResponseDtos = purchaseOrderResponseDto.getPurchaseOrderQuantityResponseDtos();
 
-		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+        return getTotalTargetQuantity(purchaseOrderQuantityResponseDtos);
+    }
 
-		List<PurchaseOrder> purchaseOrderEntities = Objects.isNull(status) ? purchaseOrderDbService.getAllPurchaseOrders(factoryId)
-				: purchaseOrderDbService.getAllPurchaseOrdersForStatus(status, factoryId);
+    private Long getTotalTargetQuantity(List<PurchaseOrderQuantityResponseDto> purchaseOrderQuantityResponseDtos) {
 
-		if (CollectionUtils.isNotEmpty(purchaseOrderEntities)) {
+        Long totalTargetQuantityOfPurchaseOrder = 0L;
 
-			Map<PurchaseOrderStatus, Long> countMap = purchaseOrderEntities.stream().collect(Collectors.groupingBy(PurchaseOrder::getPurchaseOrderStatus, Collectors.counting()));
+        for (PurchaseOrderQuantityResponseDto purchaseOrderQuantityResponseDto : purchaseOrderQuantityResponseDtos) {
+            totalTargetQuantityOfPurchaseOrder += purchaseOrderQuantityResponseDto.getTargetQuantity();
+        }
 
-			log.info("Found purchase order status wise counts map: {} for factory id: {}", countMap, factoryId);
+        return totalTargetQuantityOfPurchaseOrder;
+    }
 
-			purchaseOrderStatusCounts.setPurchaseOrderStatusCount(countMap);
+    @Override
+    public PurchaseOrderStatusCountDto getPurchaseOrderStatusCounts(Boolean status) {
 
-		}
+        PurchaseOrderStatusCountDto purchaseOrderStatusCounts = PurchaseOrderStatusCountDto.builder().build();
 
-		return purchaseOrderStatusCounts;
-	}
+        String factoryId = HeaderUtil.getFactoryIdHeaderValue();
 
-	/**
-	 * @return
-	 */
-	private Specification<PurchaseOrder> getSpecificationForPurchaseOrderListing(PurchaseOrderFilterDto purchaseOrderFilterDto, PurchaseOrderStatus purchaseOrderStatus) {
-		GroyyoSpecificationBuilder<PurchaseOrder> groyyoSpecificationBuilder = new GroyyoSpecificationBuilder<PurchaseOrder>();
+        List<PurchaseOrder> purchaseOrderEntities = Objects.isNull(status) ? purchaseOrderDbService.getAllPurchaseOrders(factoryId)
+                : purchaseOrderDbService.getAllPurchaseOrdersForStatus(status, factoryId);
 
-		groyyoSpecificationBuilder.with(FilterConstants.STATUS, CriteriaOperation.TRUE, Boolean.TRUE);
+        if (CollectionUtils.isNotEmpty(purchaseOrderEntities)) {
 
-		if (Objects.nonNull(purchaseOrderStatus))
-			groyyoSpecificationBuilder.with(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_STATUS, CriteriaOperation.ENUM_EQ, purchaseOrderStatus);
+            Map<PurchaseOrderStatus, Long> countMap = purchaseOrderEntities.stream().collect(Collectors.groupingBy(PurchaseOrder::getPurchaseOrderStatus, Collectors.counting()));
 
-		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+            log.info("Found purchase order status wise counts map: {} for factory id: {}", countMap, factoryId);
 
-		if (StringUtils.isNotBlank(factoryId))
-			groyyoSpecificationBuilder.with(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_FACTORY_ID, CriteriaOperation.EQ, factoryId);
+            purchaseOrderStatusCounts.setPurchaseOrderStatusCount(countMap);
 
-		if (Objects.nonNull(purchaseOrderFilterDto)) {
+        }
 
-			if (Objects.nonNull(purchaseOrderFilterDto.getId()))
-				groyyoSpecificationBuilder.with(FilterConstants.ID, CriteriaOperation.EQ, purchaseOrderFilterDto.getId());
+        return purchaseOrderStatusCounts;
+    }
 
-			if (Objects.nonNull(purchaseOrderFilterDto.getUuid()))
-				groyyoSpecificationBuilder.with(FilterConstants.UUID, CriteriaOperation.EQ, purchaseOrderFilterDto.getUuid());
+    /**
+     * @return
+     */
+    private Specification<PurchaseOrder> getSpecificationForPurchaseOrderListing(PurchaseOrderFilterDto purchaseOrderFilterDto, PurchaseOrderStatus purchaseOrderStatus) {
+        GroyyoSpecificationBuilder<PurchaseOrder> groyyoSpecificationBuilder = new GroyyoSpecificationBuilder<PurchaseOrder>();
 
-			if (Objects.nonNull(purchaseOrderFilterDto.getName()))
-				groyyoSpecificationBuilder.with(FilterConstants.NAME, CriteriaOperation.EQ, purchaseOrderFilterDto.getName());
+        groyyoSpecificationBuilder.with(FilterConstants.STATUS, CriteriaOperation.TRUE, Boolean.TRUE);
 
-			if (Objects.nonNull(purchaseOrderFilterDto.getCreatedAt()))
-				groyyoSpecificationBuilder.with(FilterConstants.CREATED_AT, CriteriaOperation.DATE_EQ, purchaseOrderFilterDto.getCreatedAt());
+        if (Objects.nonNull(purchaseOrderStatus))
+            groyyoSpecificationBuilder.with(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_STATUS, CriteriaOperation.ENUM_EQ, purchaseOrderStatus);
 
-			if (Objects.nonNull(purchaseOrderFilterDto.getCreatedBy()))
-				groyyoSpecificationBuilder.with(FilterConstants.CREATED_BY, CriteriaOperation.EQ, purchaseOrderFilterDto.getCreatedBy());
+        String factoryId = HeaderUtil.getFactoryIdHeaderValue();
 
-			if (Objects.nonNull(purchaseOrderFilterDto.getUpdatedAt()))
-				groyyoSpecificationBuilder.with(FilterConstants.UPDATED_AT, CriteriaOperation.DATE_EQ, purchaseOrderFilterDto.getUpdatedAt());
+        if (StringUtils.isNotBlank(factoryId))
+            groyyoSpecificationBuilder.with(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_FACTORY_ID, CriteriaOperation.EQ, factoryId);
 
-			if (Objects.nonNull(purchaseOrderFilterDto.getUpdatedBy()))
-				groyyoSpecificationBuilder.with(FilterConstants.UPDATED_BY, CriteriaOperation.EQ, purchaseOrderFilterDto.getUpdatedBy());
+        if (Objects.nonNull(purchaseOrderFilterDto)) {
 
-			if (Objects.nonNull(purchaseOrderFilterDto.getExFtyDate()))
-				groyyoSpecificationBuilder.with(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_EX_FTY_DATE, CriteriaOperation.DATE_EQ, purchaseOrderFilterDto.getExFtyDate());
+            if (Objects.nonNull(purchaseOrderFilterDto.getId()))
+                groyyoSpecificationBuilder.with(FilterConstants.ID, CriteriaOperation.EQ, purchaseOrderFilterDto.getId());
 
-			if (Objects.nonNull(purchaseOrderFilterDto.getReceiveDate()))
-				groyyoSpecificationBuilder.with(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_RECEIVE_DATE, CriteriaOperation.DATE_EQ, purchaseOrderFilterDto.getReceiveDate());
+            if (Objects.nonNull(purchaseOrderFilterDto.getUuid()))
+                groyyoSpecificationBuilder.with(FilterConstants.UUID, CriteriaOperation.EQ, purchaseOrderFilterDto.getUuid());
 
-			if (StringUtils.isNotBlank(purchaseOrderFilterDto.getPurchaseOrderNumber()))
-				addExternalSpecificationsForLikeSearch(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_NUMBER, purchaseOrderFilterDto.getPurchaseOrderNumber(), groyyoSpecificationBuilder);
+            if (Objects.nonNull(purchaseOrderFilterDto.getName()))
+                groyyoSpecificationBuilder.with(FilterConstants.NAME, CriteriaOperation.EQ, purchaseOrderFilterDto.getName());
 
-			if (StringUtils.isNotBlank(purchaseOrderFilterDto.getFabricName()))
-				addExternalSpecificationsForLikeSearch(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_FABRIC_NAME, purchaseOrderFilterDto.getFabricName(), groyyoSpecificationBuilder);
+            if (Objects.nonNull(purchaseOrderFilterDto.getCreatedAt()))
+                groyyoSpecificationBuilder.with(FilterConstants.CREATED_AT, CriteriaOperation.DATE_EQ, purchaseOrderFilterDto.getCreatedAt());
 
-			if (StringUtils.isNotBlank(purchaseOrderFilterDto.getBuyerName()))
-				addExternalSpecificationsForLikeSearch(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_BUYER_NAME, purchaseOrderFilterDto.getBuyerName(), groyyoSpecificationBuilder);
+            if (Objects.nonNull(purchaseOrderFilterDto.getCreatedBy()))
+                groyyoSpecificationBuilder.with(FilterConstants.CREATED_BY, CriteriaOperation.EQ, purchaseOrderFilterDto.getCreatedBy());
 
-			if (StringUtils.isNotBlank(purchaseOrderFilterDto.getStyleNumber()))
-				addExternalSpecificationsForLikeSearch(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_STYLE_NUMBER, purchaseOrderFilterDto.getStyleNumber(), groyyoSpecificationBuilder);
+            if (Objects.nonNull(purchaseOrderFilterDto.getUpdatedAt()))
+                groyyoSpecificationBuilder.with(FilterConstants.UPDATED_AT, CriteriaOperation.DATE_EQ, purchaseOrderFilterDto.getUpdatedAt());
 
-			if (StringUtils.isNotBlank(purchaseOrderFilterDto.getStyleName()))
-				addExternalSpecificationsForLikeSearch(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_STYLE_NAME, purchaseOrderFilterDto.getStyleName(), groyyoSpecificationBuilder);
+            if (Objects.nonNull(purchaseOrderFilterDto.getUpdatedBy()))
+                groyyoSpecificationBuilder.with(FilterConstants.UPDATED_BY, CriteriaOperation.EQ, purchaseOrderFilterDto.getUpdatedBy());
 
-			if (StringUtils.isNotBlank(purchaseOrderFilterDto.getProductName()))
-				addExternalSpecificationsForLikeSearch(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_PRODUCT_NAME, purchaseOrderFilterDto.getProductName(), groyyoSpecificationBuilder);
-		}
+            if (Objects.nonNull(purchaseOrderFilterDto.getExFtyDate()))
+                groyyoSpecificationBuilder.with(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_EX_FTY_DATE, CriteriaOperation.DATE_EQ, purchaseOrderFilterDto.getExFtyDate());
 
-		return groyyoSpecificationBuilder.build();
-	}
+            if (Objects.nonNull(purchaseOrderFilterDto.getReceiveDate()))
+                groyyoSpecificationBuilder.with(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_RECEIVE_DATE, CriteriaOperation.DATE_EQ, purchaseOrderFilterDto.getReceiveDate());
 
-	private void addExternalSpecificationsForLikeSearch(String fieldName, String fieldValue, GroyyoSpecificationBuilder<PurchaseOrder> groyyoSpecificationBuilder) {
+            if (StringUtils.isNotBlank(purchaseOrderFilterDto.getPurchaseOrderNumber()))
+                addExternalSpecificationsForLikeSearch(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_NUMBER, purchaseOrderFilterDto.getPurchaseOrderNumber(), groyyoSpecificationBuilder);
 
-		Specification<PurchaseOrder> specification = new GroyyoSpecificationBuilder<PurchaseOrder>()
-				.with(fieldName, CriteriaOperation.LIKE, SymbolConstants.SYMBOL_PERCENT + fieldValue.toLowerCase() + SymbolConstants.SYMBOL_PERCENT)
-				.build();
+            if (StringUtils.isNotBlank(purchaseOrderFilterDto.getFabricName()))
+                addExternalSpecificationsForLikeSearch(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_FABRIC_NAME, purchaseOrderFilterDto.getFabricName(), groyyoSpecificationBuilder);
 
-		specification = specification.or(new GroyyoSpecificationBuilder<PurchaseOrder>()
-				.with(fieldName, CriteriaOperation.LIKE, SymbolConstants.SYMBOL_PERCENT + fieldValue.toUpperCase() + SymbolConstants.SYMBOL_PERCENT)
-				.build());
+            if (StringUtils.isNotBlank(purchaseOrderFilterDto.getBuyerName()))
+                addExternalSpecificationsForLikeSearch(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_BUYER_NAME, purchaseOrderFilterDto.getBuyerName(), groyyoSpecificationBuilder);
 
-		specification = specification.or(new GroyyoSpecificationBuilder<PurchaseOrder>()
-				.with(fieldName, CriteriaOperation.LIKE, SymbolConstants.SYMBOL_PERCENT + fieldValue.substring(0, 1).toUpperCase() + fieldValue.substring(1) + SymbolConstants.SYMBOL_PERCENT)
-				.build());
+            if (StringUtils.isNotBlank(purchaseOrderFilterDto.getStyleNumber()))
+                addExternalSpecificationsForLikeSearch(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_STYLE_NUMBER, purchaseOrderFilterDto.getStyleNumber(), groyyoSpecificationBuilder);
 
-		groyyoSpecificationBuilder.addExternalSpecification(specification);
-	}
+            if (StringUtils.isNotBlank(purchaseOrderFilterDto.getStyleName()))
+                addExternalSpecificationsForLikeSearch(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_STYLE_NAME, purchaseOrderFilterDto.getStyleName(), groyyoSpecificationBuilder);
 
-	@Override
-	public void changeStatusOfPurchaseOrder(String purchaseOrderId, PurchaseOrderStatus desiredPurchaseOrderStatus, Boolean forceUpdate) {
+            if (StringUtils.isNotBlank(purchaseOrderFilterDto.getProductName()))
+                addExternalSpecificationsForLikeSearch(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_PRODUCT_NAME, purchaseOrderFilterDto.getProductName(), groyyoSpecificationBuilder);
+        }
 
-		PurchaseOrder purchaseOrder = purchaseOrderDbService.findByUuid(purchaseOrderId);
+        return groyyoSpecificationBuilder.build();
+    }
 
-		if (Objects.isNull(purchaseOrder)) {
-			log.error("Not able to find valid purchase order entity with id: {}", purchaseOrderId);
-			return;
-		}
+    private void addExternalSpecificationsForLikeSearch(String fieldName, String fieldValue, GroyyoSpecificationBuilder<PurchaseOrder> groyyoSpecificationBuilder) {
 
-		PurchaseOrderStatus currentPurchaseOrderStatus = purchaseOrder.getPurchaseOrderStatus();
-		log.info("Current status of purchase order with uuid: {} is: {}", purchaseOrder.getUuid(), currentPurchaseOrderStatus);
+        Specification<PurchaseOrder> specification = new GroyyoSpecificationBuilder<PurchaseOrder>()
+                .with(fieldName, CriteriaOperation.LIKE, SymbolConstants.SYMBOL_PERCENT + fieldValue.toLowerCase() + SymbolConstants.SYMBOL_PERCENT)
+                .build();
 
-		if (desiredPurchaseOrderStatus.getSequenceId() > currentPurchaseOrderStatus.getSequenceId()) {
-			log.info("Changing the status of purchase order from current status: {} to desired status: {}", currentPurchaseOrderStatus, desiredPurchaseOrderStatus);
-			purchaseOrder.setPurchaseOrderStatus(desiredPurchaseOrderStatus);
-		}
+        specification = specification.or(new GroyyoSpecificationBuilder<PurchaseOrder>()
+                .with(fieldName, CriteriaOperation.LIKE, SymbolConstants.SYMBOL_PERCENT + fieldValue.toUpperCase() + SymbolConstants.SYMBOL_PERCENT)
+                .build());
 
-		if (desiredPurchaseOrderStatus.getSequenceId() < currentPurchaseOrderStatus.getSequenceId()) {
-			log.info("Cannot move the status to a level: {} lower than the current level: {}", desiredPurchaseOrderStatus.getSequenceId(), currentPurchaseOrderStatus.getSequenceId());
+        specification = specification.or(new GroyyoSpecificationBuilder<PurchaseOrder>()
+                .with(fieldName, CriteriaOperation.LIKE, SymbolConstants.SYMBOL_PERCENT + fieldValue.substring(0, 1).toUpperCase() + fieldValue.substring(1) + SymbolConstants.SYMBOL_PERCENT)
+                .build());
 
-			if (forceUpdate) {
-				log.info("Changing the status of purchase order forcefully from current status: {} to desired status: {}", currentPurchaseOrderStatus, desiredPurchaseOrderStatus);
-				purchaseOrder.setPurchaseOrderStatus(desiredPurchaseOrderStatus);
-			}
-		}
+        groyyoSpecificationBuilder.addExternalSpecification(specification);
+    }
 
-		purchaseOrderDbService.saveAndFlush(purchaseOrder);
-	}
+    @Override
+    public void changeStatusOfPurchaseOrder(String purchaseOrderId, PurchaseOrderStatus desiredPurchaseOrderStatus, Boolean forceUpdate) {
 
-	private boolean isEntityExistsWithName(String name) {
+        PurchaseOrder purchaseOrder = purchaseOrderDbService.findByUuid(purchaseOrderId);
 
-		return StringUtils.isNotBlank(name) && purchaseOrderDbService.isEntityExistsByName(name);
-	}
+        if (Objects.isNull(purchaseOrder)) {
+            log.error("Not able to find valid purchase order entity with id: {}", purchaseOrderId);
+            return;
+        }
 
-	private void runValidations(PurchaseOrderRequestDto purchaseOrderRequestDto) {
+        PurchaseOrderStatus currentPurchaseOrderStatus = purchaseOrder.getPurchaseOrderStatus();
+        log.info("Current status of purchase order with uuid: {} is: {}", purchaseOrder.getUuid(), currentPurchaseOrderStatus);
 
-		validateName(purchaseOrderRequestDto);
-	}
+        if (desiredPurchaseOrderStatus.getSequenceId() > currentPurchaseOrderStatus.getSequenceId()) {
+            log.info("Changing the status of purchase order from current status: {} to desired status: {}", currentPurchaseOrderStatus, desiredPurchaseOrderStatus);
+            purchaseOrder.setPurchaseOrderStatus(desiredPurchaseOrderStatus);
+        }
 
-	private void validateName(PurchaseOrderRequestDto purchaseOrderRequestDto) {
+        if (desiredPurchaseOrderStatus.getSequenceId() < currentPurchaseOrderStatus.getSequenceId()) {
+            log.info("Cannot move the status to a level: {} lower than the current level: {}", desiredPurchaseOrderStatus.getSequenceId(), currentPurchaseOrderStatus.getSequenceId());
 
-		if (isEntityExistsWithName(purchaseOrderRequestDto.getPurchaseOrderNumber())) {
-			String errorMsg = "PurchaseOrder cannot be created/updated as record already exists with name: " + purchaseOrderRequestDto.getPurchaseOrderNumber();
-			throw new RecordExistsException(errorMsg);
-		}
-	}
+            if (forceUpdate) {
+                log.info("Changing the status of purchase order forcefully from current status: {} to desired status: {}", currentPurchaseOrderStatus, desiredPurchaseOrderStatus);
+                purchaseOrder.setPurchaseOrderStatus(desiredPurchaseOrderStatus);
+            }
+        }
 
-	@Override
-	public PurchaseOrderResponseDto addBulkPurchaseOrder(List<BulkPurchaseOrderRequestDto> purchaseOrderRequestsDto) {
+        purchaseOrderDbService.saveAndFlush(purchaseOrder);
+    }
 
-		PurchaseOrder purchaseOrders = PurchaseOrder.builder().build();
-		purchaseOrderRequestsDto.forEach(purchaseOrderRequestDto->{
-			log.info("Serving request to add a purchaseOrder with request object: {}", purchaseOrderRequestDto);
-			PurchaseOrder purchaseOrder = PurchaseOrder.builder().build();
+    private boolean isEntityExistsWithName(String name) {
+
+        return StringUtils.isNotBlank(name) && purchaseOrderDbService.isEntityExistsByName(name);
+    }
+
+    private void runValidations(PurchaseOrderRequestDto purchaseOrderRequestDto) {
+
+        validateName(purchaseOrderRequestDto);
+    }
+
+    private void validateName(PurchaseOrderRequestDto purchaseOrderRequestDto) {
+
+        if (isEntityExistsWithName(purchaseOrderRequestDto.getPurchaseOrderNumber())) {
+            String errorMsg = "PurchaseOrder cannot be created/updated as record already exists with name: " + purchaseOrderRequestDto.getPurchaseOrderNumber();
+            throw new RecordExistsException(errorMsg);
+        }
+    }
+
+    @Override
+    public PurchaseOrderResponseDto addBulkPurchaseOrder(List<BulkPurchaseOrderRequestDto> purchaseOrderRequestsDto) {
+        String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+        PurchaseOrder purchaseOrders = PurchaseOrder.builder().build();
+        purchaseOrderRequestsDto.forEach(purchaseOrderRequestDto -> {
+            List<PurchaseOrderQuantityRequestDto> purchaseOrderQuantityRequestDtos = null;
+            List<Size> sizes = new ArrayList<>();
+            String styleName = purchaseOrderRequestDto.getStyleName();
+            String styleNumber = purchaseOrderRequestDto.getStyleNumber();
+            String productName = purchaseOrderRequestDto.getProductName();
+            String seasonName = purchaseOrderRequestDto.getSeasonName();
+            String fitName = purchaseOrderRequestDto.getFitName();
+            Product product = productService.findOrCreate(productName);
+            Season season = seasonService.findOrCreate(seasonName);
+            Fit fit = fitService.findOrCreate(fitName);
+            Style style = styleService.findOrCreate(styleName, styleNumber, product);
+            Part part = partService.findOrCreate(purchaseOrderRequestDto.getPart().getName());
+            purchaseOrderRequestDto.getPart().getSizes().forEach(name->{
+                sizes.add(sizeService.findOrCreate(name));
+            });
+            SizeGroup sizeGroup = sizeGroupService.findOrCreate(purchaseOrderRequestDto.getPart().getSizeGroup(), sizes);
+            purchaseOrderRequestDto.getPart().getColors().forEach(colorData -> {
+                Color color = colorService.findOrCreate(colorData.getName());
+               List<String> sizeIds = new ArrayList<>();
+                colorData.getSizes().forEach((k, v) -> {
+                    Size size = sizeService.findOrCreate(k);
+                    sizeIds.add(size.getUuid());
+                });
+
+                SizeGroup sizeGroup = sizeGroupService.findOrCreate(purchaseOrderRequestDto.getPart().getSizeGroup(), sizeIds);
+            });
+            log.info("Serving request to add a purchaseOrder with request object: {}", purchaseOrderRequestDto);
+            PurchaseOrder purchaseOrder = PurchaseOrder.builder().build();
 //			addRunTimeStyle(purchaseOrderRequestDto);
-			String factoryId = HeaderUtil.getFactoryIdHeaderValue();
 
 //			purchaseOrder = PurchaseOrderAdapter.buildPurchaseOrderFromRequest(purchaseOrderRequestDto, factoryId);
 
-			purchaseOrder = purchaseOrderDbService.savePurchaseOrder(purchaseOrder);
+            purchaseOrder = purchaseOrderDbService.savePurchaseOrder(purchaseOrder);
 
-			if (Objects.isNull(purchaseOrder)) {
-				log.error("Unable to add purchaseOrder for object: {}", purchaseOrderRequestDto);
-			}
+            if (Objects.isNull(purchaseOrder)) {
+                log.error("Unable to add purchaseOrder for object: {}", purchaseOrderRequestDto);
+            }
 
 //			addPurchaseOrderQuantities(purchaseOrderRequestDto, purchaseOrder);
 
-			updateVitalFieldsAndSave(purchaseOrder);
-		});
+            updateVitalFieldsAndSave(purchaseOrder);
+        });
 
 
-		return buildPurchaseOrderResponseWithQuantitiesAndAssignments(purchaseOrders);
-	}
+        return buildPurchaseOrderResponseWithQuantitiesAndAssignments(purchaseOrders);
+    }
 }

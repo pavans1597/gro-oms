@@ -89,4 +89,12 @@ public class SizeGroupAdapter {
 		return sizeGroups.stream().map(SizeGroupAdapter::buildResponseFromEntity).collect(Collectors.toList());
 	}
 
+	public SizeGroup buildSizeGroupFromName(String name,List<String> sizeIds, String factoryId) {
+		return SizeGroup
+				.builder()
+				.name(name)
+				.s
+				.factoryId(factoryId)
+				.build();
+	}
 }

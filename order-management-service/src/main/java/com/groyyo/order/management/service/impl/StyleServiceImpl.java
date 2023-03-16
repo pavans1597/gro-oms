@@ -5,6 +5,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import com.groyyo.order.management.adapter.StyleAdapter;
+import com.groyyo.order.management.entity.Product;
+import com.groyyo.order.management.entity.Style;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,9 +19,7 @@ import com.groyyo.core.base.exception.RecordExistsException;
 import com.groyyo.core.base.http.utils.HeaderUtil;
 import com.groyyo.core.dto.PurchaseOrder.StyleDto;
 import com.groyyo.core.dto.fileManagement.dto.response.FileResponseDto;
-import com.groyyo.order.management.adapter.StyleAdapter;
 import com.groyyo.order.management.db.service.StyleDbService;
-import com.groyyo.order.management.entity.Style;
 import com.groyyo.order.management.http.service.FileManagementHttpService;
 import com.groyyo.order.management.service.StyleService;
 
@@ -103,6 +104,28 @@ public class StyleServiceImpl implements StyleService {
 
 		return styleDto;
 	}
+
+//	@Override
+//	public StyleDto addBulkStyle(List<StyleDto> styleRequestDto) {
+//
+//		log.info("Serving request to add a style with request object:{}", styleRequestDto);
+//
+////		runValidations();
+//
+//		Style style = StyleAdapter.buildStyleFromRequest(styleRequestDto);
+//
+//		style = styleDbService.saveStyle(style);
+//
+//		if (Objects.isNull(style)) {
+//			log.error("Unable to add style for object: {}", styleRequestDto);
+//			return null;
+//		}
+//
+//		StyleDto styleDto = StyleAdapter.buildResponseFromEntity(style);
+//		setImagesForStyle(style, styleDto);
+//
+//		return styleDto;
+//	}
 
 	private void setImagesForStyle(Style style, StyleDto styleDto) {
 
@@ -190,5 +213,12 @@ public class StyleServiceImpl implements StyleService {
 			String errorMsg = "Style cannot be created/updated as record already exists with style number: " + styleRequestDto.getStyleNumber();
 			throw new RecordExistsException(errorMsg);
 		}
+	}
+
+	@Override
+	public Style findOrCreate(String name, String styleNumber, Product product) {
+		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+		Style style = StyleAdapter.buildStyleFromName(name, styleNumber, product, factoryId);
+		return styleDbService.findOrCreate(style);
 	}
 }

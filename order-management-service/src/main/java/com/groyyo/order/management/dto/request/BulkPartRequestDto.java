@@ -13,6 +13,7 @@ import java.util.List;
 @AllArgsConstructor
 public class BulkPartRequestDto {
     private String name;
+
     private Double tolerance;
 
     private String sizeGroup;

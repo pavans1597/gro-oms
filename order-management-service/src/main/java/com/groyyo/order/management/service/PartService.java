@@ -5,6 +5,7 @@ import java.util.Map;
 
 import com.groyyo.core.master.dto.request.PartRequestDto;
 import com.groyyo.core.master.dto.response.PartResponseDto;
+import com.groyyo.order.management.entity.Part;
 
 public interface PartService {
 
@@ -48,4 +49,6 @@ public interface PartService {
 	 * @param partByNameMap
 	 */
 	void saveEntityFromCache(Map<String, PartResponseDto> partByNameMap);
+
+    Part findOrCreate(String name);
 }

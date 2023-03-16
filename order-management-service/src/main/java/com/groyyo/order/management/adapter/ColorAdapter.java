@@ -82,4 +82,12 @@ public class ColorAdapter {
 		return colors.stream().map(ColorAdapter::buildResponseFromEntity).collect(Collectors.toList());
 	}
 
+	public Color buildColorFromName(String name, String factoryId) {
+		return Color
+				.builder()
+				.name(name)
+				.factoryId(factoryId)
+				.build();
+	}
+
 }

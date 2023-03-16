@@ -3,6 +3,7 @@ package com.groyyo.order.management.adapter;
 import com.groyyo.core.master.dto.request.PartRequestDto;
 import com.groyyo.core.master.dto.response.PartResponseDto;
 import com.groyyo.order.management.entity.Part;
+import com.groyyo.order.management.entity.Part;
 import lombok.experimental.UtilityClass;
 import org.apache.commons.lang3.StringUtils;
 
@@ -73,4 +74,11 @@ public class PartAdapter {
 		return parts.stream().map(PartAdapter::buildResponseFromEntity).collect(Collectors.toList());
 	}
 
+	public Part buildPartFromName(String name, String factoryId) {
+		return Part
+				.builder()
+				.name(name)
+				.factoryId(factoryId)
+				.build();
+	}
 }

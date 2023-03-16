@@ -55,4 +55,14 @@ public class ProductDbServiceImpl extends AbstractJpaServiceImpl<Product, Long, 
 	public boolean isEntityExistsByName(String name) {
 		return Objects.nonNull(productRepository.findByName(name));
 	}
+
+	@Override
+	public Product findOrCreate(Product product) {
+		Product entity = productRepository.findByName(product.getName());
+		if (entity == null) {
+			entity = product;
+			save(entity);
+		}
+		return entity;
+	}
 }

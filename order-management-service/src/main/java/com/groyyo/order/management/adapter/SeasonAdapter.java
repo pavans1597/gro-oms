@@ -3,6 +3,7 @@ package com.groyyo.order.management.adapter;
 
 import com.groyyo.core.master.dto.request.SeasonRequestDto;
 import com.groyyo.core.master.dto.response.SeasonResponseDto;
+import com.groyyo.order.management.entity.Product;
 import com.groyyo.order.management.entity.Season;
 import lombok.experimental.UtilityClass;
 import org.apache.commons.lang3.StringUtils;
@@ -70,6 +71,15 @@ public class SeasonAdapter {
 	public List<SeasonResponseDto> buildResponsesFromEntities(List<Season> seasons) {
 
 		return seasons.stream().map(SeasonAdapter::buildResponseFromEntity).collect(Collectors.toList());
+	}
+
+
+	public Season buildSeasonFromName(String name, String factoryId) {
+		return Season
+				.builder()
+				.name(name)
+				.factoryId(factoryId)
+				.build();
 	}
 
 }

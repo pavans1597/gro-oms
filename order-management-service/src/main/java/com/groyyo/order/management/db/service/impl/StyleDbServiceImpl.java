@@ -3,12 +3,12 @@ package com.groyyo.order.management.db.service.impl;
 import java.util.List;
 import java.util.Objects;
 
+import com.groyyo.order.management.entity.Style;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.groyyo.core.sqlPostgresJpa.service.impl.AbstractJpaServiceImpl;
 import com.groyyo.order.management.db.service.StyleDbService;
-import com.groyyo.order.management.entity.Style;
 import com.groyyo.order.management.repository.StyleRepository;
 
 @Service
@@ -55,5 +55,15 @@ public class StyleDbServiceImpl extends AbstractJpaServiceImpl<Style, Long, Styl
 
 		return Objects.nonNull(styleRepository.findByStyleNumber(styleNumber));
 
+	}
+
+	@Override
+	public Style findOrCreate(Style style) {
+		Style entity = styleRepository.findByStyleNumber(style.getStyleNumber());
+		if (entity == null) {
+			entity = style;
+			save(entity);
+		}
+		return entity;
 	}
 }

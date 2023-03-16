@@ -57,4 +57,14 @@ public class FitDbServiceImpl extends AbstractJpaServiceImpl<Fit, Long, FitRepos
 	public boolean isEntityExistsByName(String name) {
 		return Objects.nonNull(fitRepository.findByName(name));
 	}
+
+	@Override
+	public Fit findOrCreate(Fit fit) {
+		Fit entity = fitRepository.findByName(fit.getName());
+		if (entity == null) {
+			entity = fit;
+			save(entity);
+		}
+		return entity;
+	}
 }
