@@ -29,6 +29,7 @@
 		<module>../core-utils/security</module>
 		<module>../core-utils/user-client</module>
 		<module>../core-utils/file-management-client</module>
+		<module>../core-utils/notification-client</module>
 	</modules>
 
 	<build>

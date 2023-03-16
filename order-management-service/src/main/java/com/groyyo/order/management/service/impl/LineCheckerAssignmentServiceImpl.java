@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import com.groyyo.order.management.kafka.publisher.PurchaseOrderPublisher;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -26,7 +27,6 @@ import com.groyyo.order.management.db.service.PurchaseOrderDbService;
 import com.groyyo.order.management.dto.request.LineCheckerAssignmentRequestDto;
 import com.groyyo.order.management.entity.LineCheckerAssignment;
 import com.groyyo.order.management.entity.PurchaseOrder;
-import com.groyyo.order.management.kafka.publisher.PurchaseOrderPublisher;
 import com.groyyo.order.management.service.LineCheckerAssignmentService;
 import com.groyyo.order.management.service.PurchaseOrderService;
 

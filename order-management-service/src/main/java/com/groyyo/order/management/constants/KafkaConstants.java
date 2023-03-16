@@ -45,4 +45,7 @@ public class KafkaConstants {
 	public static String KAFKA_QC_TASK_ASSIGNMENT_SUBTYPE_CREATE = "qcTaskAssignmentCreate";
 	public static String KAFKA_QC_TASK_ASSIGNMENT_SUBTYPE_UPDATE = "qcTaskAssignmentUpdate";
 
+
+
+
 }

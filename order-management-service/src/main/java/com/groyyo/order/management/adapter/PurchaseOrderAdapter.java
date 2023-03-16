@@ -4,6 +4,11 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import com.groyyo.core.notification.enums.Event;
+import com.groyyo.core.notification.enums.EventType;
+import com.groyyo.core.notification.enums.NotificationSubType;
+import com.groyyo.core.notification.enums.NotificationType;
+import com.groyyo.core.pojo.PushNotificationDTO;
 import org.apache.commons.lang3.StringUtils;
 
 import com.groyyo.core.dto.PurchaseOrder.PurchaseOrderResponseDto;
@@ -104,4 +109,7 @@ public class PurchaseOrderAdapter {
 		return purchaseOrders.stream().map(PurchaseOrderAdapter::buildResponseFromEntity).collect(Collectors.toList());
 	}
 
+//    public static PushNotificationDTO buildPushNotificationDtoFromPurchaseOrder(tit) {
+//		return
+//    }
 }

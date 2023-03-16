@@ -87,6 +87,11 @@
 			<version>${global.version}</version>
 		</dependency>
 		<dependency>
+			<groupId>com.groyyo.core</groupId>
+			<artifactId>notification-client</artifactId>
+			<version>${global.version}</version>
+		</dependency>
+		<dependency>
 			<groupId>com.opencsv</groupId>
 			<artifactId>opencsv</artifactId>
 			<version>4.5</version>

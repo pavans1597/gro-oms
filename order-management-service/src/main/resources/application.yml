@@ -127,7 +127,8 @@ spring:
       name: order-management-service
    main:
       allow-circular-references: true
-
+   profiles :
+      active : dev
 ############## Kafka Topics #############
 kafka:
    consumer:

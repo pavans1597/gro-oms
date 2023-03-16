@@ -1,11 +1,18 @@
 package com.groyyo.order.management.service.impl;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
+import com.groyyo.core.base.common.dto.ResponseDto;
+import com.groyyo.core.dto.userservice.UserResponseDto;
+import com.groyyo.core.notification.enums.Event;
+import com.groyyo.core.notification.enums.EventType;
+import com.groyyo.core.notification.enums.NotificationSubType;
+import com.groyyo.core.notification.enums.NotificationType;
+import com.groyyo.core.pojo.PushNotificationDTO;
+import com.groyyo.core.user.client.api.UserClientApi;
+import com.groyyo.order.management.enums.RoleType;
+import com.groyyo.order.management.kafka.publisher.PurchaseOrderPublisher;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +21,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-
 import com.groyyo.core.base.common.dto.PageResponse;
 import com.groyyo.core.base.exception.NoRecordException;
 import com.groyyo.core.base.exception.RecordExistsException;
@@ -61,6 +67,12 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
 	@Autowired
 	private StyleService styleService;
+
+	@Autowired
+	private UserClientApi userClientApi;
+
+	@Autowired
+	private PurchaseOrderPublisher purchaseOrderPublisher;
 
 	@Override
 	public List<PurchaseOrderResponseDto> getAllPurchaseOrders(Boolean status) {
@@ -489,7 +501,47 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 		}
 
 		purchaseOrderDbService.saveAndFlush(purchaseOrder);
+		//Todo all user services to get userId
+//		getUsersByRoleName(purchaseOrder.getFactoryId(), RoleType.CHECKER.toString());
+
+		ArrayList<String> userIds = new ArrayList<>(){{
+			add("pavan") ;
+			add("USERUUID") ;
+		}};
+
+		if(purchaseOrder.getPurchaseOrderStatus().equals(PurchaseOrderStatus.COMPLETED)) {
+			publishTaskCompletionNotification(
+					purchaseOrder.getOrderName() +"Completed",
+					purchaseOrder.getOrderName() +"Completed for "+purchaseOrder.getProductName(),
+					userIds,Event.ORDER_COMPLETION,NotificationSubType.TRANSACTIONAL
+			);
+
+
+// String title ,String body ,List<String> userIds,Event event,NotificationSubType notificationSubType) {
+
+
+
+
+			}
+
 	}
+
+
+//	public ResponseDto<Object> getUsersByRoleName(String factory , String roleName) {
+//
+//		try {
+//
+//			return userClientApi.getUsersByRoleNameInternal(factory,roleName);
+//
+//		} catch (Exception e) {
+//
+//			log.error("exception occured while calling getUsersByLineType service ");
+//
+//		}
+//
+//		return null;
+//
+//	}
 
 	private boolean isEntityExistsWithName(String name) {
 
@@ -508,4 +560,26 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 			throw new RecordExistsException(errorMsg);
 		}
 	}
+
+	private void publishTaskCompletionNotification( String title ,String body ,List<String> userIds,Event event,NotificationSubType notificationSubType) {
+
+		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+
+		EventType eventType = (userIds.size() > 1) ? EventType.BULK : EventType.SINGLE;
+
+		PushNotificationDTO pushNotificationDTO = PushNotificationDTO.builder()
+				.title(title)
+				.body(body)
+//				.imageUrl()
+				.userIds(userIds)
+				.event(event)
+				.eventType(eventType)
+				.notificationType(NotificationType.PUSH_NOTIFICATION)
+				.notificationSubType(notificationSubType)
+				.build();
+		Map<String,Object> metadata = new HashMap<>();
+		metadata.put("factoryId",factoryId);
+		purchaseOrderPublisher.publishTaskCompletionNotification(pushNotificationDTO,metadata);
+	}
+
 }
