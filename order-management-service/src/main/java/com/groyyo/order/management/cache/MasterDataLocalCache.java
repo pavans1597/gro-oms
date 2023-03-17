@@ -12,7 +12,6 @@ import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.DependsOn;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
@@ -61,7 +60,7 @@ public class MasterDataLocalCache {
 		if (cacheMasterDataEnable) {
 
 			refreshCache();
-			saveCacheData();
+			//saveCacheData();
 		} else {
 
 			log.info("Not hitting the master-data-service to populate master data as cache is disabled");
@@ -97,6 +96,7 @@ public class MasterDataLocalCache {
 	/**
 	 * 
 	 */
+	@SuppressWarnings("unused")
 	private void saveCacheData() {
 
 		cacheService.saveAllEntitiesFromCache();
