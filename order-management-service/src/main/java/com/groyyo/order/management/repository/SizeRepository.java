@@ -1,10 +1,11 @@
 package com.groyyo.order.management.repository;
 
-import com.groyyo.core.sqlPostgresJpa.repository.AbstractJpaRepository;
-import com.groyyo.order.management.entity.Size;
+import java.util.List;
+
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
+import com.groyyo.core.sqlPostgresJpa.repository.AbstractJpaRepository;
+import com.groyyo.order.management.entity.Size;
 
 @Repository
 public interface SizeRepository extends AbstractJpaRepository<Size, Long> {
@@ -20,4 +21,6 @@ public interface SizeRepository extends AbstractJpaRepository<Size, Long> {
 	List<Size> findByFactoryIdOrderByNameAsc(String factoryId);
 
 	List<Size> findByStatusAndFactoryIdOrderByNameAsc(boolean status, String factoryId);
+
+	Size findByNameAndFactoryId(String name, String factoryId);
 }

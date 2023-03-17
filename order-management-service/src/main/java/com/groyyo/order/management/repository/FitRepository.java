@@ -1,10 +1,11 @@
 package com.groyyo.order.management.repository;
 
-import com.groyyo.core.sqlPostgresJpa.repository.AbstractJpaRepository;
-import com.groyyo.order.management.entity.Fit;
+import java.util.List;
+
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
+import com.groyyo.core.sqlPostgresJpa.repository.AbstractJpaRepository;
+import com.groyyo.order.management.entity.Fit;
 
 @Repository
 public interface FitRepository extends AbstractJpaRepository<Fit, Long> {
@@ -20,4 +21,6 @@ public interface FitRepository extends AbstractJpaRepository<Fit, Long> {
 	List<Fit> findByAndFactoryIdOrderByNameAsc(String factoryId);
 
 	List<Fit> findByStatusAndFactoryIdOrderByNameAsc(boolean status, String factoryId);
+
+	Fit findByNameAndFactoryId(String name, String factoryId);
 }

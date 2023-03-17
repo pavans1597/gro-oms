@@ -23,5 +23,11 @@ public interface SizeService {
 
 	void saveEntityFromCache(Map<String, SizeResponseDto> sizeByNameMap);
 
-    Size findOrCreate(String name);
+	Size findOrCreate(String name);
+
+	/**
+	 * @param sizeResponseDto
+	 * @return
+	 */
+	SizeResponseDto conditionalSaveSize(SizeResponseDto sizeResponseDto);
 }

@@ -1,23 +1,26 @@
 package com.groyyo.order.management.repository;
 
-import com.groyyo.core.sqlPostgresJpa.repository.AbstractJpaRepository;
-import com.groyyo.order.management.entity.Product;
+import java.util.List;
+
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
+import com.groyyo.core.sqlPostgresJpa.repository.AbstractJpaRepository;
+import com.groyyo.order.management.entity.Product;
 
 @Repository
 public interface ProductRepository extends AbstractJpaRepository<Product, Long> {
 
-    List<Product> findByOrderByNameAsc();
+	List<Product> findByOrderByNameAsc();
 
-    List<Product> findByStatusOrderByNameAsc(Boolean status);
+	List<Product> findByStatusOrderByNameAsc(Boolean status);
 
-    Product findByName(String name);
+	Product findByName(String name);
 
-    Product findByNameAndStatus(String name, Boolean status);
+	Product findByNameAndStatus(String name, Boolean status);
 
-    List<Product> findByFactoryIdOrderByNameAsc(String factoryId);
+	List<Product> findByFactoryIdOrderByNameAsc(String factoryId);
 
-    List<Product> findByStatusAndFactoryIdOrderByNameAsc(boolean status, String factoryId);
+	List<Product> findByStatusAndFactoryIdOrderByNameAsc(boolean status, String factoryId);
+
+	Product findByNameAndFactoryId(String name, String factoryId);
 }

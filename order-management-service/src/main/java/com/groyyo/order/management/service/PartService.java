@@ -50,5 +50,11 @@ public interface PartService {
 	 */
 	void saveEntityFromCache(Map<String, PartResponseDto> partByNameMap);
 
-    Part findOrCreate(String name);
+	Part findOrCreate(String name);
+
+	/**
+	 * @param partResponseDto
+	 * @return
+	 */
+	PartResponseDto conditionalSavePart(PartResponseDto partResponseDto);
 }

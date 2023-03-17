@@ -25,7 +25,7 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @ToString(callSuper = true)
 @Entity(name = "size_group")
-@Table(name = "size_group", uniqueConstraints = { @UniqueConstraint(name = "UK_size_group_name", columnNames = { "name" }) })
+@Table(name = "size_group", uniqueConstraints = { @UniqueConstraint(name = "UK_size_group_name_factory_id", columnNames = { "name", "factory_id" }) })
 public class SizeGroup extends AbstractJpaEntity {
 
 	private static final long serialVersionUID = 1L;
@@ -40,6 +40,6 @@ public class SizeGroup extends AbstractJpaEntity {
 	@Column(name = "master_id", columnDefinition = "varchar(40)", nullable = true)
 	private String masterId;
 
-	@Column(columnDefinition = "varchar(40)", nullable = true)
+	@Column(name = "factory_id", columnDefinition = "varchar(40)", nullable = true)
 	private String factoryId;
 }

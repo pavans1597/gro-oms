@@ -8,6 +8,7 @@ import com.groyyo.core.base.http.GroyyoRestClient;
 import com.groyyo.core.file.management.client.api.FileManagementApi;
 import com.groyyo.core.masterData.client.api.MasterDataApi;
 import com.groyyo.core.masterData.client.cache.MasterDataCache;
+import com.groyyo.core.user.client.api.FactoryClientApi;
 import com.groyyo.core.user.client.api.UserClientApi;
 
 @Configuration
@@ -30,6 +31,11 @@ public class ClientConfig {
 	@Bean
 	public UserClientApi fileDataApi() {
 		return new UserClientApi(userDataClient());
+	}
+
+	@Bean
+	public FactoryClientApi factoryClientApi() {
+		return new FactoryClientApi(userDataClient());
 	}
 
 	@Bean(name = "userClient")

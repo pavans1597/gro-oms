@@ -27,5 +27,11 @@ public interface SizeGroupService {
 	 */
 	void saveEntityFromCache(Map<String, SizeGroupResponseDto> sizeGroupByNameMap);
 
-    SizeGroup findOrCreate(String name, List<Size> sizes);
+	SizeGroup findOrCreate(String name, List<Size> sizes);
+
+	/**
+	 * @param sizeGroupResponseDto
+	 * @return
+	 */
+	SizeGroupResponseDto conditionalSaveSizeGroup(SizeGroupResponseDto sizeGroupResponseDto);
 }

@@ -1,29 +1,30 @@
 package com.groyyo.order.management.db.service;
 
+import java.util.List;
+
 import com.groyyo.core.sqlPostgresJpa.service.AbstractJpaService;
 import com.groyyo.order.management.entity.SizeGroup;
 
-import java.util.List;
-
 public interface SizeGroupDbService extends AbstractJpaService<SizeGroup, Long> {
 
+	List<SizeGroup> getAllSizeGroups(String factoryId);
 
-    List<SizeGroup> getAllSizeGroups(String factoryId);
+	List<SizeGroup> getAllSizeGroupsForStatus(boolean status, String factoryId);
 
+	SizeGroup getSizeGroupById(String id);
 
-    List<SizeGroup> getAllSizeGroupsForStatus(boolean status,String factoryId);
+	SizeGroup saveSizeGroup(SizeGroup sizeGroup);
 
+	SizeGroup activateDeactivateSizeGroup(SizeGroup sizeGroup, boolean status);
 
-    SizeGroup getSizeGroupById(String id);
+	boolean isEntityExistsByName(String name);
 
+	SizeGroup findOrCreate(SizeGroup sizeGroup);
 
-    SizeGroup saveSizeGroup(SizeGroup sizeGroup);
-
-
-    SizeGroup activateDeactivateSizeGroup(SizeGroup sizeGroup, boolean status);
-
-
-    boolean isEntityExistsByName(String name);
-
-    SizeGroup findOrCreate(SizeGroup sizeGroup);
+	/**
+	 * @param name
+	 * @param factoryId
+	 * @return
+	 */
+	SizeGroup findByNameAndFactoryId(String name, String factoryId);
 }

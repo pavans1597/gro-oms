@@ -1,5 +1,16 @@
 package com.groyyo.order.management.service.impl;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
 import com.groyyo.core.base.exception.NoRecordException;
 import com.groyyo.core.base.exception.RecordExistsException;
 import com.groyyo.core.base.http.utils.HeaderUtil;
@@ -10,18 +21,10 @@ import com.groyyo.core.master.dto.response.SizeResponseDto;
 import com.groyyo.order.management.adapter.SizeAdapter;
 import com.groyyo.order.management.db.service.SizeDbService;
 import com.groyyo.order.management.entity.Size;
+import com.groyyo.order.management.http.service.FactoryHttpService;
 import com.groyyo.order.management.service.SizeService;
-import lombok.extern.log4j.Log4j2;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import lombok.extern.log4j.Log4j2;
 
 @Service
 @Log4j2
@@ -36,6 +39,9 @@ public class SizeServiceImpl implements SizeService {
 	@Autowired
 	private SizeDbService sizeDbService;
 
+	@Autowired
+	private FactoryHttpService factoryHttpService;
+
 	@Override
 	public List<SizeResponseDto> getAllSizes(Boolean status) {
 
@@ -43,7 +49,7 @@ public class SizeServiceImpl implements SizeService {
 		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
 
 		List<Size> sizeEntities = Objects.isNull(status) ? sizeDbService.getAllSizes(factoryId)
-				: sizeDbService.getAllSizesForStatus(status,factoryId);
+				: sizeDbService.getAllSizesForStatus(status, factoryId);
 
 		if (CollectionUtils.isEmpty(sizeEntities)) {
 			log.error("No Sizes found in the system");
@@ -76,7 +82,7 @@ public class SizeServiceImpl implements SizeService {
 		runValidations(sizeRequestDto);
 		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
 
-		Size size = SizeAdapter.buildSizeFromRequest(sizeRequestDto,factoryId);
+		Size size = SizeAdapter.buildSizeFromRequest(sizeRequestDto, factoryId);
 
 		size = sizeDbService.saveSize(size);
 
@@ -109,9 +115,31 @@ public class SizeServiceImpl implements SizeService {
 
 		sizeDbService.saveSize(size);
 
-		//        publishSize(sizeResponseDto, KafkaConstants.KAFKA_SIZE_TYPE, KafkaConstants.KAFKA_SIZE_SUBTYPE_UPDATE, kafkaMasterDataUpdatesTopic);
+		// publishSize(sizeResponseDto, KafkaConstants.KAFKA_SIZE_TYPE,
+		// KafkaConstants.KAFKA_SIZE_SUBTYPE_UPDATE, kafkaMasterDataUpdatesTopic);
 
 		return SizeAdapter.buildResponseFromEntity(size);
+	}
+
+	@Override
+	public SizeResponseDto conditionalSaveSize(SizeResponseDto sizeResponseDto) {
+
+		log.info("Serving request to conditionally save a Size with response object: {}", sizeResponseDto);
+
+		Size size = sizeDbService.findByNameAndFactoryId(sizeResponseDto.getName(), sizeResponseDto.getFactoryId());
+
+		if (Objects.nonNull(size)) {
+			log.error("Size already exists with name: {} and factory_id: {}", sizeResponseDto.getName(), sizeResponseDto.getFactoryId());
+			return null;
+		}
+
+		size = SizeAdapter.buildSizeFromResponse(sizeResponseDto, sizeResponseDto.getFactoryId());
+
+		size = sizeDbService.save(size);
+
+		sizeResponseDto = SizeAdapter.buildResponseFromEntity(size);
+
+		return sizeResponseDto;
 	}
 
 	@Override
@@ -142,7 +170,7 @@ public class SizeServiceImpl implements SizeService {
 	public void consumeSize(SizeResponseDto sizeResponseDto) {
 		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
 
-		Size size = SizeAdapter.buildSizeFromResponse(sizeResponseDto,factoryId);
+		Size size = SizeAdapter.buildSizeFromResponse(sizeResponseDto, factoryId);
 
 		if (Objects.isNull(size)) {
 			log.error("Unable to build size from response object: {}", sizeResponseDto);
@@ -155,21 +183,24 @@ public class SizeServiceImpl implements SizeService {
 	@Override
 	public void saveEntityFromCache(Map<String, SizeResponseDto> sizeByNameMap) {
 
-		sizeByNameMap.values().forEach(sizeResponseDto -> {
+		List<String> factories = factoryHttpService.getFactoryIds();
 
-			SizeRequestDto sizeRequestDto = SizeAdapter.buildRequestFromResponse(sizeResponseDto);
+		if (CollectionUtils.isEmpty(factories)) {
+			log.error("No active factories found in the system to populate data for");
+			return;
+		}
 
-			if (Objects.nonNull(sizeRequestDto)) {
+		factories.forEach(factoryId -> {
 
-				try {
+			log.info("Populating size data for factory id: {}", factoryId);
 
-					addSize(sizeRequestDto);
+			sizeByNameMap.values().forEach(sizeResponseDto -> {
 
-				} catch (Exception e) {
+				sizeResponseDto.setFactoryId(factoryId);
 
-					log.error("Exception caught while saving size entity with data: {} from cache", sizeByNameMap, e);
-				}
-			}
+				conditionalSaveSize(sizeResponseDto);
+
+			});
 		});
 
 	}

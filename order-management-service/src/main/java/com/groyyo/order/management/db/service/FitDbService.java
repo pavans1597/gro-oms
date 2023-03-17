@@ -1,29 +1,30 @@
 package com.groyyo.order.management.db.service;
 
+import java.util.List;
+
 import com.groyyo.core.sqlPostgresJpa.service.AbstractJpaService;
 import com.groyyo.order.management.entity.Fit;
 
-import java.util.List;
-
 public interface FitDbService extends AbstractJpaService<Fit, Long> {
 
+	List<Fit> getAllFits(String factoryId);
 
-    List<Fit> getAllFits(String factoryId);
+	List<Fit> getAllFitsForStatus(boolean status, String factoryId);
 
+	Fit getFitById(String id);
 
-    List<Fit> getAllFitsForStatus(boolean status,String factoryId);
+	Fit saveFit(Fit fit);
 
+	Fit activateDeactivateFit(Fit fit, boolean status);
 
-    Fit getFitById(String id);
+	boolean isEntityExistsByName(String name);
 
+	Fit findOrCreate(Fit fit);
 
-    Fit saveFit(Fit fit);
-
-
-    Fit activateDeactivateFit(Fit fit, boolean status);
-
-
-    boolean isEntityExistsByName(String name);
-
-    Fit findOrCreate(Fit fit);
+	/**
+	 * @param name
+	 * @param factoryId
+	 * @return
+	 */
+	Fit findByNameAndFactoryId(String name, String factoryId);
 }

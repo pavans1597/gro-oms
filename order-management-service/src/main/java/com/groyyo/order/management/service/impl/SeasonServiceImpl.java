@@ -1,5 +1,16 @@
 package com.groyyo.order.management.service.impl;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
 import com.groyyo.core.base.exception.NoRecordException;
 import com.groyyo.core.base.exception.RecordExistsException;
 import com.groyyo.core.base.http.utils.HeaderUtil;
@@ -11,18 +22,10 @@ import com.groyyo.order.management.adapter.SeasonAdapter;
 import com.groyyo.order.management.constants.KafkaConstants;
 import com.groyyo.order.management.db.service.SeasonDbService;
 import com.groyyo.order.management.entity.Season;
+import com.groyyo.order.management.http.service.FactoryHttpService;
 import com.groyyo.order.management.service.SeasonService;
-import lombok.extern.log4j.Log4j2;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import lombok.extern.log4j.Log4j2;
 
 /**
  * @author nipunaggarwal
@@ -41,6 +44,9 @@ public class SeasonServiceImpl implements SeasonService {
 	@Autowired
 	private SeasonDbService seasonDbService;
 
+	@Autowired
+	private FactoryHttpService factoryHttpService;
+
 	@Override
 	public List<SeasonResponseDto> getAllSeasons(Boolean status) {
 
@@ -48,7 +54,7 @@ public class SeasonServiceImpl implements SeasonService {
 		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
 
 		List<Season> seasonEntities = Objects.isNull(status) ? seasonDbService.getAllSeasons(factoryId)
-				: seasonDbService.getAllSeasonsForStatus(status,factoryId);
+				: seasonDbService.getAllSeasonsForStatus(status, factoryId);
 
 		if (CollectionUtils.isEmpty(seasonEntities)) {
 			log.error("No Seasons found in the system");
@@ -121,6 +127,27 @@ public class SeasonServiceImpl implements SeasonService {
 	}
 
 	@Override
+	public SeasonResponseDto conditionalSaveSeason(SeasonResponseDto seasonResponseDto) {
+
+		log.info("Serving request to conditionally save a Season with response object: {}", seasonResponseDto);
+
+		Season season = seasonDbService.findByNameAndFactoryId(seasonResponseDto.getName(), seasonResponseDto.getFactoryId());
+
+		if (Objects.nonNull(season)) {
+			log.error("Season already exists with name: {} and factory_id: {}", seasonResponseDto.getName(), seasonResponseDto.getFactoryId());
+			return null;
+		}
+
+		season = SeasonAdapter.buildSeasonFromResponse(seasonResponseDto, seasonResponseDto.getFactoryId());
+
+		season = seasonDbService.save(season);
+
+		seasonResponseDto = SeasonAdapter.buildResponseFromEntity(season);
+
+		return seasonResponseDto;
+	}
+
+	@Override
 	public SeasonResponseDto activateDeactivateSeason(String id, boolean status) {
 
 		log.info("Serving request to activate / deactivate a season with id:{}", id);
@@ -158,21 +185,24 @@ public class SeasonServiceImpl implements SeasonService {
 	@Override
 	public void saveEntityFromCache(Map<String, SeasonResponseDto> seasonByNameMap) {
 
-		seasonByNameMap.values().forEach(seasonResponseDto -> {
+		List<String> factories = factoryHttpService.getFactoryIds();
 
-			SeasonRequestDto seasonRequestDto = SeasonAdapter.buildRequestFromResponse(seasonResponseDto);
+		if (CollectionUtils.isEmpty(factories)) {
+			log.error("No active factories found in the system to populate data for");
+			return;
+		}
 
-			if (Objects.nonNull(seasonRequestDto)) {
+		factories.forEach(factoryId -> {
 
-				try {
+			log.info("Populating season data for factory id: {}", factoryId);
 
-					addSeason(seasonRequestDto);
+			seasonByNameMap.values().forEach(seasonResponseDto -> {
 
-				} catch (Exception e) {
+				seasonResponseDto.setFactoryId(factoryId);
 
-					log.error("Exception caught while saving season entity with data: {} from cache", seasonByNameMap, e);
-				}
-			}
+				conditionalSaveSeason(seasonResponseDto);
+
+			});
 		});
 
 	}

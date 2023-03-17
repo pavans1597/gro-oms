@@ -27,4 +27,10 @@ public interface ProductService {
 	void saveEntityFromCache(Map<String, ProductResponseDto> productByNameMap);
 
 	Product findOrCreate(String name);
+
+	/**
+	 * @param productResponseDto
+	 * @return
+	 */
+	ProductResponseDto conditionalSaveProduct(ProductResponseDto productResponseDto);
 }

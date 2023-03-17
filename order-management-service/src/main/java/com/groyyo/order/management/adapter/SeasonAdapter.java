@@ -1,15 +1,16 @@
 
 package com.groyyo.order.management.adapter;
 
-import com.groyyo.core.master.dto.request.SeasonRequestDto;
-import com.groyyo.core.master.dto.response.SeasonResponseDto;
-import com.groyyo.order.management.entity.Product;
-import com.groyyo.order.management.entity.Season;
-import lombok.experimental.UtilityClass;
-import org.apache.commons.lang3.StringUtils;
-
 import java.util.List;
 import java.util.stream.Collectors;
+
+import org.apache.commons.lang3.StringUtils;
+
+import com.groyyo.core.master.dto.request.SeasonRequestDto;
+import com.groyyo.core.master.dto.response.SeasonResponseDto;
+import com.groyyo.order.management.entity.Season;
+
+import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class SeasonAdapter {
@@ -29,6 +30,16 @@ public class SeasonAdapter {
 				.builder()
 				.name(seasonResponseDto.getName())
 				.masterId(seasonResponseDto.getMasterId())
+				.build();
+	}
+
+	public Season buildSeasonFromResponse(SeasonResponseDto seasonResponseDto, String factoryId) {
+
+		return Season
+				.builder()
+				.name(seasonResponseDto.getName())
+				.masterId(seasonResponseDto.getMasterId())
+				.factoryId(factoryId)
 				.build();
 	}
 
@@ -72,7 +83,6 @@ public class SeasonAdapter {
 
 		return seasons.stream().map(SeasonAdapter::buildResponseFromEntity).collect(Collectors.toList());
 	}
-
 
 	public Season buildSeasonFromName(String name, String factoryId) {
 		return Season

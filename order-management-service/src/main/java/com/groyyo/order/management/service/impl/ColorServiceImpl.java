@@ -5,8 +5,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import com.groyyo.order.management.adapter.ColorAdapter;
-import com.groyyo.order.management.entity.Color;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +18,10 @@ import com.groyyo.core.kafka.dto.KafkaDTO;
 import com.groyyo.core.kafka.producer.NotificationProducer;
 import com.groyyo.core.master.dto.request.ColorRequestDto;
 import com.groyyo.core.master.dto.response.ColorResponseDto;
+import com.groyyo.order.management.adapter.ColorAdapter;
 import com.groyyo.order.management.db.service.ColorDbService;
+import com.groyyo.order.management.entity.Color;
+import com.groyyo.order.management.http.service.FactoryHttpService;
 import com.groyyo.order.management.service.ColorService;
 
 import lombok.extern.log4j.Log4j2;
@@ -37,6 +38,9 @@ public class ColorServiceImpl implements ColorService {
 
 	@Autowired
 	private ColorDbService colorDbService;
+
+	@Autowired
+	private FactoryHttpService factoryHttpService;
 
 	@Override
 	public List<ColorResponseDto> getAllColors(Boolean status) {
@@ -113,6 +117,27 @@ public class ColorServiceImpl implements ColorService {
 	}
 
 	@Override
+	public ColorResponseDto conditionalSaveColor(ColorResponseDto colorResponseDto) {
+
+		log.info("Serving request to conditionally save a color with response object: {}", colorResponseDto);
+
+		Color color = colorDbService.findByNameAndHexCodeAndFactoryId(colorResponseDto.getName(), colorResponseDto.getHexCode(), colorResponseDto.getFactoryId());
+
+		if (Objects.nonNull(color)) {
+			log.error("Color already exists with name: {}, hex_code: {} and factory_id: {}", colorResponseDto.getName(), colorResponseDto.getHexCode(), colorResponseDto.getFactoryId());
+			return null;
+		}
+
+		color = ColorAdapter.buildColorFromResponse(colorResponseDto, colorResponseDto.getFactoryId());
+
+		color = colorDbService.save(color);
+
+		colorResponseDto = ColorAdapter.buildResponseFromEntity(color);
+
+		return colorResponseDto;
+	}
+
+	@Override
 	public ColorResponseDto activateDeactivateColor(String id, boolean status) {
 
 		log.info("Serving request to activate / deactivate a color with id: {}", id);
@@ -164,40 +189,24 @@ public class ColorServiceImpl implements ColorService {
 	@Override
 	public void saveEntityFromCache(Map<String, ColorResponseDto> colorByNameMap) {
 
-		colorByNameMap.values().forEach(colorResponseDto -> {
+		List<String> factories = factoryHttpService.getFactoryIds();
 
-			ColorRequestDto colorRequestDto = ColorAdapter.buildRequestFromResponse(colorResponseDto);
+		if (CollectionUtils.isEmpty(factories)) {
+			log.error("No active factories found in the system to populate data for");
+			return;
+		}
 
-			if (Objects.nonNull(colorRequestDto)) {
+		factories.forEach(factoryId -> {
 
-				try {
+			log.info("Populating color data for factory id: {}", factoryId);
 
-					addColor(colorRequestDto);
+			colorByNameMap.values().forEach(colorResponseDto -> {
 
-				} catch (Exception e) {
+				colorResponseDto.setFactoryId(factoryId);
 
-					log.error("Exception caught while saving color entity with data: {} from cache", colorByNameMap, e);
-				}
-			}
-		});
+				conditionalSaveColor(colorResponseDto);
 
-	}
-
-	public void saveEntityFromCacheUpdated(Map<String, ColorResponseDto> colorByNameMap) {
-
-		colorByNameMap.values().forEach(colorResponseDto -> {
-
-			if (Objects.nonNull(colorResponseDto)) {
-
-				try {
-
-					// addColor(colorResponseDto);
-
-				} catch (Exception e) {
-
-					log.error("Exception caught while saving color entity with data: {} from cache", colorByNameMap, e);
-				}
-			}
+			});
 		});
 
 	}
@@ -235,7 +244,7 @@ public class ColorServiceImpl implements ColorService {
 	}
 
 	@Override
-	public Color findOrCreate(String name,  String hexCode) {
+	public Color findOrCreate(String name, String hexCode) {
 		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
 		Color color = ColorAdapter.buildColorFromName(name, hexCode, factoryId);
 		return colorDbService.findOrCreate(color);

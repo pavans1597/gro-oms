@@ -1,14 +1,15 @@
 package com.groyyo.order.management.db.service.impl;
 
+import java.util.List;
+import java.util.Objects;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.groyyo.core.sqlPostgresJpa.service.impl.AbstractJpaServiceImpl;
 import com.groyyo.order.management.db.service.ColorDbService;
 import com.groyyo.order.management.entity.Color;
 import com.groyyo.order.management.repository.ColorRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.Objects;
 
 @Service
 public class ColorDbServiceImpl extends AbstractJpaServiceImpl<Color, Long, ColorRepository> implements ColorDbService {
@@ -23,15 +24,13 @@ public class ColorDbServiceImpl extends AbstractJpaServiceImpl<Color, Long, Colo
 
 	@Override
 	public List<Color> getAllColors(String factoryId) {
-		return (!Objects.isNull(factoryId)?
-				colorRepository.findByFactoryIdOrderByNameAsc(factoryId)
+		return (!Objects.isNull(factoryId) ? colorRepository.findByFactoryIdOrderByNameAsc(factoryId)
 				: colorRepository.findByOrderByNameAsc());
 	}
 
 	@Override
-	public List<Color> getAllColorsForStatus(boolean status,String factoryId) {
-		return  (!Objects.isNull(factoryId))? colorRepository.findByStatusAndFactoryIdOrderByNameAsc(status,factoryId) :
-				colorRepository.findByStatusOrderByNameAsc(status);
+	public List<Color> getAllColorsForStatus(boolean status, String factoryId) {
+		return (!Objects.isNull(factoryId)) ? colorRepository.findByStatusAndFactoryIdOrderByNameAsc(status, factoryId) : colorRepository.findByStatusOrderByNameAsc(status);
 	}
 
 	@Override
@@ -68,5 +67,10 @@ public class ColorDbServiceImpl extends AbstractJpaServiceImpl<Color, Long, Colo
 			save(entity);
 		}
 		return entity;
+	}
+
+	@Override
+	public Color findByNameAndHexCodeAndFactoryId(String name, String hexCode, String factoryId) {
+		return colorRepository.findByNameAndHexCodeAndFactoryId(name, hexCode, factoryId);
 	}
 }

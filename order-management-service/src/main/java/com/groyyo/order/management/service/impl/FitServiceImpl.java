@@ -1,5 +1,16 @@
 package com.groyyo.order.management.service.impl;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
 import com.groyyo.core.base.exception.NoRecordException;
 import com.groyyo.core.base.exception.RecordExistsException;
 import com.groyyo.core.base.http.utils.HeaderUtil;
@@ -10,18 +21,10 @@ import com.groyyo.core.master.dto.response.FitResponseDto;
 import com.groyyo.order.management.adapter.FitAdapter;
 import com.groyyo.order.management.db.service.FitDbService;
 import com.groyyo.order.management.entity.Fit;
+import com.groyyo.order.management.http.service.FactoryHttpService;
 import com.groyyo.order.management.service.FitService;
-import lombok.extern.log4j.Log4j2;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import lombok.extern.log4j.Log4j2;
 
 @Service
 @Log4j2
@@ -36,6 +39,9 @@ public class FitServiceImpl implements FitService {
 	@Autowired
 	private FitDbService fitDbService;
 
+	@Autowired
+	private FactoryHttpService factoryHttpService;
+
 	@Override
 	public List<FitResponseDto> getAllFits(Boolean status) {
 
@@ -43,7 +49,7 @@ public class FitServiceImpl implements FitService {
 		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
 
 		List<Fit> fitEntities = Objects.isNull(status) ? fitDbService.getAllFits(factoryId)
-				: fitDbService.getAllFitsForStatus(status,factoryId);
+				: fitDbService.getAllFitsForStatus(status, factoryId);
 
 		if (CollectionUtils.isEmpty(fitEntities)) {
 			log.error("No Fits found in the system");
@@ -76,7 +82,7 @@ public class FitServiceImpl implements FitService {
 		runValidations(fitRequestDto);
 		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
 
-		Fit fit = FitAdapter.buildFitFromRequest(fitRequestDto,factoryId);
+		Fit fit = FitAdapter.buildFitFromRequest(fitRequestDto, factoryId);
 
 		fit = fitDbService.saveFit(fit);
 
@@ -84,7 +90,6 @@ public class FitServiceImpl implements FitService {
 			log.error("Unable to add fit for object: {}", fitRequestDto);
 			return null;
 		}
-
 
 		return FitAdapter.buildResponseFromEntity(fit);
 	}
@@ -107,8 +112,28 @@ public class FitServiceImpl implements FitService {
 
 		fitDbService.saveFit(fit);
 
-
 		return FitAdapter.buildResponseFromEntity(fit);
+	}
+
+	@Override
+	public FitResponseDto conditionalSaveFit(FitResponseDto fitResponseDto) {
+
+		log.info("Serving request to conditionally save a Fit with response object: {}", fitResponseDto);
+
+		Fit fit = fitDbService.findByNameAndFactoryId(fitResponseDto.getName(), fitResponseDto.getFactoryId());
+
+		if (Objects.nonNull(fit)) {
+			log.error("Fit already exists with name: {} and factory_id: {}", fitResponseDto.getName(), fitResponseDto.getFactoryId());
+			return null;
+		}
+
+		fit = FitAdapter.buildFitFromResponse(fitResponseDto, fitResponseDto.getFactoryId());
+
+		fit = fitDbService.save(fit);
+
+		fitResponseDto = FitAdapter.buildResponseFromEntity(fit);
+
+		return fitResponseDto;
 	}
 
 	@Override
@@ -131,25 +156,29 @@ public class FitServiceImpl implements FitService {
 	@Override
 	public void saveEntityFromCache(Map<String, FitResponseDto> fitByNameMap) {
 
-		fitByNameMap.values().forEach(fitResponseDto -> {
+		List<String> factories = factoryHttpService.getFactoryIds();
 
-			FitRequestDto fitRequestDto = FitAdapter.buildRequestFromResponse(fitResponseDto);
+		if (CollectionUtils.isEmpty(factories)) {
+			log.error("No active factories found in the system to populate data for");
+			return;
+		}
 
-			if (Objects.nonNull(fitRequestDto)) {
+		factories.forEach(factoryId -> {
 
-				try {
+			log.info("Populating Fit data for factory id: {}", factoryId);
 
-					addFit(fitRequestDto);
+			fitByNameMap.values().forEach(fitResponseDto -> {
 
-				} catch (Exception e) {
+				fitResponseDto.setFactoryId(factoryId);
 
-					log.error("Exception caught while saving fit entity with data: {} from cache", fitByNameMap, e);
-				}
-			}
+				conditionalSaveFit(fitResponseDto);
+
+			});
 		});
 
 	}
 
+	@SuppressWarnings("unused")
 	private void publishFit(FitResponseDto fitResponseDto, String type, String subType, String topicName) {
 
 		KafkaDTO kafkaDTO = new KafkaDTO(type, subType, FitResponseDto.class.getName(), fitResponseDto);
@@ -160,7 +189,7 @@ public class FitServiceImpl implements FitService {
 	public void consumeFit(FitResponseDto fitResponseDto) {
 		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
 
-		Fit fit = FitAdapter.buildFitFromResponse(fitResponseDto,factoryId);
+		Fit fit = FitAdapter.buildFitFromResponse(fitResponseDto, factoryId);
 
 		if (Objects.isNull(fit)) {
 			log.error("Unable to build fit from response object: {}", fitResponseDto);

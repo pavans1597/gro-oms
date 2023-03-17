@@ -43,23 +43,23 @@ public class MasterDataLocalCache {
 
 	@Autowired
 	private MasterDataApi masterDataApi;
-	
+
 	private CacheService cacheService;
-	
+
 	@Autowired
-    public void setCacheService(CacheService cacheService) {
-        this.cacheService = cacheService;
-    }
+	public void setCacheService(CacheService cacheService) {
+		this.cacheService = cacheService;
+	}
 
 	@PostConstruct
 	public void init() {
-		
+
 		if (cacheMasterDataEnable) {
-			
+
 			refreshCache();
 			saveCacheData();
 		} else {
-			
+
 			log.info("Not hitting the master-data-service to populate master data as cache is disabled");
 		}
 	}
@@ -89,13 +89,13 @@ public class MasterDataLocalCache {
 		populateAllSizes();
 		populateAllSizeGroups();
 	}
-	
+
 	/**
 	 * 
 	 */
 	private void saveCacheData() {
-		
-		cacheService.saveAllEntitiesFromCache();	
+
+		cacheService.saveAllEntitiesFromCache();
 	}
 
 	/**

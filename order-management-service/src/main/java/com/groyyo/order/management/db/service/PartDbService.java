@@ -1,29 +1,30 @@
 package com.groyyo.order.management.db.service;
 
+import java.util.List;
+
 import com.groyyo.core.sqlPostgresJpa.service.AbstractJpaService;
 import com.groyyo.order.management.entity.Part;
 
-import java.util.List;
-
 public interface PartDbService extends AbstractJpaService<Part, Long> {
 
+	List<Part> getAllParts(String factoryId);
 
-    List<Part> getAllParts(String factoryId);
+	List<Part> getAllPartsForStatus(boolean status, String factoryId);
 
+	Part getPartById(String id);
 
-    List<Part> getAllPartsForStatus(boolean status,String factoryId);
+	Part savePart(Part part);
 
+	Part activateDeactivatePart(Part part, boolean status);
 
-    Part getPartById(String id);
+	boolean isEntityExistsByName(String name);
 
+	Part findOrCreate(Part part);
 
-    Part savePart(Part part);
-
-
-    Part activateDeactivatePart(Part part, boolean status);
-
-
-    boolean isEntityExistsByName(String name);
-
-    Part findOrCreate(Part part);
+	/**
+	 * @param name
+	 * @param factoryId
+	 * @return
+	 */
+	Part findByNameAndFactoryId(String name, String factoryId);
 }

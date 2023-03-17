@@ -50,5 +50,11 @@ public interface FitService {
 	 */
 	void saveEntityFromCache(Map<String, FitResponseDto> fitByNameMap);
 
-    Fit findOrCreate(String name);
+	Fit findOrCreate(String name);
+
+	/**
+	 * @param fitResponseDto
+	 * @return
+	 */
+	FitResponseDto conditionalSaveFit(FitResponseDto fitResponseDto);
 }

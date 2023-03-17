@@ -1,18 +1,20 @@
 package com.groyyo.order.management.adapter;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.apache.commons.lang3.StringUtils;
+
 import com.groyyo.core.master.dto.request.ColorRequestDto;
 import com.groyyo.core.master.dto.response.ColorResponseDto;
 import com.groyyo.order.management.entity.Color;
-import lombok.experimental.UtilityClass;
-import org.apache.commons.lang3.StringUtils;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class ColorAdapter {
 
-	public Color buildColorFromRequest(ColorRequestDto colorRequestDto,String factoryId) {
+	public Color buildColorFromRequest(ColorRequestDto colorRequestDto, String factoryId) {
 
 		return Color
 				.builder()
@@ -23,7 +25,7 @@ public class ColorAdapter {
 				.build();
 	}
 
-	public Color buildColorFromResponse(ColorResponseDto colorResponseDto,String factoryId) {
+	public Color buildColorFromResponse(ColorResponseDto colorResponseDto, String factoryId) {
 
 		return Color
 				.builder()
@@ -60,7 +62,7 @@ public class ColorAdapter {
 
 		if (StringUtils.isNotBlank(colorResponseDto.getMasterId()))
 			colorRequestDto.setMasterId(colorResponseDto.getMasterId());
-
+		
 		return colorRequestDto;
 	}
 

@@ -1,5 +1,18 @@
 package com.groyyo.order.management.service.impl;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
 import com.groyyo.core.base.exception.NoRecordException;
 import com.groyyo.core.base.exception.RecordExistsException;
 import com.groyyo.core.base.http.utils.HeaderUtil;
@@ -16,250 +29,269 @@ import com.groyyo.order.management.db.service.SizeDbService;
 import com.groyyo.order.management.db.service.SizeGroupDbService;
 import com.groyyo.order.management.entity.Size;
 import com.groyyo.order.management.entity.SizeGroup;
+import com.groyyo.order.management.http.service.FactoryHttpService;
 import com.groyyo.order.management.service.SizeGroupService;
-import lombok.extern.log4j.Log4j2;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import lombok.extern.log4j.Log4j2;
 
 @Service
 @Log4j2
 public class SizeGroupServiceImpl implements SizeGroupService {
 
-    @Value("${kafka.master.updates.topic}")
-    private String kafkaMasterDataUpdatesTopic;
+	@Value("${kafka.master.updates.topic}")
+	private String kafkaMasterDataUpdatesTopic;
 
-    @Autowired
-    private NotificationProducer notificationProducer;
+	@Autowired
+	private NotificationProducer notificationProducer;
 
-    @Autowired
-    private SizeGroupDbService sizeGroupDbService;
+	@Autowired
+	private SizeGroupDbService sizeGroupDbService;
 
-    @Autowired
-    private SizeDbService sizeDbService;
+	@Autowired
+	private SizeDbService sizeDbService;
 
-    @Override
-    public List<SizeGroupResponseDto> getAllSizeGroups(Boolean status) {
+	@Autowired
+	private FactoryHttpService factoryHttpService;
 
-        log.info("Serving request to get all sizeGroups");
-        String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+	@Override
+	public List<SizeGroupResponseDto> getAllSizeGroups(Boolean status) {
 
-        List<SizeGroup> sizeGroupEntities = Objects.isNull(status) ? sizeGroupDbService.getAllSizeGroups(factoryId)
-                : sizeGroupDbService.getAllSizeGroupsForStatus(status, factoryId);
+		log.info("Serving request to get all sizeGroups");
+		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
 
-        if (CollectionUtils.isEmpty(sizeGroupEntities)) {
-            log.error("No SizeGroups found in the system");
-            return new ArrayList<SizeGroupResponseDto>();
-        }
+		List<SizeGroup> sizeGroupEntities = Objects.isNull(status) ? sizeGroupDbService.getAllSizeGroups(factoryId)
+				: sizeGroupDbService.getAllSizeGroupsForStatus(status, factoryId);
 
-        List<SizeGroupResponseDto> sizeGroupResponseDtos = SizeGroupAdapter.buildResponsesFromEntities(sizeGroupEntities);
+		if (CollectionUtils.isEmpty(sizeGroupEntities)) {
+			log.error("No SizeGroups found in the system");
+			return new ArrayList<SizeGroupResponseDto>();
+		}
 
-        populateSizeResponseMapInSizeGroupResponseDtos(sizeGroupResponseDtos);
+		List<SizeGroupResponseDto> sizeGroupResponseDtos = SizeGroupAdapter.buildResponsesFromEntities(sizeGroupEntities);
 
-        return sizeGroupResponseDtos;
-    }
+		populateSizeResponseMapInSizeGroupResponseDtos(sizeGroupResponseDtos);
 
-    @Override
-    public SizeGroupResponseDto getSizeGroupById(String id) {
+		return sizeGroupResponseDtos;
+	}
 
-        log.info("Serving request to get a sizeGroup by id:{}", id);
+	@Override
+	public SizeGroupResponseDto getSizeGroupById(String id) {
 
-        SizeGroup sizeGroup = sizeGroupDbService.getSizeGroupById(id);
+		log.info("Serving request to get a sizeGroup by id:{}", id);
 
-        if (Objects.isNull(sizeGroup)) {
-            String errorMsg = "SizeGroup with id: " + id + " not found in the system ";
-            throw new NoRecordException(errorMsg);
-        }
+		SizeGroup sizeGroup = sizeGroupDbService.getSizeGroupById(id);
 
-        SizeGroupResponseDto sizeGroupResponseDto = SizeGroupAdapter.buildResponseFromEntity(sizeGroup);
+		if (Objects.isNull(sizeGroup)) {
+			String errorMsg = "SizeGroup with id: " + id + " not found in the system ";
+			throw new NoRecordException(errorMsg);
+		}
 
-        populateSizeResponseMapInSizeGroupResponseDtos(new ArrayList<SizeGroupResponseDto>(Arrays.asList(sizeGroupResponseDto)));
+		SizeGroupResponseDto sizeGroupResponseDto = SizeGroupAdapter.buildResponseFromEntity(sizeGroup);
 
-        return sizeGroupResponseDto;
-    }
+		populateSizeResponseMapInSizeGroupResponseDtos(new ArrayList<SizeGroupResponseDto>(Arrays.asList(sizeGroupResponseDto)));
 
-    @Override
-    public SizeGroupResponseDto addSizeGroup(SizeGroupRequestDto sizeGroupRequestDto) {
+		return sizeGroupResponseDto;
+	}
 
-        log.info("Serving request to add a sizeGroup with request object:{}", sizeGroupRequestDto);
+	@Override
+	public SizeGroupResponseDto addSizeGroup(SizeGroupRequestDto sizeGroupRequestDto) {
 
-        runValidations(sizeGroupRequestDto);
-        String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+		log.info("Serving request to add a sizeGroup with request object:{}", sizeGroupRequestDto);
 
+		runValidations(sizeGroupRequestDto);
+		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
 
-        SizeGroup sizeGroup = SizeGroupAdapter.buildSizeGroupFromRequest(sizeGroupRequestDto, factoryId);
+		SizeGroup sizeGroup = SizeGroupAdapter.buildSizeGroupFromRequest(sizeGroupRequestDto, factoryId);
 
-        sizeGroup = sizeGroupDbService.saveSizeGroup(sizeGroup);
+		sizeGroup = sizeGroupDbService.saveSizeGroup(sizeGroup);
 
-        if (Objects.isNull(sizeGroup)) {
-            log.error("Unable to add sizeGroup for object: {}", sizeGroupRequestDto);
-            return null;
-        }
+		if (Objects.isNull(sizeGroup)) {
+			log.error("Unable to add sizeGroup for object: {}", sizeGroupRequestDto);
+			return null;
+		}
 
-        SizeGroupResponseDto sizeGroupResponseDto = SizeGroupAdapter.buildResponseFromEntity(sizeGroup);
+		SizeGroupResponseDto sizeGroupResponseDto = SizeGroupAdapter.buildResponseFromEntity(sizeGroup);
 
-        // publishSizeGroup(sizeGroupResponseDto, KafkaConstants.KAFKA_SIZE_GROUP_TYPE,
-        // KafkaConstants.KAFKA_SIZE_GROUP_SUBTYPE_CREATE, kafkaMasterDataUpdatesTopic);
+		// publishSizeGroup(sizeGroupResponseDto, KafkaConstants.KAFKA_SIZE_GROUP_TYPE,
+		// KafkaConstants.KAFKA_SIZE_GROUP_SUBTYPE_CREATE, kafkaMasterDataUpdatesTopic);
 
-        populateSizeResponseMapInSizeGroupResponseDtos(new ArrayList<SizeGroupResponseDto>(Arrays.asList(sizeGroupResponseDto)));
+		populateSizeResponseMapInSizeGroupResponseDtos(new ArrayList<SizeGroupResponseDto>(Arrays.asList(sizeGroupResponseDto)));
 
-        return sizeGroupResponseDto;
-    }
+		return sizeGroupResponseDto;
+	}
 
-    @Override
-    public SizeGroupResponseDto updateSizeGroup(SizeGroupRequestDto sizeGroupRequestDto) {
+	@Override
+	public SizeGroupResponseDto updateSizeGroup(SizeGroupRequestDto sizeGroupRequestDto) {
 
-        log.info("Serving request to update a sizeGroup with request object:{}", sizeGroupRequestDto);
+		log.info("Serving request to update a sizeGroup with request object:{}", sizeGroupRequestDto);
 
-        SizeGroup sizeGroup = sizeGroupDbService.getSizeGroupById(sizeGroupRequestDto.getId());
+		SizeGroup sizeGroup = sizeGroupDbService.getSizeGroupById(sizeGroupRequestDto.getId());
 
-        if (Objects.isNull(sizeGroup)) {
-            log.error("SizeGroup with id: {} not found in the system", sizeGroupRequestDto.getId());
-            return null;
-        }
+		if (Objects.isNull(sizeGroup)) {
+			log.error("SizeGroup with id: {} not found in the system", sizeGroupRequestDto.getId());
+			return null;
+		}
 
-        runValidations(sizeGroupRequestDto);
+		runValidations(sizeGroupRequestDto);
 
-        sizeGroup = SizeGroupAdapter.cloneSizeGroupWithRequest(sizeGroupRequestDto, sizeGroup);
+		sizeGroup = SizeGroupAdapter.cloneSizeGroupWithRequest(sizeGroupRequestDto, sizeGroup);
 
-        sizeGroupDbService.saveSizeGroup(sizeGroup);
+		sizeGroupDbService.saveSizeGroup(sizeGroup);
 
-        SizeGroupResponseDto sizeGroupResponseDto = SizeGroupAdapter.buildResponseFromEntity(sizeGroup);
+		SizeGroupResponseDto sizeGroupResponseDto = SizeGroupAdapter.buildResponseFromEntity(sizeGroup);
 
-        publishSizeGroup(sizeGroupResponseDto, KafkaConstants.KAFKA_SIZE_GROUP_TYPE, KafkaConstants.KAFKA_SIZE_GROUP_SUBTYPE_UPDATE, kafkaMasterDataUpdatesTopic);
+		publishSizeGroup(sizeGroupResponseDto, KafkaConstants.KAFKA_SIZE_GROUP_TYPE, KafkaConstants.KAFKA_SIZE_GROUP_SUBTYPE_UPDATE, kafkaMasterDataUpdatesTopic);
 
-        populateSizeResponseMapInSizeGroupResponseDtos(new ArrayList<SizeGroupResponseDto>(Arrays.asList(sizeGroupResponseDto)));
+		populateSizeResponseMapInSizeGroupResponseDtos(new ArrayList<SizeGroupResponseDto>(Arrays.asList(sizeGroupResponseDto)));
 
-        return sizeGroupResponseDto;
-    }
+		return sizeGroupResponseDto;
+	}
 
-    @Override
-    public SizeGroupResponseDto activateDeactivateSizeGroup(String id, boolean status) {
+	@Override
+	public SizeGroupResponseDto conditionalSaveSizeGroup(SizeGroupResponseDto sizeGroupResponseDto) {
 
-        log.info("Serving request to activate / deactivate a sizeGroup with id:{}", id);
+		log.info("Serving request to conditionally save a SizeGroup with response object: {}", sizeGroupResponseDto);
 
-        SizeGroup sizeGroup = sizeGroupDbService.getSizeGroupById(id);
+		SizeGroup sizeGroup = sizeGroupDbService.findByNameAndFactoryId(sizeGroupResponseDto.getName(), sizeGroupResponseDto.getFactoryId());
 
-        if (Objects.isNull(sizeGroup)) {
-            String errorMsg = "SizeGroup with id: " + id + " not found in the system ";
-            throw new NoRecordException(errorMsg);
-        }
+		if (Objects.nonNull(sizeGroup)) {
+			log.error("SizeGroup already exists with name: {} and factory_id: {}", sizeGroupResponseDto.getName(), sizeGroupResponseDto.getFactoryId());
+			return null;
+		}
 
-        sizeGroup = sizeGroupDbService.activateDeactivateSizeGroup(sizeGroup, status);
+		sizeGroup = SizeGroupAdapter.buildSizeGroupFromResponse(sizeGroupResponseDto, sizeGroupResponseDto.getFactoryId());
 
-        SizeGroupResponseDto sizeGroupResponseDto = SizeGroupAdapter.buildResponseFromEntity(sizeGroup);
+		sizeGroup = sizeGroupDbService.save(sizeGroup);
 
-        populateSizeResponseMapInSizeGroupResponseDtos(new ArrayList<SizeGroupResponseDto>(Arrays.asList(sizeGroupResponseDto)));
+		sizeGroupResponseDto = SizeGroupAdapter.buildResponseFromEntity(sizeGroup);
 
-        return sizeGroupResponseDto;
-    }
+		return sizeGroupResponseDto;
+	}
 
-    private void publishSizeGroup(SizeGroupResponseDto sizeGroupResponseDto, String type, String subType, String topicName) {
+	@Override
+	public SizeGroupResponseDto activateDeactivateSizeGroup(String id, boolean status) {
 
-        KafkaDTO kafkaDTO = new KafkaDTO(type, subType, SizeGroupResponseDto.class.getName(), sizeGroupResponseDto);
-        notificationProducer.publish(topicName, kafkaDTO.getClassName(), kafkaDTO);
-    }
+		log.info("Serving request to activate / deactivate a sizeGroup with id:{}", id);
 
-    @Override
-    public void consumeSizeGroup(SizeGroupResponseDto sizeGroupResponseDto) {
-        String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+		SizeGroup sizeGroup = sizeGroupDbService.getSizeGroupById(id);
 
-        SizeGroup sizeGroup = SizeGroupAdapter.buildSizeGroupFromResponse(sizeGroupResponseDto, factoryId);
+		if (Objects.isNull(sizeGroup)) {
+			String errorMsg = "SizeGroup with id: " + id + " not found in the system ";
+			throw new NoRecordException(errorMsg);
+		}
 
-        if (Objects.isNull(sizeGroup)) {
-            log.error("Unable to build sizeGroup from response object: {}", sizeGroupResponseDto);
-            return;
-        }
+		sizeGroup = sizeGroupDbService.activateDeactivateSizeGroup(sizeGroup, status);
 
-        sizeGroupDbService.saveSizeGroup(sizeGroup);
-    }
+		SizeGroupResponseDto sizeGroupResponseDto = SizeGroupAdapter.buildResponseFromEntity(sizeGroup);
 
-    @Override
-    public void saveEntityFromCache(Map<String, SizeGroupResponseDto> sizeGroupByNameMap) {
+		populateSizeResponseMapInSizeGroupResponseDtos(new ArrayList<SizeGroupResponseDto>(Arrays.asList(sizeGroupResponseDto)));
 
-        sizeGroupByNameMap.values().forEach(sizeGroupResponseDto -> {
+		return sizeGroupResponseDto;
+	}
 
-            SizeGroupRequestDto sizeGroupRequestDto = SizeGroupAdapter.buildRequestFromResponse(sizeGroupResponseDto);
+	private void publishSizeGroup(SizeGroupResponseDto sizeGroupResponseDto, String type, String subType, String topicName) {
 
-            if (Objects.nonNull(sizeGroupRequestDto)) {
+		KafkaDTO kafkaDTO = new KafkaDTO(type, subType, SizeGroupResponseDto.class.getName(), sizeGroupResponseDto);
+		notificationProducer.publish(topicName, kafkaDTO.getClassName(), kafkaDTO);
+	}
 
-                try {
+	@Override
+	public void consumeSizeGroup(SizeGroupResponseDto sizeGroupResponseDto) {
+		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
 
-                    addSizeGroup(sizeGroupRequestDto);
+		SizeGroup sizeGroup = SizeGroupAdapter.buildSizeGroupFromResponse(sizeGroupResponseDto, factoryId);
 
-                } catch (Exception e) {
+		if (Objects.isNull(sizeGroup)) {
+			log.error("Unable to build sizeGroup from response object: {}", sizeGroupResponseDto);
+			return;
+		}
 
-                    log.error("Exception caught while saving sizeGroup entity with data: {} from cache", sizeGroupByNameMap, e);
-                }
-            }
-        });
+		sizeGroupDbService.saveSizeGroup(sizeGroup);
+	}
 
-    }
+	@Override
+	public void saveEntityFromCache(Map<String, SizeGroupResponseDto> sizeGroupByNameMap) {
 
-    private boolean areSizeIdsValid(SizeGroupRequestDto sizeGroupRequestDto) {
+		List<String> factories = factoryHttpService.getFactoryIds();
 
-        List<Size> sizes = sizeDbService.findByUuidInAndStatus(sizeGroupRequestDto.getSizeIds(), Boolean.TRUE);
+		if (CollectionUtils.isEmpty(factories)) {
+			log.error("No active factories found in the system to populate data for");
+			return;
+		}
 
-        return sizes.size() > 0 && sizes.size() == sizeGroupRequestDto.getSizeIds().size();
-    }
+		factories.forEach(factoryId -> {
 
-    private boolean isEntityExistsWithName(String name) {
+			log.info("Populating sizeGroup data for factory id: {}", factoryId);
 
-        return StringUtils.isNotBlank(name) && sizeGroupDbService.isEntityExistsByName(name);
-    }
+			sizeGroupByNameMap.values().forEach(sizeGroupResponseDto -> {
 
-    private void runValidations(SizeGroupRequestDto sizeGroupRequestDto) {
+				sizeGroupResponseDto.setFactoryId(factoryId);
 
-        validateName(sizeGroupRequestDto);
-        validateSizeIds(sizeGroupRequestDto);
-    }
+				conditionalSaveSizeGroup(sizeGroupResponseDto);
 
-    private void validateName(SizeGroupRequestDto sizeGroupRequestDto) {
+			});
+		});
+	}
 
-        if (isEntityExistsWithName(sizeGroupRequestDto.getName())) {
-            String errorMsg = "SizeGroup cannot be created/updated as record already exists with name: " + sizeGroupRequestDto.getName();
-            throw new RecordExistsException(errorMsg);
-        }
-    }
+	private boolean areSizeIdsValid(SizeGroupRequestDto sizeGroupRequestDto) {
 
-    private void validateSizeIds(SizeGroupRequestDto sizeGroupRequestDto) {
+		List<Size> sizes = sizeDbService.findByUuidInAndStatus(sizeGroupRequestDto.getSizeIds(), Boolean.TRUE);
 
-        if (!areSizeIdsValid(sizeGroupRequestDto)) {
-            String errorMsg = "SizeIds should be the ids for sizes in the system. Received few/all invalid sizes in the request: " + sizeGroupRequestDto;
-            throw new NoRecordException(errorMsg);
-        }
-    }
+		return sizes.size() > 0 && sizes.size() == sizeGroupRequestDto.getSizeIds().size();
+	}
 
-    private void populateSizeResponseMapInSizeGroupResponseDtos(List<SizeGroupResponseDto> sizeGroupResponseDtos) {
+	private boolean isEntityExistsWithName(String name) {
 
-        sizeGroupResponseDtos.forEach(sizeGroupResponseDto -> {
+		return StringUtils.isNotBlank(name) && sizeGroupDbService.isEntityExistsByName(name);
+	}
 
-            sizeGroupResponseDto.setSizes(getSizesFromSizeIds(sizeGroupResponseDto));
-        });
-    }
+	private void runValidations(SizeGroupRequestDto sizeGroupRequestDto) {
 
-    /**
-     * @param
-     * @return
-     */
-    private Map<String, SizeResponseDto> getSizesFromSizeIds(SizeGroupResponseDto sizeGroupResponseDto) {
+		validateName(sizeGroupRequestDto);
+		validateSizeIds(sizeGroupRequestDto);
+	}
 
-        List<Size> sizesForSizeIds = sizeDbService.findByUuidInAndStatus(sizeGroupResponseDto.getSizeIds(), Boolean.TRUE);
+	private void validateName(SizeGroupRequestDto sizeGroupRequestDto) {
 
-        Map<String, SizeResponseDto> sizeUuidResponseDtoMap = sizesForSizeIds.stream().collect(Collectors.toMap(size -> size.getUuid(), size -> SizeAdapter.buildResponseFromEntity(size)));
+		if (isEntityExistsWithName(sizeGroupRequestDto.getName())) {
+			String errorMsg = "SizeGroup cannot be created/updated as record already exists with name: " + sizeGroupRequestDto.getName();
+			throw new RecordExistsException(errorMsg);
+		}
+	}
 
-        return sizeUuidResponseDtoMap;
-    }
+	private void validateSizeIds(SizeGroupRequestDto sizeGroupRequestDto) {
 
-    @Override
-    public SizeGroup findOrCreate(String name, List<Size> sizes) {
-        String factoryId = HeaderUtil.getFactoryIdHeaderValue();
-        SizeGroup sizeGroup = SizeGroupAdapter.buildSizeGroup(name, sizes.stream().map(AbstractJpaEntity::getUuid).collect(Collectors.toList()), factoryId);
-        return sizeGroupDbService.findOrCreate(sizeGroup);
-    }
+		if (!areSizeIdsValid(sizeGroupRequestDto)) {
+			String errorMsg = "SizeIds should be the ids for sizes in the system. Received few/all invalid sizes in the request: " + sizeGroupRequestDto;
+			throw new NoRecordException(errorMsg);
+		}
+	}
+
+	private void populateSizeResponseMapInSizeGroupResponseDtos(List<SizeGroupResponseDto> sizeGroupResponseDtos) {
+
+		sizeGroupResponseDtos.forEach(sizeGroupResponseDto -> {
+
+			sizeGroupResponseDto.setSizes(getSizesFromSizeIds(sizeGroupResponseDto));
+		});
+	}
+
+	/**
+	 * @param
+	 * @return
+	 */
+	private Map<String, SizeResponseDto> getSizesFromSizeIds(SizeGroupResponseDto sizeGroupResponseDto) {
+
+		List<Size> sizesForSizeIds = sizeDbService.findByUuidInAndStatus(sizeGroupResponseDto.getSizeIds(), Boolean.TRUE);
+
+		Map<String, SizeResponseDto> sizeUuidResponseDtoMap = sizesForSizeIds.stream().collect(Collectors.toMap(size -> size.getUuid(), size -> SizeAdapter.buildResponseFromEntity(size)));
+
+		return sizeUuidResponseDtoMap;
+	}
+
+	@Override
+	public SizeGroup findOrCreate(String name, List<Size> sizes) {
+		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+		SizeGroup sizeGroup = SizeGroupAdapter.buildSizeGroup(name, sizes.stream().map(AbstractJpaEntity::getUuid).collect(Collectors.toList()), factoryId);
+		return sizeGroupDbService.findOrCreate(sizeGroup);
+	}
 }

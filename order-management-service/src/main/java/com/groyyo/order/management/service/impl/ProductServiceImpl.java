@@ -1,5 +1,16 @@
 package com.groyyo.order.management.service.impl;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
 import com.groyyo.core.base.exception.NoRecordException;
 import com.groyyo.core.base.exception.RecordExistsException;
 import com.groyyo.core.base.http.utils.HeaderUtil;
@@ -10,191 +21,212 @@ import com.groyyo.core.master.dto.response.ProductResponseDto;
 import com.groyyo.order.management.adapter.ProductAdapter;
 import com.groyyo.order.management.db.service.ProductDbService;
 import com.groyyo.order.management.entity.Product;
+import com.groyyo.order.management.http.service.FactoryHttpService;
 import com.groyyo.order.management.service.ProductService;
-import lombok.extern.log4j.Log4j2;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import lombok.extern.log4j.Log4j2;
 
 @Service
 @Log4j2
 public class ProductServiceImpl implements ProductService {
 
-    @Value("${kafka.master.updates.topic}")
-    private String kafkaMasterDataUpdatesTopic;
+	@Value("${kafka.master.updates.topic}")
+	private String kafkaMasterDataUpdatesTopic;
 
-    @Autowired
-    private NotificationProducer notificationProducer;
+	@Autowired
+	private NotificationProducer notificationProducer;
 
-    @Autowired
-    private ProductDbService productDbService;
+	@Autowired
+	private ProductDbService productDbService;
 
-    @Override
-    public List<ProductResponseDto> getAllProducts(Boolean status) {
+	@Autowired
+	private FactoryHttpService factoryHttpService;
 
-        log.info("Serving request to get all products");
-        String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+	@Override
+	public List<ProductResponseDto> getAllProducts(Boolean status) {
 
-        List<Product> productEntities = Objects.isNull(status) ? productDbService.getAllProducts(factoryId)
-                : productDbService.getAllProductsForStatus(status, factoryId);
+		log.info("Serving request to get all products");
+		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
 
-        if (CollectionUtils.isEmpty(productEntities)) {
-            log.error("No Products found in the system");
-            return new ArrayList<ProductResponseDto>();
-        }
+		List<Product> productEntities = Objects.isNull(status) ? productDbService.getAllProducts(factoryId)
+				: productDbService.getAllProductsForStatus(status, factoryId);
 
-        return ProductAdapter.buildResponsesFromEntities(productEntities);
-    }
+		if (CollectionUtils.isEmpty(productEntities)) {
+			log.error("No Products found in the system");
+			return new ArrayList<ProductResponseDto>();
+		}
 
-    @Override
-    public ProductResponseDto getProductById(String id) {
+		return ProductAdapter.buildResponsesFromEntities(productEntities);
+	}
 
-        log.info("Serving request to get a product by id:{}", id);
+	@Override
+	public ProductResponseDto getProductById(String id) {
 
-        Product product = productDbService.getProductById(id);
+		log.info("Serving request to get a product by id:{}", id);
 
-        if (Objects.isNull(product)) {
-            String errorMsg = "Product with id: " + id + " not found in the system ";
-            throw new NoRecordException(errorMsg);
-        }
+		Product product = productDbService.getProductById(id);
 
-        return ProductAdapter.buildResponseFromEntity(product);
-    }
+		if (Objects.isNull(product)) {
+			String errorMsg = "Product with id: " + id + " not found in the system ";
+			throw new NoRecordException(errorMsg);
+		}
 
-    @Override
-    public ProductResponseDto addProduct(ProductRequestDto productRequestDto) {
+		return ProductAdapter.buildResponseFromEntity(product);
+	}
 
-        log.info("Serving request to add a product with request object:{}", productRequestDto);
+	@Override
+	public ProductResponseDto addProduct(ProductRequestDto productRequestDto) {
 
-        runValidations(productRequestDto);
-        String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+		log.info("Serving request to add a product with request object:{}", productRequestDto);
 
-        Product product = ProductAdapter.buildProductFromRequest(productRequestDto, factoryId);
+		runValidations(productRequestDto);
+		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
 
-        product = productDbService.saveProduct(product);
+		Product product = ProductAdapter.buildProductFromRequest(productRequestDto, factoryId);
 
-        if (Objects.isNull(product)) {
-            log.error("Unable to add product for object: {}", productRequestDto);
-            return null;
-        }
+		product = productDbService.saveProduct(product);
 
-        // publishProduct(productResponseDto, KafkaConstants.KAFKA_PRODUCT_TYPE,
-        // KafkaConstants.KAFKA_PRODUCT_SUBTYPE_CREATE, kafkaMasterDataUpdatesTopic);
+		if (Objects.isNull(product)) {
+			log.error("Unable to add product for object: {}", productRequestDto);
+			return null;
+		}
 
-        return ProductAdapter.buildResponseFromEntity(product);
-    }
+		// publishProduct(productResponseDto, KafkaConstants.KAFKA_PRODUCT_TYPE,
+		// KafkaConstants.KAFKA_PRODUCT_SUBTYPE_CREATE, kafkaMasterDataUpdatesTopic);
 
-    @Override
-    public ProductResponseDto updateProduct(ProductRequestDto productRequestDto) {
+		return ProductAdapter.buildResponseFromEntity(product);
+	}
 
-        log.info("Serving request to update a product with request object:{}", productRequestDto);
+	@Override
+	public ProductResponseDto updateProduct(ProductRequestDto productRequestDto) {
 
-        Product product = productDbService.getProductById(productRequestDto.getId());
+		log.info("Serving request to update a product with request object:{}", productRequestDto);
 
-        if (Objects.isNull(product)) {
-            log.error("Product with id: {} not found in the system", productRequestDto.getId());
-            return null;
-        }
+		Product product = productDbService.getProductById(productRequestDto.getId());
 
-        runValidations(productRequestDto);
+		if (Objects.isNull(product)) {
+			log.error("Product with id: {} not found in the system", productRequestDto.getId());
+			return null;
+		}
 
-        product = ProductAdapter.cloneProductWithRequest(productRequestDto, product);
+		runValidations(productRequestDto);
 
-        productDbService.saveProduct(product);
+		product = ProductAdapter.cloneProductWithRequest(productRequestDto, product);
 
-        //		publishProduct(productResponseDto, KafkaConstants.KAFKA_PRODUCT_TYPE, KafkaConstants.KAFKA_PRODUCT_SUBTYPE_UPDATE, kafkaMasterDataUpdatesTopic);
+		productDbService.saveProduct(product);
 
-        return ProductAdapter.buildResponseFromEntity(product);
-    }
+		// publishProduct(productResponseDto, KafkaConstants.KAFKA_PRODUCT_TYPE,
+		// KafkaConstants.KAFKA_PRODUCT_SUBTYPE_UPDATE, kafkaMasterDataUpdatesTopic);
 
-    @Override
-    public ProductResponseDto activateDeactivateProduct(String id, boolean status) {
+		return ProductAdapter.buildResponseFromEntity(product);
+	}
 
-        log.info("Serving request to activate / deactivate a product with id:{}", id);
+	@Override
+	public ProductResponseDto conditionalSaveProduct(ProductResponseDto productResponseDto) {
 
-        Product product = productDbService.getProductById(id);
+		log.info("Serving request to conditionally save a Product with response object: {}", productResponseDto);
 
-        if (Objects.isNull(product)) {
-            String errorMsg = "Product with id: " + id + " not found in the system ";
-            throw new NoRecordException(errorMsg);
-        }
+		Product product = productDbService.findByNameAndFactoryId(productResponseDto.getName(), productResponseDto.getFactoryId());
 
-        product = productDbService.activateDeactivateProduct(product, status);
+		if (Objects.nonNull(product)) {
+			log.error("Product already exists with name: {} and factory_id: {}", productResponseDto.getName(), productResponseDto.getFactoryId());
+			return null;
+		}
 
-        return ProductAdapter.buildResponseFromEntity(product);
-    }
+		product = ProductAdapter.buildProductFromResponse(productResponseDto, productResponseDto.getFactoryId());
 
-    private void publishProduct(ProductResponseDto productResponseDto, String type, String subType, String topicName) {
+		product = productDbService.save(product);
 
-        KafkaDTO kafkaDTO = new KafkaDTO(type, subType, ProductResponseDto.class.getName(), productResponseDto);
-        notificationProducer.publish(topicName, kafkaDTO.getClassName(), kafkaDTO);
-    }
+		productResponseDto = ProductAdapter.buildResponseFromEntity(product);
 
-    @Override
-    public void consumeProduct(ProductResponseDto productResponseDto) {
-        String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+		return productResponseDto;
+	}
 
-        Product product = ProductAdapter.buildProductFromResponse(productResponseDto, factoryId);
+	@Override
+	public ProductResponseDto activateDeactivateProduct(String id, boolean status) {
 
-        if (Objects.isNull(product)) {
-            log.error("Unable to build product from response object: {}", productResponseDto);
-            return;
-        }
+		log.info("Serving request to activate / deactivate a product with id:{}", id);
 
-        productDbService.saveProduct(product);
-    }
+		Product product = productDbService.getProductById(id);
 
-    @Override
-    public void saveEntityFromCache(Map<String, ProductResponseDto> productByNameMap) {
+		if (Objects.isNull(product)) {
+			String errorMsg = "Product with id: " + id + " not found in the system ";
+			throw new NoRecordException(errorMsg);
+		}
 
-        productByNameMap.values().forEach(productResponseDto -> {
+		product = productDbService.activateDeactivateProduct(product, status);
 
-            ProductRequestDto productRequestDto = ProductAdapter.buildRequestFromResponse(productResponseDto);
+		return ProductAdapter.buildResponseFromEntity(product);
+	}
 
-            if (Objects.nonNull(productRequestDto)) {
+	@SuppressWarnings("unused")
+	private void publishProduct(ProductResponseDto productResponseDto, String type, String subType, String topicName) {
 
-                try {
+		KafkaDTO kafkaDTO = new KafkaDTO(type, subType, ProductResponseDto.class.getName(), productResponseDto);
+		notificationProducer.publish(topicName, kafkaDTO.getClassName(), kafkaDTO);
+	}
 
-                    addProduct(productRequestDto);
+	@Override
+	public void consumeProduct(ProductResponseDto productResponseDto) {
+		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
 
-                } catch (Exception e) {
+		Product product = ProductAdapter.buildProductFromResponse(productResponseDto, factoryId);
 
-                    log.error("Exception caught while saving product entity with data: {} from cache", productByNameMap, e);
-                }
-            }
-        });
+		if (Objects.isNull(product)) {
+			log.error("Unable to build product from response object: {}", productResponseDto);
+			return;
+		}
 
-    }
+		productDbService.saveProduct(product);
+	}
 
-    private boolean isEntityExistsWithName(String name) {
+	@Override
+	public void saveEntityFromCache(Map<String, ProductResponseDto> productByNameMap) {
 
-        return StringUtils.isNotBlank(name) && productDbService.isEntityExistsByName(name);
-    }
+		List<String> factories = factoryHttpService.getFactoryIds();
 
-    private void runValidations(ProductRequestDto productRequestDto) {
+		if (CollectionUtils.isEmpty(factories)) {
+			log.error("No active factories found in the system to populate data for");
+			return;
+		}
 
-        validateName(productRequestDto);
-    }
+		factories.forEach(factoryId -> {
 
-    private void validateName(ProductRequestDto productRequestDto) {
+			log.info("Populating product data for factory id: {}", factoryId);
 
-        if (isEntityExistsWithName(productRequestDto.getName())) {
-            String errorMsg = "Product cannot be created/updated as record already exists with name: " + productRequestDto.getName();
-            throw new RecordExistsException(errorMsg);
-        }
-    }
+			productByNameMap.values().forEach(productResponseDto -> {
 
-    @Override
-    public Product findOrCreate(String name) {
-        String factoryId = HeaderUtil.getFactoryIdHeaderValue();
-        Product product = ProductAdapter.buildProductFromName(name, factoryId);
-        return productDbService.findOrCreate(product);
-    }
+				productResponseDto.setFactoryId(factoryId);
+
+				conditionalSaveProduct(productResponseDto);
+
+			});
+		});
+
+	}
+
+	private boolean isEntityExistsWithName(String name) {
+
+		return StringUtils.isNotBlank(name) && productDbService.isEntityExistsByName(name);
+	}
+
+	private void runValidations(ProductRequestDto productRequestDto) {
+
+		validateName(productRequestDto);
+	}
+
+	private void validateName(ProductRequestDto productRequestDto) {
+
+		if (isEntityExistsWithName(productRequestDto.getName())) {
+			String errorMsg = "Product cannot be created/updated as record already exists with name: " + productRequestDto.getName();
+			throw new RecordExistsException(errorMsg);
+		}
+	}
+
+	@Override
+	public Product findOrCreate(String name) {
+		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+		Product product = ProductAdapter.buildProductFromName(name, factoryId);
+		return productDbService.findOrCreate(product);
+	}
 }

@@ -54,5 +54,11 @@ public interface SeasonService {
 	 */
 	void saveEntityFromCache(Map<String, SeasonResponseDto> seasonByNameMap);
 
-    Season findOrCreate(String name);
+	Season findOrCreate(String name);
+
+	/**
+	 * @param seasonResponseDto
+	 * @return
+	 */
+	SeasonResponseDto conditionalSaveSeason(SeasonResponseDto seasonResponseDto);
 }

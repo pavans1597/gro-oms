@@ -3,6 +3,11 @@
  */
 package com.groyyo.order.management.http.service.impl;
 
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.groyyo.core.base.common.dto.ResponseDto;
 import com.groyyo.core.dto.userservice.LineResponseDto;
 import com.groyyo.core.dto.userservice.LineType;
@@ -10,11 +15,8 @@ import com.groyyo.core.dto.userservice.UserResponseDto;
 import com.groyyo.core.enums.QcUserType;
 import com.groyyo.core.user.client.api.UserClientApi;
 import com.groyyo.order.management.http.service.UserManagementHttpService;
-import lombok.extern.log4j.Log4j2;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
-import java.util.List;
+import lombok.extern.log4j.Log4j2;
 
 /**
  * @author pavan
@@ -27,23 +29,22 @@ public class UserManagementHttpServiceImpl implements UserManagementHttpService 
 	@Autowired
 	private UserClientApi userClientApi;
 
-
 	@Override
 	public ResponseDto<List<UserResponseDto>> getUsersByLineType(String factoryId, LineType lineType, QcUserType qcUserType) {
 
 		try {
 
-			return userClientApi.getUsers(factoryId, lineType,qcUserType);
+			return userClientApi.getUsers(factoryId, lineType, qcUserType);
 
 		} catch (Exception e) {
 
-			log.error("exception occured while calling getUsersByLineType service ");
+			log.error("Exception occured while calling getUsersByLineType service ", e);
 
 		}
 
 		return null;
 
-		}
+	}
 
 	@Override
 	public int getUserCountByTypeAndLine(String qcUserType, String lineType) {
@@ -59,6 +60,7 @@ public class UserManagementHttpServiceImpl implements UserManagementHttpService 
 		}
 		return null;
 	}
+
 	@Override
 	public ResponseDto<List<LineResponseDto>> getAllLines(String factoryId) {
 		try {
@@ -73,7 +75,7 @@ public class UserManagementHttpServiceImpl implements UserManagementHttpService 
 	public ResponseDto<List<UserResponseDto>> getUsersByDepartmentAndRole(String factoryId, String departmentName, QcUserType qcUserType) {
 		try {
 
-			return userClientApi.getUsersByRoleAndDept(factoryId, departmentName,qcUserType);
+			return userClientApi.getUsersByRoleAndDept(factoryId, departmentName, qcUserType);
 
 		} catch (Exception e) {
 
@@ -81,6 +83,7 @@ public class UserManagementHttpServiceImpl implements UserManagementHttpService 
 
 		}
 
-		return null;	}
+		return null;
+	}
 
 }

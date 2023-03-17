@@ -21,10 +21,16 @@ public interface ColorService {
 
 	void consumeColor(ColorResponseDto colorResponseDto);
 
+	Color findOrCreate(String name, String hexCode);
+
+	/**
+	 * @param colorRequestDto
+	 * @return
+	 */
+	ColorResponseDto conditionalSaveColor(ColorResponseDto colorResponseDto);
+
 	/**
 	 * @param colorByNameMap
 	 */
 	void saveEntityFromCache(Map<String, ColorResponseDto> colorByNameMap);
-
-    Color findOrCreate(String name, String hexCode);
 }
