@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import com.groyyo.order.management.cache.MasterDataLocalCache;
@@ -20,6 +21,7 @@ import com.groyyo.order.management.service.SizeService;
 
 import lombok.extern.log4j.Log4j2;
 
+@Lazy
 @Log4j2
 @Service
 public class CacheServiceImpl implements CacheService {
