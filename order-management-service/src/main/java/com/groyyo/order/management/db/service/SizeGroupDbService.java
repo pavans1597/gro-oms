@@ -24,4 +24,6 @@ public interface SizeGroupDbService extends AbstractJpaService<SizeGroup, Long> 
 
 
     boolean isEntityExistsByName(String name);
+
+    SizeGroup findOrCreate(SizeGroup sizeGroup);
 }

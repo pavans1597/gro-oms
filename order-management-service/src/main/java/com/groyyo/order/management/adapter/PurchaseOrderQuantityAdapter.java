@@ -76,6 +76,7 @@ public class PurchaseOrderQuantityAdapter {
 		return PurchaseOrderQuantityResponseDto
 				.builder()
 				.name(purchaseOrderQuantity.getName())
+				.uuid(purchaseOrderQuantity.getUuid())
 				.purchaseOrderId(purchaseOrderQuantity.getPurchaseOrderId())
 				.quantity(purchaseOrderQuantity.getQuantity())
 				.sizeId(purchaseOrderQuantity.getSizeId())

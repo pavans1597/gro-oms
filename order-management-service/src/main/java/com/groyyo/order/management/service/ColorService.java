@@ -26,5 +26,5 @@ public interface ColorService {
 	 */
 	void saveEntityFromCache(Map<String, ColorResponseDto> colorByNameMap);
 
-    Color findOrCreate(String name);
+    Color findOrCreate(String name, String hexCode);
 }

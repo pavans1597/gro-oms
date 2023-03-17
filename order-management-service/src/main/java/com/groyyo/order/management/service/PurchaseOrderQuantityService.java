@@ -3,6 +3,7 @@ package com.groyyo.order.management.service;
 import java.util.List;
 import java.util.Map;
 
+import com.groyyo.order.management.entity.PurchaseOrderQuantity;
 import org.apache.commons.lang3.tuple.Pair;
 
 import com.groyyo.core.dto.PurchaseOrder.PurchaseOrderQuantityResponseDto;
@@ -18,6 +19,8 @@ public interface PurchaseOrderQuantityService {
 	PurchaseOrderQuantityResponseDto addPurchaseOrderQuantity(PurchaseOrderQuantityRequestDto purchaseOrderQuantityRequestDto, String purchaseOrderId, Double tolerance);
 
 	List<PurchaseOrderQuantityResponseDto> addBulkPurchaseOrderQuantity(List<PurchaseOrderQuantityRequestDto> purchaseOrderQuantityRequestList, String purchaseOrderId, Double tolerance);
+
+	List<PurchaseOrderQuantityResponseDto> addBulkPurchaseOrderQuantityWithEntity(List<PurchaseOrderQuantity> purchaseOrderQuantities);
 
 	PurchaseOrderQuantityResponseDto updatePurchaseOrderQuantity(PurchaseOrderQuantityCreateDto purchaseOrderQuantityCreateDto);
 

@@ -5,6 +5,8 @@ import java.util.Map;
 
 import com.groyyo.core.master.dto.request.SizeGroupRequestDto;
 import com.groyyo.core.master.dto.response.SizeGroupResponseDto;
+import com.groyyo.order.management.entity.Size;
+import com.groyyo.order.management.entity.SizeGroup;
 
 public interface SizeGroupService {
 
@@ -24,4 +26,6 @@ public interface SizeGroupService {
 	 * @param sizeGroupByNameMap
 	 */
 	void saveEntityFromCache(Map<String, SizeGroupResponseDto> sizeGroupByNameMap);
+
+    SizeGroup findOrCreate(String name, List<Size> sizes);
 }

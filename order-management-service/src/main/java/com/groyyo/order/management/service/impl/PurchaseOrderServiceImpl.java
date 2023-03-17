@@ -8,7 +8,6 @@ import java.util.stream.Collectors;
 
 import com.groyyo.order.management.adapter.*;
 import com.groyyo.order.management.dto.request.BulkPurchaseOrderRequestDto;
-import com.groyyo.order.management.dto.request.PurchaseOrderQuantityRequestDto;
 import com.groyyo.order.management.entity.*;
 import com.groyyo.order.management.service.*;
 import org.apache.commons.collections4.CollectionUtils;
@@ -85,6 +84,12 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
     @Autowired
     private SizeGroupService sizeGroupService;
+
+    @Autowired
+    private FabricService fabricService;
+
+    @Autowired
+    private BuyerService buyerService;
 
     @Override
     public List<PurchaseOrderResponseDto> getAllPurchaseOrders(Boolean status) {
@@ -533,12 +538,13 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         }
     }
 
+    // refactoring in wip
     @Override
-    public PurchaseOrderResponseDto addBulkPurchaseOrder(List<BulkPurchaseOrderRequestDto> purchaseOrderRequestsDto) {
+    public List<PurchaseOrderResponseDto> addBulkPurchaseOrder(List<BulkPurchaseOrderRequestDto> purchaseOrderRequestsDto) {
         String factoryId = HeaderUtil.getFactoryIdHeaderValue();
-        PurchaseOrder purchaseOrders = PurchaseOrder.builder().build();
+        List<PurchaseOrderResponseDto> purchaseOrderResponses = new ArrayList<>();
         purchaseOrderRequestsDto.forEach(purchaseOrderRequestDto -> {
-            List<PurchaseOrderQuantityRequestDto> purchaseOrderQuantityRequestDtos = null;
+            List<PurchaseOrderQuantity> purchaseOrderQuantities = new ArrayList<>();
             List<Size> sizes = new ArrayList<>();
             String styleName = purchaseOrderRequestDto.getStyleName();
             String styleNumber = purchaseOrderRequestDto.getStyleNumber();
@@ -548,40 +554,67 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
             Product product = productService.findOrCreate(productName);
             Season season = seasonService.findOrCreate(seasonName);
             Fit fit = fitService.findOrCreate(fitName);
-            Style style = styleService.findOrCreate(styleName, styleNumber, product);
             Part part = partService.findOrCreate(purchaseOrderRequestDto.getPart().getName());
-            purchaseOrderRequestDto.getPart().getSizes().forEach(name->{
+            Style style = styleService.findOrCreate(styleName, styleNumber, product);
+            purchaseOrderRequestDto.getPart().getSizes().forEach(name -> {
                 sizes.add(sizeService.findOrCreate(name));
             });
             SizeGroup sizeGroup = sizeGroupService.findOrCreate(purchaseOrderRequestDto.getPart().getSizeGroup(), sizes);
-            purchaseOrderRequestDto.getPart().getColors().forEach(colorData -> {
-                Color color = colorService.findOrCreate(colorData.getName());
-               List<String> sizeIds = new ArrayList<>();
-                colorData.getSizes().forEach((k, v) -> {
-                    Size size = sizeService.findOrCreate(k);
-                    sizeIds.add(size.getUuid());
-                });
-
-                SizeGroup sizeGroup = sizeGroupService.findOrCreate(purchaseOrderRequestDto.getPart().getSizeGroup(), sizeIds);
-            });
-            log.info("Serving request to add a purchaseOrder with request object: {}", purchaseOrderRequestDto);
-            PurchaseOrder purchaseOrder = PurchaseOrder.builder().build();
-//			addRunTimeStyle(purchaseOrderRequestDto);
-
-//			purchaseOrder = PurchaseOrderAdapter.buildPurchaseOrderFromRequest(purchaseOrderRequestDto, factoryId);
-
+            PurchaseOrder purchaseOrder = PurchaseOrder
+                    .builder()
+                    .name(purchaseOrderRequestDto.getName())
+                    .styleId(Objects.nonNull(style) ? style.getUuid() : null)
+                    .styleNumber(Objects.nonNull(style) ? style.getStyleNumber() : null)
+                    .styleName(Objects.nonNull(style) ? style.getName() : null)
+                    .fabricId("")
+                    .fabricName("")
+                    .buyerId("")
+                    .buyerName("")
+                    .tolerance(purchaseOrderRequestDto.getPart().getTolerance())
+                    .receiveDate(purchaseOrderRequestDto.getExFtyDate())
+                    .exFtyDate(purchaseOrderRequestDto.getExFtyDate())
+                    .seasonId(season.getUuid())
+                    .seasonName(season.getName())
+                    .fitId(fit.getUuid())
+                    .fitName(fit.getName())
+                    .partId(part.getUuid())
+                    .partName(part.getName())
+                    .productId(Objects.nonNull(product) ? product.getUuid() : null)
+                    .productName(Objects.nonNull(product) ? product.getName() : null)
+                    .factoryId(factoryId)
+                    .build();
             purchaseOrder = purchaseOrderDbService.savePurchaseOrder(purchaseOrder);
-
+            PurchaseOrder finalPurchaseOrder = purchaseOrder;
+            purchaseOrderRequestDto.getPart().getColors().forEach(colorData -> {
+                Color color = colorService.findOrCreate(colorData.getName(), "Color123");
+                colorData.getSizes().forEach((k, v) -> {
+                    Long targetQuantity = Objects.nonNull(v) ? (long) (v + (v * purchaseOrderRequestDto.getPart().getTolerance()) / 100) : 0L;
+                    Size size = sizes.stream().anyMatch(s -> Objects.equals(s.getName(), k)) ? sizes.stream().filter(s -> Objects.equals(s.getName(), k)).findFirst().get() : null;
+                    assert size != null;
+                    purchaseOrderQuantities.add(
+                            PurchaseOrderQuantity
+                                    .builder()
+                                    .name(finalPurchaseOrder.getUuid())
+                                    .purchaseOrderId(finalPurchaseOrder.getUuid())
+                                    .sizeId(size.getUuid())
+                                    .sizeName(size.getName())
+                                    .sizeGroupId(sizeGroup.getUuid())
+                                    .sizeGroupName(sizeGroup.getName())
+                                    .colourId(color.getUuid())
+                                    .colourName(color.getName())
+                                    .quantity(v)
+                                    .targetQuantity(targetQuantity)
+                                    .factoryId(factoryId)
+                                    .build()
+                    );
+                });
+            });
+            purchaseOrderQuantityService.addBulkPurchaseOrderQuantityWithEntity(purchaseOrderQuantities);
             if (Objects.isNull(purchaseOrder)) {
                 log.error("Unable to add purchaseOrder for object: {}", purchaseOrderRequestDto);
             }
-
-//			addPurchaseOrderQuantities(purchaseOrderRequestDto, purchaseOrder);
-
-            updateVitalFieldsAndSave(purchaseOrder);
+            purchaseOrderResponses.add(buildPurchaseOrderResponseWithQuantitiesAndAssignments(purchaseOrder));
         });
-
-
-        return buildPurchaseOrderResponseWithQuantitiesAndAssignments(purchaseOrders);
+        return purchaseOrderResponses;
     }
 }

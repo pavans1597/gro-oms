@@ -235,9 +235,9 @@ public class ColorServiceImpl implements ColorService {
 	}
 
 	@Override
-	public Color findOrCreate(String name) {
+	public Color findOrCreate(String name,  String hexCode) {
 		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
-		Color color = ColorAdapter.buildColorFromName(name, factoryId);
+		Color color = ColorAdapter.buildColorFromName(name, hexCode, factoryId);
 		return colorDbService.findOrCreate(color);
 	}
 }

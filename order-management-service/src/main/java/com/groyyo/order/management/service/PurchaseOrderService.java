@@ -27,5 +27,5 @@ public interface PurchaseOrderService {
 
     PurchaseOrderStatusCountDto getPurchaseOrderStatusCounts(Boolean status);
 
-    PurchaseOrderResponseDto addBulkPurchaseOrder(List<BulkPurchaseOrderRequestDto> purchaseOrderRequestsDto);
+    List<PurchaseOrderResponseDto> addBulkPurchaseOrder(List<BulkPurchaseOrderRequestDto> purchaseOrderRequestsDto);
 }
