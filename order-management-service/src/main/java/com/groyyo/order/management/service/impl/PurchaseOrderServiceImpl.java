@@ -1,9 +1,7 @@
 package com.groyyo.order.management.service.impl;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.time.Instant;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import com.groyyo.order.management.adapter.*;
@@ -571,7 +569,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
                     .buyerId("")
                     .buyerName("")
                     .tolerance(purchaseOrderRequestDto.getPart().getTolerance())
-                    .receiveDate(purchaseOrderRequestDto.getExFtyDate())
+                    .receiveDate(new Date())
                     .exFtyDate(purchaseOrderRequestDto.getExFtyDate())
                     .seasonId(season.getUuid())
                     .seasonName(season.getName())
@@ -586,7 +584,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
             purchaseOrder = purchaseOrderDbService.savePurchaseOrder(purchaseOrder);
             PurchaseOrder finalPurchaseOrder = purchaseOrder;
             purchaseOrderRequestDto.getPart().getColors().forEach(colorData -> {
-                Color color = colorService.findOrCreate(colorData.getName(), "Color123");
+                Color color = colorService.findOrCreate(colorData.getName(), "#ffffff");
                 colorData.getSizes().forEach((k, v) -> {
                     Long targetQuantity = Objects.nonNull(v) ? (long) (v + (v * purchaseOrderRequestDto.getPart().getTolerance()) / 100) : 0L;
                     Size size = sizes.stream().anyMatch(s -> Objects.equals(s.getName(), k)) ? sizes.stream().filter(s -> Objects.equals(s.getName(), k)).findFirst().get() : null;
