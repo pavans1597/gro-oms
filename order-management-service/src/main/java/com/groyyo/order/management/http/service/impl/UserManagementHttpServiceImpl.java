@@ -69,4 +69,18 @@ public class UserManagementHttpServiceImpl implements UserManagementHttpService 
 		return null;
 	}
 
+	@Override
+	public ResponseDto<List<UserResponseDto>> getUsersByDepartmentAndRole(String factoryId, String departmentName, QcUserType qcUserType) {
+		try {
+
+			return userClientApi.getUsersByRoleAndDept(factoryId, departmentName,qcUserType);
+
+		} catch (Exception e) {
+
+			log.error("exception occured while calling getUsersByLineType service ");
+
+		}
+
+		return null;	}
+
 }

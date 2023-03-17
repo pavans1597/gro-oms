@@ -18,7 +18,8 @@ import java.util.List;
 @Log4j2
 public class UserServiceImpl implements UserService {
 
-
+    private static final String finishLineDepartment=  "FINISHING" ;
+    private static final String productionLineDepartment=  "PRODUCTION" ;
     @Autowired
     private UserManagementHttpService userManagementHttpService;
     @Autowired
@@ -26,7 +27,16 @@ public class UserServiceImpl implements UserService {
     @Override
     public ResponseDto<List<UserResponseDto>> getUsersByLineType(String factoryId, LineType lineType, QcUserType qcUserType) {
         try {
-            return userManagementHttpService.getUsersByLineType(factoryId, lineType, qcUserType);
+            String departmentName = null ;
+            switch (lineType){
+                case FINISH_LINE:
+                    departmentName = finishLineDepartment ;
+                    break;
+                case PRODUCTION_LINE:
+                    departmentName = productionLineDepartment ;
+                    break;
+            }
+            return userManagementHttpService.getUsersByDepartmentAndRole(factoryId, departmentName, qcUserType);
         } catch (Exception e) {
             log.error("error occured : ", e);
         }
