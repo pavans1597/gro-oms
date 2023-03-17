@@ -146,7 +146,7 @@ public class PurchaseOrderController {
 				: ResponseDto.success(" Checkers Assigned Successfully !!", lineCheckerAssignments);
 	}
 
-	@PutMapping("id/{id}/status/{status}/change")
+	@PutMapping("id/{id}/status/{purchaseOrderStatus}/change")
 	public ResponseDto<Void> changePurchaseOrderStatus(@PathVariable String id, @PathVariable PurchaseOrderStatus purchaseOrderStatus, @RequestParam boolean forceUpdate) {
 
 		log.info("Request received to update status of purchase order with uuid: {} to: {} with force update flag value: {} ", id, purchaseOrderStatus, forceUpdate);
