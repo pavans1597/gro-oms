@@ -1,17 +1,15 @@
 package com.groyyo.order.management.adapter;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
-
-import org.apache.commons.lang3.StringUtils;
-
 import com.groyyo.core.dto.PurchaseOrder.PurchaseOrderQuantityResponseDto;
 import com.groyyo.order.management.dto.request.PurchaseOrderQuantityCreateDto;
 import com.groyyo.order.management.dto.request.PurchaseOrderQuantityRequestDto;
 import com.groyyo.order.management.entity.PurchaseOrderQuantity;
-
 import lombok.experimental.UtilityClass;
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @UtilityClass
 public class PurchaseOrderQuantityAdapter {
@@ -76,6 +74,7 @@ public class PurchaseOrderQuantityAdapter {
 		return PurchaseOrderQuantityResponseDto
 				.builder()
 				.name(purchaseOrderQuantity.getName())
+				.id(purchaseOrderQuantity.getUuid())
 				.purchaseOrderId(purchaseOrderQuantity.getPurchaseOrderId())
 				.quantity(purchaseOrderQuantity.getQuantity())
 				.sizeId(purchaseOrderQuantity.getSizeId())

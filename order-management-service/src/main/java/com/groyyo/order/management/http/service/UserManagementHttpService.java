@@ -20,4 +20,5 @@ public interface UserManagementHttpService {
     ResponseDto<List<LineResponseDto>> getAllLines(String factoryId);
 
 
+    ResponseDto<List<UserResponseDto>> getUsersByDepartmentAndRole(String factoryId, String departmentName, QcUserType qcUserType);
 }
