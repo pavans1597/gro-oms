@@ -506,13 +506,13 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
 		ArrayList<String> userIds = new ArrayList<>(){{
 			add("pavan") ;
-			add("USERUUID") ;
+			add("5cf70a00-7f7f-4ff5-9d39-952654a00eeb") ;
 		}};
 
 		if(purchaseOrder.getPurchaseOrderStatus().equals(PurchaseOrderStatus.COMPLETED)) {
 			publishTaskCompletionNotification(
-					purchaseOrder.getOrderName() +"Completed",
-					purchaseOrder.getOrderName() +"Completed for "+purchaseOrder.getProductName(),
+					purchaseOrder.getName()  +" Completed",
+					purchaseOrder.getName() +" Completed for "+purchaseOrder.getProductName(),
 					userIds,Event.ORDER_COMPLETION,NotificationSubType.TRANSACTIONAL
 			);
 

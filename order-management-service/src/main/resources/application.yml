@@ -78,13 +78,13 @@ jdbc:
    acquire:
       increment: '2'
    slave:
-      url: jdbc:postgresql://localhost:5432/order_management_service?createDatabaseIfNotExist=true
-      username: postgres
-      password: root
+      url:  jdbc:postgresql://groyyo-postgres-db-dev.postgres.database.azure.com:5432/order_management_service
+      username: groyyopgadmin
+      password: J-Y@WnAh8nJ#k2D%
    master:
-      url: jdbc:postgresql://localhost:5432/order_management_service?createDatabaseIfNotExist=true
-      username: postgres
-      password: root
+      url:  jdbc:postgresql://groyyo-postgres-db-dev.postgres.database.azure.com:5432/order_management_service
+      username: groyyopgadmin
+      password: J-Y@WnAh8nJ#k2D%
    checkout:
       timeout: '5000'
 
@@ -122,13 +122,13 @@ spring:
          type: batch
       admin:
          fail-fast: true
-      bootstrap-servers: pkc-7prvp.centralindia.azure.confluent.cloud:9092
+      bootstrap-servers: localhost:9092
    application:
       name: order-management-service
    main:
       allow-circular-references: true
    profiles :
-      active : dev
+      active :
 ############## Kafka Topics #############
 kafka:
    consumer:
@@ -140,6 +140,8 @@ kafka:
          topic: master-data-updates
    quality-management:
      topic: qc-taskAssignment-topic
+   notification:
+      topic: kafka-notification-topic
 
 ############### healthcheck spring properties ###############
 management:

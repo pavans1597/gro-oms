@@ -29,6 +29,9 @@ public class PurchaseOrderPublisher {
 	@Value("${kafka.quality-management.topic}")
 	private String kafkaQualityManagementUpdatesTopic;
 
+	@Value("${kafka.notification.topic}")
+	private String kafkaNotificationTopic;
+
 	@Autowired
 	private NotificationProducer notificationProducer;
 
@@ -47,7 +50,7 @@ public class PurchaseOrderPublisher {
 		KafkaDTO kafkaDTO = new KafkaDTO(KafkaNotificationConstants.KAFKA_PUSH_NOTIFICATION_TYPE, KafkaNotificationConstants.KAFKA_PUSH_NOTIFICATION_SUBTYPE_EVENT, KafkaDTO.class.getName(),
 				pushNotificationDTO);
 		kafkaDTO.setMetadata(kafkaMetadata);
-		notificationProducer.publish(kafkaQualityManagementUpdatesTopic, kafkaDTO.getClassName(), kafkaDTO);
+		notificationProducer.publish(kafkaNotificationTopic, kafkaDTO.getClassName(), kafkaDTO);
 
 		log.info("Qc Task Assignment Published : {} ", kafkaDTO);
 	}
