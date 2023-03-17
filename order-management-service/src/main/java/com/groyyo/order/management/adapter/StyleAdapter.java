@@ -3,12 +3,11 @@ package com.groyyo.order.management.adapter;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.groyyo.order.management.entity.Product;
 import org.apache.commons.lang3.StringUtils;
-
 import com.groyyo.core.dto.PurchaseOrder.ImageDto;
 import com.groyyo.core.dto.PurchaseOrder.StyleDto;
 import com.groyyo.order.management.entity.Style;
-
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
@@ -86,5 +85,17 @@ public class StyleAdapter {
 				.imgUrl(imageUrl)
 				.build();
 	}
+
+	public Style buildStyleFromName(String name, String styleNumber, Product product, String factoryId) {
+		return Style
+				.builder()
+				.name(name)
+				.styleNumber(styleNumber)
+				.productId(product.getUuid())
+				.productName(product.getName())
+				.factoryId(factoryId)
+				.build();
+	}
+
 
 }

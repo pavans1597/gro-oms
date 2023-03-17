@@ -3,6 +3,7 @@ package com.groyyo.order.management.adapter;
 import com.groyyo.core.master.dto.request.SizeRequestDto;
 import com.groyyo.core.master.dto.response.SizeResponseDto;
 import com.groyyo.order.management.entity.Size;
+import com.groyyo.order.management.entity.Size;
 import lombok.experimental.UtilityClass;
 import org.apache.commons.lang3.StringUtils;
 
@@ -73,4 +74,11 @@ public class SizeAdapter {
 		return sizes.stream().map(SizeAdapter::buildResponseFromEntity).collect(Collectors.toList());
 	}
 
+	public Size buildSizeFromName(String name, String factoryId) {
+		return Size
+				.builder()
+				.name(name)
+				.factoryId(factoryId)
+				.build();
+	}
 }

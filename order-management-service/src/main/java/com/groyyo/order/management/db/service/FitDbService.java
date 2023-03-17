@@ -24,4 +24,6 @@ public interface FitDbService extends AbstractJpaService<Fit, Long> {
 
 
     boolean isEntityExistsByName(String name);
+
+    Fit findOrCreate(Fit fit);
 }

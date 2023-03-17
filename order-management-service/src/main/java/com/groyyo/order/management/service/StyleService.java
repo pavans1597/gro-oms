@@ -3,6 +3,8 @@ package com.groyyo.order.management.service;
 import java.util.List;
 
 import com.groyyo.core.dto.PurchaseOrder.StyleDto;
+import com.groyyo.order.management.entity.Product;
+import com.groyyo.order.management.entity.Style;
 
 public interface StyleService {
 
@@ -12,9 +14,13 @@ public interface StyleService {
 
 	StyleDto addStyle(StyleDto styleRequestDto);
 
-	StyleDto updateStyle(StyleDto styleUpdateDto);
+//    StyleDto addBulkStyle(List<StyleDto> styleRequestDto);
+
+    StyleDto updateStyle(StyleDto styleUpdateDto);
 
 	StyleDto activateDeactivateStyle(String id, boolean status);
 
 	void consumeStyle(StyleDto styleDto);
+
+	Style findOrCreate(String name, String styleNumber, Product product);
 }

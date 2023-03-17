@@ -194,4 +194,11 @@ public class SeasonServiceImpl implements SeasonService {
 			throw new RecordExistsException(errorMsg);
 		}
 	}
+
+	@Override
+	public Season findOrCreate(String name) {
+		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+		Season season = SeasonAdapter.buildSeasonFromName(name, factoryId);
+		return seasonDbService.findOrCreate(season);
+	}
 }

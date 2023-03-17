@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import com.groyyo.order.management.adapter.ColorAdapter;
+import com.groyyo.order.management.entity.Color;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,9 +20,7 @@ import com.groyyo.core.kafka.dto.KafkaDTO;
 import com.groyyo.core.kafka.producer.NotificationProducer;
 import com.groyyo.core.master.dto.request.ColorRequestDto;
 import com.groyyo.core.master.dto.response.ColorResponseDto;
-import com.groyyo.order.management.adapter.ColorAdapter;
 import com.groyyo.order.management.db.service.ColorDbService;
-import com.groyyo.order.management.entity.Color;
 import com.groyyo.order.management.service.ColorService;
 
 import lombok.extern.log4j.Log4j2;
@@ -234,4 +234,10 @@ public class ColorServiceImpl implements ColorService {
 		}
 	}
 
+	@Override
+	public Color findOrCreate(String name,  String hexCode) {
+		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+		Color color = ColorAdapter.buildColorFromName(name, hexCode, factoryId);
+		return colorDbService.findOrCreate(color);
+	}
 }

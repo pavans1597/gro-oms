@@ -9,15 +9,15 @@ import java.util.List;
 @Repository
 public interface ProductRepository extends AbstractJpaRepository<Product, Long> {
 
-	List<Product> findByOrderByNameAsc();
+    List<Product> findByOrderByNameAsc();
 
-	List<Product> findByStatusOrderByNameAsc(Boolean status);
+    List<Product> findByStatusOrderByNameAsc(Boolean status);
 
-	Product findByName(String name);
+    Product findByName(String name);
 
-	Product findByNameAndStatus(String name, Boolean status);
+    Product findByNameAndStatus(String name, Boolean status);
 
-	List<Product> findByFactoryIdOrderByNameAsc(String factoryId);
+    List<Product> findByFactoryIdOrderByNameAsc(String factoryId);
 
-	List<Product> findByStatusAndFactoryIdOrderByNameAsc(boolean status, String factoryId);
+    List<Product> findByStatusAndFactoryIdOrderByNameAsc(boolean status, String factoryId);
 }

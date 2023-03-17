@@ -55,4 +55,14 @@ public class PartDbServiceImpl extends AbstractJpaServiceImpl<Part, Long, PartRe
 	public boolean isEntityExistsByName(String name) {
 		return Objects.nonNull(partRepository.findByName(name));
 	}
+
+	@Override
+	public Part findOrCreate(Part part) {
+		Part entity = partRepository.findByName(part.getName());
+		if (entity == null) {
+			entity = part;
+			save(entity);
+		}
+		return entity;
+	}
 }

@@ -5,6 +5,7 @@ import java.util.Objects;
 
 import javax.validation.Valid;
 
+import com.groyyo.order.management.dto.request.BulkPurchaseOrderRequestDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -155,4 +156,14 @@ public class PurchaseOrderController {
 		return ResponseDto.success("Updated status of purchase order with id: " + id);
 	}
 
+
+	@PostMapping("/bulk/add")
+	public ResponseDto<List<PurchaseOrderResponseDto>> addBulkPurchaseOrder(@RequestBody @Valid List<BulkPurchaseOrderRequestDto> bulkPurchaseOrderRequestsDto) {
+
+		log.info("Request received to add purchaseOrder: {}", bulkPurchaseOrderRequestsDto);
+
+		List<PurchaseOrderResponseDto> purchaseOrderResponses = purchaseOrderService.addBulkPurchaseOrder(bulkPurchaseOrderRequestsDto);
+
+		return ResponseDto.success("PurchaseOrders added successfully !!", purchaseOrderResponses);
+	}
 }

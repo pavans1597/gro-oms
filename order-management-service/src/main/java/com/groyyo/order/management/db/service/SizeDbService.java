@@ -24,4 +24,6 @@ public interface SizeDbService extends AbstractJpaService<Size, Long> {
 
 
     boolean isEntityExistsByName(String name);
+
+    Size findOrCreate(Size size);
 }

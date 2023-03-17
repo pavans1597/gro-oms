@@ -5,6 +5,7 @@ import java.util.Map;
 
 import com.groyyo.core.master.dto.request.FitRequestDto;
 import com.groyyo.core.master.dto.response.FitResponseDto;
+import com.groyyo.order.management.entity.Fit;
 
 public interface FitService {
 
@@ -48,4 +49,6 @@ public interface FitService {
 	 * @param fitByNameMap
 	 */
 	void saveEntityFromCache(Map<String, FitResponseDto> fitByNameMap);
+
+    Fit findOrCreate(String name);
 }

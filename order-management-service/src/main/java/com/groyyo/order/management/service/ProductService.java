@@ -5,6 +5,7 @@ import java.util.Map;
 
 import com.groyyo.core.master.dto.request.ProductRequestDto;
 import com.groyyo.core.master.dto.response.ProductResponseDto;
+import com.groyyo.order.management.entity.Product;
 
 public interface ProductService {
 
@@ -24,4 +25,6 @@ public interface ProductService {
 	 * @param productByNameMap
 	 */
 	void saveEntityFromCache(Map<String, ProductResponseDto> productByNameMap);
+
+	Product findOrCreate(String name);
 }

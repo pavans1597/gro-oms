@@ -188,4 +188,10 @@ public class FitServiceImpl implements FitService {
 		}
 	}
 
+	@Override
+	public Fit findOrCreate(String name) {
+		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+		Fit fit = FitAdapter.buildFitFromName(name, factoryId);
+		return fitDbService.findOrCreate(fit);
+	}
 }

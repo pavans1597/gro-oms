@@ -3,6 +3,7 @@ package com.groyyo.order.management.adapter;
 import com.groyyo.core.master.dto.request.FitRequestDto;
 import com.groyyo.core.master.dto.response.FitResponseDto;
 import com.groyyo.order.management.entity.Fit;
+import com.groyyo.order.management.entity.Fit;
 import lombok.experimental.UtilityClass;
 import org.apache.commons.lang3.StringUtils;
 
@@ -74,4 +75,11 @@ public class FitAdapter {
 		return fits.stream().map(FitAdapter::buildResponseFromEntity).collect(Collectors.toList());
 	}
 
+	public Fit buildFitFromName(String name, String factoryId) {
+		return Fit
+				.builder()
+				.name(name)
+				.factoryId(factoryId)
+				.build();
+	}
 }

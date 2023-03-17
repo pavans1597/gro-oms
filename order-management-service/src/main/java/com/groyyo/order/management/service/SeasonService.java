@@ -5,6 +5,7 @@ import java.util.Map;
 
 import com.groyyo.core.master.dto.request.SeasonRequestDto;
 import com.groyyo.core.master.dto.response.SeasonResponseDto;
+import com.groyyo.order.management.entity.Season;
 
 /**
  * @author nipunaggarwal
@@ -52,4 +53,6 @@ public interface SeasonService {
 	 * @param seasonByNameMap
 	 */
 	void saveEntityFromCache(Map<String, SeasonResponseDto> seasonByNameMap);
+
+    Season findOrCreate(String name);
 }

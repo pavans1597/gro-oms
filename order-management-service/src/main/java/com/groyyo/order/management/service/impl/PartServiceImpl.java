@@ -190,4 +190,11 @@ public class PartServiceImpl implements PartService {
         }
     }
 
+    @Override
+    public Part findOrCreate(String name) {
+        String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+        Part part = PartAdapter.buildPartFromName(name, factoryId);
+        return partDbService.findOrCreate(part);
+    }
+
 }

@@ -25,7 +25,7 @@ public class PurchaseOrderQuantity extends AbstractJpaEntity {
 
 	private static final long serialVersionUID = 1L;
 
-	@Column(name = "name", columnDefinition = "varchar(100)", nullable = false)
+	@Column(name = "name", columnDefinition = "varchar(100)", nullable = true)
 	private String name;
 
 	@Column(name = "purchase_order_id", columnDefinition = "varchar(40)", nullable = false)

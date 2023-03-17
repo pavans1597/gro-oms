@@ -23,4 +23,6 @@ public interface StyleDbService extends AbstractJpaService<Style, Long> {
 
 
     boolean isEntityExistsByStyleNumber(String styleNumber);
+
+    Style findOrCreate(Style style);
 }

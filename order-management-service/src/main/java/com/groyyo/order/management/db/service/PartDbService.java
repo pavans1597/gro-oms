@@ -24,4 +24,6 @@ public interface PartDbService extends AbstractJpaService<Part, Long> {
 
 
     boolean isEntityExistsByName(String name);
+
+    Part findOrCreate(Part part);
 }
