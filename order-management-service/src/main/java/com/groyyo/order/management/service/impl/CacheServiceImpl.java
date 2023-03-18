@@ -28,6 +28,7 @@ public class CacheServiceImpl implements CacheService {
 
 	private MasterDataLocalCache masterDataLocalCache;
 
+	@Override
 	public void setMasterDataLocalCache(MasterDataLocalCache masterDataLocalCache) {
 		this.masterDataLocalCache = masterDataLocalCache;
 	}
