@@ -1,5 +1,6 @@
 package com.groyyo.order.management.service;
 
+import com.groyyo.core.user.dto.response.LineUserResponseDto;
 import com.groyyo.order.management.dto.request.LineCheckerAssignmentRequestDto;
 import com.groyyo.order.management.entity.LineCheckerAssignment;
 
@@ -14,4 +15,6 @@ public interface LineCheckerAssignmentService {
 	 * @return
 	 */
 	List<LineCheckerAssignment> disableLineAssignmentsOnOrderCompletion(String purchaseOrderId);
+
+    List<LineUserResponseDto> getUsers(String factoryId, List<String> userIds);
 }

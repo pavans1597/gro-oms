@@ -84,6 +84,12 @@ public class LineCheckerAssignmentDbServiceImpl extends AbstractJpaServiceImpl<L
 	}
 
 	@Override
+	public List<LineCheckerAssignment> getLineCheckerAssignment(String factoryId, List<String> userIds) {
+		return lineCheckerAssignmentRepository.findByFactoryIdAndUserIdIn(factoryId,userIds);
+	}
+
+
+	@Override
 	public long countLineCheckerByFactoryId(String factoryId, LineType lineType, boolean status) {
 		ArrayList<LineCheckerAssignment> userIdByFactoryIdAndLineTypeAndStatus = lineCheckerAssignmentRepository.findUserIdByFactoryIdAndLineTypeAndStatus(factoryId, lineType, status);
 		Set<String> collect = userIdByFactoryIdAndLineTypeAndStatus.stream().map(LineCheckerAssignment::getUserId).collect(Collectors.toSet());

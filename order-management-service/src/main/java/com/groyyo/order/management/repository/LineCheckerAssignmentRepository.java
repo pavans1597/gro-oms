@@ -27,4 +27,5 @@ public interface LineCheckerAssignmentRepository extends AbstractJpaRepository<L
 
 	ArrayList<LineCheckerAssignment> findUserIdByFactoryIdAndLineTypeAndStatus(String factoryId, LineType lineType, boolean status);
 
+    List<LineCheckerAssignment> findByFactoryIdAndUserIdIn(String factoryId, List<String> userIds);
 }

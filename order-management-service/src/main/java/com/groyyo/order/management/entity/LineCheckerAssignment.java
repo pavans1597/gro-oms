@@ -8,12 +8,16 @@ import javax.persistence.Enumerated;
 import com.groyyo.core.dto.userservice.LineType;
 import com.groyyo.core.sqlPostgresJpa.entity.AbstractJpaEntity;
 
+import com.groyyo.core.user.dto.response.LineUserResponseDto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -49,5 +53,6 @@ public class LineCheckerAssignment extends AbstractJpaEntity {
 
 	@Column(columnDefinition = "varchar(40)")
 	private String salesOrderId;
+
 
 }
