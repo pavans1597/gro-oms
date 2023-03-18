@@ -12,7 +12,6 @@ import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import com.groyyo.core.base.http.GroyyoRestClient;
@@ -45,12 +44,13 @@ public class MasterDataLocalCache {
 	@Autowired
 	private MasterDataApi masterDataApi;
 
-	@Lazy
 	@Autowired
 	private CacheService cacheService;
 
 	@PostConstruct
 	public void init() {
+
+		cacheService.setMasterDataLocalCache(this);
 
 		if (cacheMasterDataEnable) {
 

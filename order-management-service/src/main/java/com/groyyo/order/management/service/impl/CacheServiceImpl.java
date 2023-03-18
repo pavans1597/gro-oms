@@ -28,7 +28,6 @@ public class CacheServiceImpl implements CacheService {
 
 	private MasterDataLocalCache masterDataLocalCache;
 
-	@Autowired
 	public void setMasterDataLocalCache(MasterDataLocalCache masterDataLocalCache) {
 		this.masterDataLocalCache = masterDataLocalCache;
 	}

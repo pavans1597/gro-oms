@@ -4,6 +4,8 @@ import java.util.Map;
 
 import org.apache.commons.lang3.tuple.Pair;
 
+import com.groyyo.order.management.cache.MasterDataLocalCache;
+
 public interface CacheService {
 
 	Pair<String, Map<String, ?>> getEntitiesFromCache(String entity);
@@ -19,5 +21,10 @@ public interface CacheService {
 	 * 
 	 */
 	void saveAllEntitiesFromCache();
+
+	/**
+	 * @param masterDataLocalCache
+	 */
+	void setMasterDataLocalCache(MasterDataLocalCache masterDataLocalCache);
 
 }
