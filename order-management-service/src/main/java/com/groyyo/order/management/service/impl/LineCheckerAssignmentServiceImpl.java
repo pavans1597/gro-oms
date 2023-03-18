@@ -7,6 +7,7 @@ import com.groyyo.core.dto.PurchaseOrder.PurchaseOrderResponseDto;
 import com.groyyo.core.dto.PurchaseOrder.PurchaseOrderStatus;
 import com.groyyo.core.dto.PurchaseOrder.UserLineDetails;
 import com.groyyo.core.user.client.api.UserClientApi;
+import com.groyyo.core.user.dto.response.LineUserResponseDto;
 import com.groyyo.order.management.adapter.LineCheckerAssignmentAdapter;
 import com.groyyo.order.management.db.service.LineCheckerAssignmentDbService;
 import com.groyyo.order.management.db.service.PurchaseOrderDbService;
@@ -22,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Objects;
 
@@ -126,5 +128,19 @@ public class LineCheckerAssignmentServiceImpl implements LineCheckerAssignmentSe
 		}
 
 		return lineCheckerAssignmentDbService.activateDeactivateLineCheckerAssignments(lineCheckerAssignments, Boolean.FALSE);
+	}
+
+	@Override
+	public List<LineUserResponseDto> getUsers(String factoryId, List<String> userIds) {
+		log.info( "Serving Request received to fetch users for factoryId: {} and userIds: {}", factoryId, userIds);
+		if(CollectionUtils.isEmpty(userIds)){
+			throw new InputMismatchException("userIds can't empty");
+		}
+		List<LineCheckerAssignment>lineCheckerAssignments=lineCheckerAssignmentDbService.getLineCheckerAssignment(factoryId,userIds);
+		if(CollectionUtils.isEmpty(lineCheckerAssignments)){
+			log.info("No users are found with factoryId:{} and userIds:{}",factoryId,userIds);
+			return new ArrayList<>();
+		}
+		return LineCheckerAssignmentAdapter.buildResponseDtoList(lineCheckerAssignments);
 	}
 }

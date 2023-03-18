@@ -49,7 +49,9 @@ public interface LineCheckerAssignmentDbService {
 	 */
 	List<LineCheckerAssignment> getLineCheckerAssignmentForPurchaseOrderAndFactoryIdAndStatus(String purchaseOrderId, String factoryId, boolean status);
 
-	/**
+    List<LineCheckerAssignment> getLineCheckerAssignment(String factoryId, List<String> userIds);
+
+    /**
 	 * @param factoryId
 	 * @param lineType
 	 * @param status
