@@ -3,11 +3,13 @@ package com.groyyo.order.management.adapter;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.groyyo.order.management.entity.Product;
 import org.apache.commons.lang3.StringUtils;
+
 import com.groyyo.core.dto.PurchaseOrder.ImageDto;
 import com.groyyo.core.dto.PurchaseOrder.StyleDto;
+import com.groyyo.order.management.entity.Product;
 import com.groyyo.order.management.entity.Style;
+
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
@@ -20,7 +22,8 @@ public class StyleAdapter {
 				.name(styleDto.getName())
 				.styleNumber(styleDto.getStyleNumber())
 				.productId(styleDto.getProductId())
-				.productName(styleDto.getProductName());
+				.productName(styleDto.getProductName())
+				.factoryId(styleDto.getFactoryId());
 
 		if (styleDto.getStyleImage() != null) {
 			builder.styleImageId(styleDto.getStyleImage().getImgId());
@@ -42,6 +45,7 @@ public class StyleAdapter {
 				.styleImageId(styleDto.getStyleImage().getImgId())
 				.cadImageId(styleDto.getCadImage().getImgId())
 				.productId(styleDto.getProductId())
+				.factoryId(styleDto.getFactoryId())
 				.build();
 	}
 
@@ -96,6 +100,5 @@ public class StyleAdapter {
 				.factoryId(factoryId)
 				.build();
 	}
-
 
 }
