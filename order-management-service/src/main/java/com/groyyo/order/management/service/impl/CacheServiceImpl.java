@@ -2,10 +2,11 @@ package com.groyyo.order.management.service.impl;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import com.groyyo.order.management.cache.MasterDataLocalCache;
@@ -21,13 +22,20 @@ import com.groyyo.order.management.service.SizeService;
 
 import lombok.extern.log4j.Log4j2;
 
-@Lazy
 @Log4j2
 @Service
 public class CacheServiceImpl implements CacheService {
 
-	@Autowired
 	private MasterDataLocalCache masterDataLocalCache;
+
+	@Autowired
+	public void setMasterDataLocalCache(MasterDataLocalCache masterDataLocalCache) {
+		this.masterDataLocalCache = masterDataLocalCache;
+	}
+
+	public MasterDataLocalCache getMasterDataLocalCache() {
+		return masterDataLocalCache;
+	}
 
 	@Autowired
 	private ColorService colorService;
@@ -156,6 +164,7 @@ public class CacheServiceImpl implements CacheService {
 	}
 
 	@Override
+	@Async("orderThreadExecutor")
 	public void saveEntitiesFromCache(String entity) {
 		log.info("Going to save entity: {} from cache ", entity);
 
@@ -216,7 +225,11 @@ public class CacheServiceImpl implements CacheService {
 
 			log.info("Running iteration for entity: {}", entity);
 
-			saveEntitiesFromCache(entity);
+			CompletableFuture.runAsync(() -> {
+
+				saveEntitiesFromCache(entity);
+			});
 		});
+
 	}
 }

@@ -12,8 +12,6 @@ import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.Ordered;
-import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import com.groyyo.core.base.http.GroyyoRestClient;
@@ -32,7 +30,6 @@ import com.groyyo.order.management.service.CacheService;
 
 import lombok.extern.log4j.Log4j2;
 
-@Order(Ordered.HIGHEST_PRECEDENCE)
 @Log4j2
 @Component
 public class MasterDataLocalCache {
@@ -54,13 +51,17 @@ public class MasterDataLocalCache {
 		this.cacheService = cacheService;
 	}
 
+	public CacheService getCacheService() {
+		return cacheService;
+	}
+
 	@PostConstruct
 	public void init() {
 
 		if (cacheMasterDataEnable) {
 
 			refreshCache();
-			//saveCacheData();
+			saveCacheData();
 		} else {
 
 			log.info("Not hitting the master-data-service to populate master data as cache is disabled");
@@ -96,7 +97,6 @@ public class MasterDataLocalCache {
 	/**
 	 * 
 	 */
-	@SuppressWarnings("unused")
 	private void saveCacheData() {
 
 		cacheService.saveAllEntitiesFromCache();
