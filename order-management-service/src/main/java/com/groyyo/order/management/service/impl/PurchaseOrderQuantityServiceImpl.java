@@ -11,6 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.groyyo.core.base.exception.NoRecordException;
 import com.groyyo.core.base.exception.RecordExistsException;
@@ -25,193 +26,193 @@ import com.groyyo.order.management.service.PurchaseOrderQuantityService;
 
 import lombok.extern.log4j.Log4j2;
 
-@Service
 @Log4j2
+@Service
+@Transactional
 public class PurchaseOrderQuantityServiceImpl implements PurchaseOrderQuantityService {
 
-    @Autowired
-    private PurchaseOrderQuantityDbService purchaseOrderQuantityDbService;
+	@Autowired
+	private PurchaseOrderQuantityDbService purchaseOrderQuantityDbService;
 
-    @Override
-    public List<PurchaseOrderQuantityResponseDto> getAllPurchaseOrderQuantitiesForPurchaseOrder(String purchaseOrderId) {
+	@Override
+	public List<PurchaseOrderQuantityResponseDto> getAllPurchaseOrderQuantitiesForPurchaseOrder(String purchaseOrderId) {
 
-        log.info("Serving request to get all purchaseOrderQuantities for a purchase order");
-        String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+		log.info("Serving request to get all purchaseOrderQuantities for a purchase order");
+		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
 
-        List<PurchaseOrderQuantity> purchaseOrderQuantityEntities = purchaseOrderQuantityDbService.getAllPurchaseOrderQuantitiesForPurchaseOrder(purchaseOrderId, factoryId);
+		List<PurchaseOrderQuantity> purchaseOrderQuantityEntities = purchaseOrderQuantityDbService.getAllPurchaseOrderQuantitiesForPurchaseOrder(purchaseOrderId, factoryId);
 
-        if (CollectionUtils.isEmpty(purchaseOrderQuantityEntities)) {
-            log.error("No PurchaseOrderQuantities found in the system");
-            return new ArrayList<PurchaseOrderQuantityResponseDto>();
-        }
+		if (CollectionUtils.isEmpty(purchaseOrderQuantityEntities)) {
+			log.error("No PurchaseOrderQuantities found in the system");
+			return new ArrayList<PurchaseOrderQuantityResponseDto>();
+		}
 
-        return PurchaseOrderQuantityAdapter.buildResponsesListFromEntities(purchaseOrderQuantityEntities);
-    }
+		return PurchaseOrderQuantityAdapter.buildResponsesListFromEntities(purchaseOrderQuantityEntities);
+	}
 
-    @Override
-    public PurchaseOrderQuantityResponseDto getPurchaseOrderQuantityById(String id) {
+	@Override
+	public PurchaseOrderQuantityResponseDto getPurchaseOrderQuantityById(String id) {
 
-        log.info("Serving request to get a purchaseOrderQuantity by id:{}", id);
+		log.info("Serving request to get a purchaseOrderQuantity by id:{}", id);
 
-        PurchaseOrderQuantity purchaseOrderQuantity = purchaseOrderQuantityDbService.getPurchaseOrderQuantityById(id);
+		PurchaseOrderQuantity purchaseOrderQuantity = purchaseOrderQuantityDbService.getPurchaseOrderQuantityById(id);
 
-        if (Objects.isNull(purchaseOrderQuantity)) {
-            String errorMsg = "PurchaseOrderQuantity with id: " + id + " not found in the system ";
-            throw new NoRecordException(errorMsg);
-        }
+		if (Objects.isNull(purchaseOrderQuantity)) {
+			String errorMsg = "PurchaseOrderQuantity with id: " + id + " not found in the system ";
+			throw new NoRecordException(errorMsg);
+		}
 
-        return PurchaseOrderQuantityAdapter.buildResponseFromEntity(purchaseOrderQuantity);
-    }
+		return PurchaseOrderQuantityAdapter.buildResponseFromEntity(purchaseOrderQuantity);
+	}
 
-    @Override
-    public PurchaseOrderQuantityResponseDto addPurchaseOrderQuantity(PurchaseOrderQuantityRequestDto purchaseOrderQuantityRequestDto, String purchaseOrderId, Double tolerance) {
+	@Override
+	public PurchaseOrderQuantityResponseDto addPurchaseOrderQuantity(PurchaseOrderQuantityRequestDto purchaseOrderQuantityRequestDto, String purchaseOrderId, Double tolerance) {
 
-        log.info("Serving request to add a purchaseOrderQuantity with request object:{}", purchaseOrderQuantityRequestDto);
-        String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+		log.info("Serving request to add a purchaseOrderQuantity with request object:{}", purchaseOrderQuantityRequestDto);
+		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
 
-        PurchaseOrderQuantity purchaseOrderQuantity = PurchaseOrderQuantityAdapter.buildPurchaseOrderQuantityFromRequest(purchaseOrderQuantityRequestDto, purchaseOrderId, tolerance, factoryId);
+		PurchaseOrderQuantity purchaseOrderQuantity = PurchaseOrderQuantityAdapter.buildPurchaseOrderQuantityFromRequest(purchaseOrderQuantityRequestDto, purchaseOrderId, tolerance, factoryId);
 
-        purchaseOrderQuantity = purchaseOrderQuantityDbService.savePurchaseOrderQuantity(purchaseOrderQuantity);
+		purchaseOrderQuantity = purchaseOrderQuantityDbService.savePurchaseOrderQuantity(purchaseOrderQuantity);
 
-        if (Objects.isNull(purchaseOrderQuantity)) {
-            log.error("Unable to add purchaseOrderQuantity for object: {}", purchaseOrderQuantityRequestDto);
-            return null;
-        }
+		if (Objects.isNull(purchaseOrderQuantity)) {
+			log.error("Unable to add purchaseOrderQuantity for object: {}", purchaseOrderQuantityRequestDto);
+			return null;
+		}
 
-        PurchaseOrderQuantityResponseDto purchaseOrderQuantityResponseDto = PurchaseOrderQuantityAdapter.buildResponseFromEntity(purchaseOrderQuantity);
+		PurchaseOrderQuantityResponseDto purchaseOrderQuantityResponseDto = PurchaseOrderQuantityAdapter.buildResponseFromEntity(purchaseOrderQuantity);
 
-        return purchaseOrderQuantityResponseDto;
-    }
+		return purchaseOrderQuantityResponseDto;
+	}
 
-    @Override
-    public List<PurchaseOrderQuantityResponseDto> addBulkPurchaseOrderQuantity(List<PurchaseOrderQuantityRequestDto> purchaseOrderQuantityRequestList, String purchaseOrderId, Double tolerance) {
+	@Override
+	public List<PurchaseOrderQuantityResponseDto> addBulkPurchaseOrderQuantity(List<PurchaseOrderQuantityRequestDto> purchaseOrderQuantityRequestList, String purchaseOrderId, Double tolerance) {
 
-        log.info("Serving request to bulk add purchaseOrderQuantity with request object: {}", purchaseOrderQuantityRequestList);
-        String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+		log.info("Serving request to bulk add purchaseOrderQuantity with request object: {}", purchaseOrderQuantityRequestList);
+		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
 
-        List<PurchaseOrderQuantity> purchaseOrderQuantityList = PurchaseOrderQuantityAdapter.buildPurchaseOrderQuantityListFromRequestList(purchaseOrderQuantityRequestList, purchaseOrderId,
-                tolerance, factoryId);
+		List<PurchaseOrderQuantity> purchaseOrderQuantityList = PurchaseOrderQuantityAdapter.buildPurchaseOrderQuantityListFromRequestList(purchaseOrderQuantityRequestList, purchaseOrderId,
+				tolerance, factoryId);
 
-        purchaseOrderQuantityList = purchaseOrderQuantityDbService.savePurchaseOrderQuantityList(purchaseOrderQuantityList);
+		purchaseOrderQuantityList = purchaseOrderQuantityDbService.savePurchaseOrderQuantityList(purchaseOrderQuantityList);
 
-        if (Objects.isNull(purchaseOrderQuantityList)) {
-            log.error("Unable to add purchaseOrderQuantity for object: {}", purchaseOrderQuantityRequestList);
-            return null;
-        }
+		if (Objects.isNull(purchaseOrderQuantityList)) {
+			log.error("Unable to add purchaseOrderQuantity for object: {}", purchaseOrderQuantityRequestList);
+			return null;
+		}
 
-        return PurchaseOrderQuantityAdapter.buildResponsesListFromEntities(purchaseOrderQuantityList);
-    }
+		return PurchaseOrderQuantityAdapter.buildResponsesListFromEntities(purchaseOrderQuantityList);
+	}
 
+	@Override
+	public List<PurchaseOrderQuantityResponseDto> addBulkPurchaseOrderQuantityWithEntity(List<PurchaseOrderQuantity> purchaseOrderQuantities) {
 
-    @Override
-    public List<PurchaseOrderQuantityResponseDto> addBulkPurchaseOrderQuantityWithEntity(List<PurchaseOrderQuantity> purchaseOrderQuantities) {
+		List<PurchaseOrderQuantity> purchaseOrderQuantityList = purchaseOrderQuantityDbService.savePurchaseOrderQuantityList(purchaseOrderQuantities);
 
-        List<PurchaseOrderQuantity> purchaseOrderQuantityList = purchaseOrderQuantityDbService.savePurchaseOrderQuantityList(purchaseOrderQuantities);
+		if (Objects.isNull(purchaseOrderQuantityList)) {
+			log.error("Unable to add purchaseOrderQuantity for object: {}", purchaseOrderQuantities);
+			return null;
+		}
+		return PurchaseOrderQuantityAdapter.buildResponsesListFromEntities(purchaseOrderQuantityList);
+	}
 
-        if (Objects.isNull(purchaseOrderQuantityList)) {
-            log.error("Unable to add purchaseOrderQuantity for object: {}", purchaseOrderQuantities);
-            return null;
-        }
-        return PurchaseOrderQuantityAdapter.buildResponsesListFromEntities(purchaseOrderQuantityList);
-    }
+	@Override
+	public PurchaseOrderQuantityResponseDto updatePurchaseOrderQuantity(PurchaseOrderQuantityCreateDto purchaseOrderQuantityCreateDto) {
 
-    @Override
-    public PurchaseOrderQuantityResponseDto updatePurchaseOrderQuantity(PurchaseOrderQuantityCreateDto purchaseOrderQuantityCreateDto) {
+		log.info("Serving request to update a purchaseOrderQuantity with request object:{}", purchaseOrderQuantityCreateDto);
 
-        log.info("Serving request to update a purchaseOrderQuantity with request object:{}", purchaseOrderQuantityCreateDto);
+		PurchaseOrderQuantity purchaseOrderQuantity = purchaseOrderQuantityDbService.getPurchaseOrderQuantityById(purchaseOrderQuantityCreateDto.getId());
 
-        PurchaseOrderQuantity purchaseOrderQuantity = purchaseOrderQuantityDbService.getPurchaseOrderQuantityById(purchaseOrderQuantityCreateDto.getId());
+		if (Objects.isNull(purchaseOrderQuantity)) {
+			log.error("PurchaseOrderQuantity with id: {} not found in the system", purchaseOrderQuantityCreateDto.getId());
+			return null;
+		}
 
-        if (Objects.isNull(purchaseOrderQuantity)) {
-            log.error("PurchaseOrderQuantity with id: {} not found in the system", purchaseOrderQuantityCreateDto.getId());
-            return null;
-        }
+		runValidations(purchaseOrderQuantityCreateDto);
 
-        runValidations(purchaseOrderQuantityCreateDto);
+		purchaseOrderQuantity = PurchaseOrderQuantityAdapter.clonePurchaseOrderQuantityWithRequest(purchaseOrderQuantityCreateDto, purchaseOrderQuantity);
 
-        purchaseOrderQuantity = PurchaseOrderQuantityAdapter.clonePurchaseOrderQuantityWithRequest(purchaseOrderQuantityCreateDto, purchaseOrderQuantity);
+		purchaseOrderQuantityDbService.savePurchaseOrderQuantity(purchaseOrderQuantity);
 
-        purchaseOrderQuantityDbService.savePurchaseOrderQuantity(purchaseOrderQuantity);
+		PurchaseOrderQuantityResponseDto purchaseOrderQuantityResponseDto = PurchaseOrderQuantityAdapter.buildResponseFromEntity(purchaseOrderQuantity);
 
-        PurchaseOrderQuantityResponseDto purchaseOrderQuantityResponseDto = PurchaseOrderQuantityAdapter.buildResponseFromEntity(purchaseOrderQuantity);
+		return purchaseOrderQuantityResponseDto;
+	}
 
-        return purchaseOrderQuantityResponseDto;
-    }
+	@Override
+	public Map<String, List<PurchaseOrderQuantityResponseDto>> getQuantitiesForPurchaseOrders(List<String> purchaseOrderIds) {
+		Map<String, List<PurchaseOrderQuantityResponseDto>> purchaseOrderQuantitiesMap = new HashMap<String, List<PurchaseOrderQuantityResponseDto>>(purchaseOrderIds.size());
 
-    @Override
-    public Map<String, List<PurchaseOrderQuantityResponseDto>> getQuantitiesForPurchaseOrders(List<String> purchaseOrderIds) {
-        Map<String, List<PurchaseOrderQuantityResponseDto>> purchaseOrderQuantitiesMap = new HashMap<String, List<PurchaseOrderQuantityResponseDto>>(purchaseOrderIds.size());
+		purchaseOrderIds.forEach(purchaseOrderId -> {
 
-        purchaseOrderIds.forEach(purchaseOrderId -> {
+			List<PurchaseOrderQuantityResponseDto> purchaseOrderQuantityResponseDtos = getAllPurchaseOrderQuantitiesForPurchaseOrder(purchaseOrderId);
+			purchaseOrderQuantitiesMap.put(purchaseOrderId, purchaseOrderQuantityResponseDtos);
+		});
 
-            List<PurchaseOrderQuantityResponseDto> purchaseOrderQuantityResponseDtos = getAllPurchaseOrderQuantitiesForPurchaseOrder(purchaseOrderId);
-            purchaseOrderQuantitiesMap.put(purchaseOrderId, purchaseOrderQuantityResponseDtos);
-        });
+		return purchaseOrderQuantitiesMap;
+	}
 
-        return purchaseOrderQuantitiesMap;
-    }
+	@Override
+	public Long getTotalQuantityForPurchaseOrder(String purchaseOrderId) {
 
-    @Override
-    public Long getTotalQuantityForPurchaseOrder(String purchaseOrderId) {
+		List<PurchaseOrderQuantityResponseDto> purchaseOrderQuantityResponseDtos = getAllPurchaseOrderQuantitiesForPurchaseOrder(purchaseOrderId);
 
-        List<PurchaseOrderQuantityResponseDto> purchaseOrderQuantityResponseDtos = getAllPurchaseOrderQuantitiesForPurchaseOrder(purchaseOrderId);
+		Long totalQuantityOfPurchaseOrder = 0L;
 
-        Long totalQuantityOfPurchaseOrder = 0L;
+		for (PurchaseOrderQuantityResponseDto purchaseOrderQuantityResponseDto : purchaseOrderQuantityResponseDtos) {
+			totalQuantityOfPurchaseOrder += purchaseOrderQuantityResponseDto.getQuantity();
+		}
 
-        for (PurchaseOrderQuantityResponseDto purchaseOrderQuantityResponseDto : purchaseOrderQuantityResponseDtos) {
-            totalQuantityOfPurchaseOrder += purchaseOrderQuantityResponseDto.getQuantity();
-        }
+		return totalQuantityOfPurchaseOrder;
+	}
 
-        return totalQuantityOfPurchaseOrder;
-    }
+	@Override
+	public Long getTotalTargetQuantityForPurchaseOrder(String purchaseOrderId) {
 
-    @Override
-    public Long getTotalTargetQuantityForPurchaseOrder(String purchaseOrderId) {
+		List<PurchaseOrderQuantityResponseDto> purchaseOrderQuantityResponseDtos = getAllPurchaseOrderQuantitiesForPurchaseOrder(purchaseOrderId);
 
-        List<PurchaseOrderQuantityResponseDto> purchaseOrderQuantityResponseDtos = getAllPurchaseOrderQuantitiesForPurchaseOrder(purchaseOrderId);
+		Long totalTargetQuantityOfPurchaseOrder = 0L;
 
-        Long totalTargetQuantityOfPurchaseOrder = 0L;
+		for (PurchaseOrderQuantityResponseDto purchaseOrderQuantityResponseDto : purchaseOrderQuantityResponseDtos) {
+			totalTargetQuantityOfPurchaseOrder += purchaseOrderQuantityResponseDto.getTargetQuantity();
+		}
 
-        for (PurchaseOrderQuantityResponseDto purchaseOrderQuantityResponseDto : purchaseOrderQuantityResponseDtos) {
-            totalTargetQuantityOfPurchaseOrder += purchaseOrderQuantityResponseDto.getTargetQuantity();
-        }
+		return totalTargetQuantityOfPurchaseOrder;
+	}
 
-        return totalTargetQuantityOfPurchaseOrder;
-    }
+	@Override
+	public Pair<Long, Long> getTotalQuantityAndTotalTargetQuantityForPurchaseOrder(String purchaseOrderId) {
 
-    @Override
-    public Pair<Long, Long> getTotalQuantityAndTotalTargetQuantityForPurchaseOrder(String purchaseOrderId) {
+		return Pair.of(getTotalQuantityForPurchaseOrder(purchaseOrderId), getTotalTargetQuantityForPurchaseOrder(purchaseOrderId));
+	}
 
-        return Pair.of(getTotalQuantityForPurchaseOrder(purchaseOrderId), getTotalTargetQuantityForPurchaseOrder(purchaseOrderId));
-    }
+	@Override
+	public Map<String, Pair<Long, Long>> getTotalQuantityAndTotalTargetQuantityForPurchaseOrders(List<String> purchaseOrderIds) {
 
-    @Override
-    public Map<String, Pair<Long, Long>> getTotalQuantityAndTotalTargetQuantityForPurchaseOrders(List<String> purchaseOrderIds) {
+		Map<String, Pair<Long, Long>> purchaseOrderIdAndTotalQuantityMap = new HashMap<String, Pair<Long, Long>>(purchaseOrderIds.size());
 
-        Map<String, Pair<Long, Long>> purchaseOrderIdAndTotalQuantityMap = new HashMap<String, Pair<Long, Long>>(purchaseOrderIds.size());
+		purchaseOrderIds.forEach(purchaseOrderId -> {
 
-        purchaseOrderIds.forEach(purchaseOrderId -> {
+			purchaseOrderIdAndTotalQuantityMap.put(purchaseOrderId, getTotalQuantityAndTotalTargetQuantityForPurchaseOrder(purchaseOrderId));
+		});
 
-            purchaseOrderIdAndTotalQuantityMap.put(purchaseOrderId, getTotalQuantityAndTotalTargetQuantityForPurchaseOrder(purchaseOrderId));
-        });
+		return purchaseOrderIdAndTotalQuantityMap;
+	}
 
-        return purchaseOrderIdAndTotalQuantityMap;
-    }
+	private boolean isEntityExistsWithName(String name) {
 
-    private boolean isEntityExistsWithName(String name) {
+		return StringUtils.isNotBlank(name) && purchaseOrderQuantityDbService.isEntityExistsByName(name);
+	}
 
-        return StringUtils.isNotBlank(name) && purchaseOrderQuantityDbService.isEntityExistsByName(name);
-    }
+	private void runValidations(PurchaseOrderQuantityCreateDto purchaseOrderQuantityCreateDto) {
+		validateName(purchaseOrderQuantityCreateDto);
+	}
 
-    private void runValidations(PurchaseOrderQuantityCreateDto purchaseOrderQuantityCreateDto) {
-        validateName(purchaseOrderQuantityCreateDto);
-    }
+	private void validateName(PurchaseOrderQuantityCreateDto purchaseOrderQuantityCreateDto) {
 
-    private void validateName(PurchaseOrderQuantityCreateDto purchaseOrderQuantityCreateDto) {
-
-        if (isEntityExistsWithName(purchaseOrderQuantityCreateDto.getName())) {
-            String errorMsg = "PurchaseOrderQuantity cannot be created/updated as record already exists with name: " + purchaseOrderQuantityCreateDto.getName();
-            throw new RecordExistsException(errorMsg);
-        }
-    }
+		if (isEntityExistsWithName(purchaseOrderQuantityCreateDto.getName())) {
+			String errorMsg = "PurchaseOrderQuantity cannot be created/updated as record already exists with name: " + purchaseOrderQuantityCreateDto.getName();
+			throw new RecordExistsException(errorMsg);
+		}
+	}
 }
