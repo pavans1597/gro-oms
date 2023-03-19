@@ -61,6 +61,7 @@ public class LineCheckerAssignmentAdapter {
 				.userId(lineCheckerAssignment.getUserId())
 				.userName(lineCheckerAssignment.getUserName())
 				.purchaseOrderId(lineCheckerAssignment.getPurchaseOrderId())
+				.status(lineCheckerAssignment.isStatus())
 				.build();
 	}
 
