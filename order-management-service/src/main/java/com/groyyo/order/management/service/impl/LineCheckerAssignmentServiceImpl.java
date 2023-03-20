@@ -19,13 +19,12 @@ import com.groyyo.order.management.service.LineCheckerAssignmentService;
 import com.groyyo.order.management.service.PurchaseOrderService;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.InputMismatchException;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Log4j2
@@ -141,6 +140,17 @@ public class LineCheckerAssignmentServiceImpl implements LineCheckerAssignmentSe
 			log.info("No users are found with factoryId:{} and userIds:{}",factoryId,userIds);
 			return new ArrayList<>();
 		}
-		return LineCheckerAssignmentAdapter.buildResponseDtoList(lineCheckerAssignments);
+		Map<String,String>purchaseOrderIdToName=init(lineCheckerAssignments);
+		return LineCheckerAssignmentAdapter.buildResponseDtoList(lineCheckerAssignments,purchaseOrderIdToName);
+	}
+
+	private Map<String,String> init(List<LineCheckerAssignment> lineCheckerAssignments){
+		List<String> poIds = lineCheckerAssignments.stream()
+				.map(LineCheckerAssignment::getPurchaseOrderId)
+				.collect(Collectors.toList());
+		List<PurchaseOrder> purchaseOrders = purchaseOrderDbService.findByUuidInAndStatus(poIds, true);
+		return purchaseOrders.stream()
+				.filter(purchaseOrder -> StringUtils.isNotBlank(purchaseOrder.getName()))
+				.collect(Collectors.toMap(PurchaseOrder::getUuid, PurchaseOrder::getName));
 	}
 }

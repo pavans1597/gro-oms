@@ -4,9 +4,11 @@ import com.groyyo.core.dto.PurchaseOrder.UserLineDetails;
 import com.groyyo.core.user.dto.response.LineUserResponseDto;
 import com.groyyo.order.management.entity.LineCheckerAssignment;
 import lombok.experimental.UtilityClass;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @UtilityClass
@@ -45,9 +47,14 @@ public class LineCheckerAssignmentAdapter {
 		return lineCheckerAssignments.stream().map(LineCheckerAssignmentAdapter::buildUserLineDetailsFromEntity).collect(Collectors.toList());
 	}
 
-	public static List<LineUserResponseDto> buildResponseDtoList(List<LineCheckerAssignment> lineCheckerAssignments) {
+	public static List<LineUserResponseDto> buildResponseDtoList(List<LineCheckerAssignment> lineCheckerAssignments, Map<String,String> purchaseOrderIdToName) {
 		return lineCheckerAssignments.stream()
 				.map(LineCheckerAssignmentAdapter::buildResponseDto)
+				.peek(lineUserResponseDto -> {
+					if (StringUtils.isNotBlank(lineUserResponseDto.getPurchaseOrderId())) {
+						lineUserResponseDto.setPoName(purchaseOrderIdToName.getOrDefault(lineUserResponseDto.getPurchaseOrderId(), null));
+					}
+				})
 				.collect(Collectors.toList());
 	}
 
