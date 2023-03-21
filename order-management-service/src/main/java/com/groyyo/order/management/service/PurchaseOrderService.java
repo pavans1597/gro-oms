@@ -10,6 +10,7 @@ import com.groyyo.order.management.dto.request.BulkPurchaseOrderRequestDto;
 import com.groyyo.order.management.dto.request.PurchaseOrderRequestDto;
 import com.groyyo.order.management.dto.request.PurchaseOrderUpdateDto;
 import com.groyyo.order.management.dto.response.PurchaseOrderStatusCountDto;
+import com.groyyo.order.management.entity.PurchaseOrder;
 
 public interface PurchaseOrderService {
 
@@ -28,4 +29,5 @@ public interface PurchaseOrderService {
     PurchaseOrderStatusCountDto getPurchaseOrderStatusCounts(Boolean status);
 
     List<PurchaseOrderResponseDto> addBulkPurchaseOrder(List<BulkPurchaseOrderRequestDto> purchaseOrderRequestsDto);
+
 }
