@@ -1,27 +1,27 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: multi-tenant-management-service-prod
+  name: order-management-service-prod
 spec:
   selector:
     matchLabels:
-      app: multi-tenant-management-service-prod
+      app: order-management-service-prod
   replicas: 2
   template:
     metadata:
       labels:
-        app: multi-tenant-management-service-prod
+        app: order-management-service-prod
         group: service-prod
     spec:
       containers:
-        - image: groyyoOrgServiceRegistry.azurecr.io/multi-tenant-management-service-prod:latest
-          name: multi-tenant-management-service-prod
+        - image: groyyoOrgServiceRegistry.azurecr.io/order-management-service-prod:latest
+          name: order-management-service-prod
           resources:
             requests:
               memory: "500Mi"
-              cpu: "128m"
+              cpu: "500m"
             limits:
               memory: "1024Mi"
-              cpu: "256m"
+              cpu: "1000m"
           ports:
             - containerPort: 80

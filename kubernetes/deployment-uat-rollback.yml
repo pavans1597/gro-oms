@@ -1,21 +1,21 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: oauth-service-uat
+  name: order-management-service-uat
 spec:
   selector:
     matchLabels:
-      app: oauth-service-uat
+      app: order-management-service-uat
   replicas: 1
   template:
     metadata:
       labels:
-        app: oauth-service-uat
+        app: order-management-service-uat
         group: service-uat
     spec:
       containers:
-        - image: groyyoOrgServiceRegistry.azurecr.io/oauth-service-uat:backup
-          name: oauth-service-uat
+        - image: groyyoOrgServiceRegistry.azurecr.io/order-management-service-uat:backup
+          name: order-management-service-uat
           resources:
             requests:
               memory: "500Mi"
