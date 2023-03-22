@@ -20,7 +20,7 @@ server:
 enable:
   cors: 'true'
   authorize: 'false'
-  authentication: 'false'
+  authentication: 'true'
 
 ########## Cache Config ##############
 cache:
