@@ -12,11 +12,11 @@ on:
         required: true
       AZURE_REGISTRY_USERNAME:
         required: true
-      AZURE_CREDENTIALS_NEW_CLUSTER:
+      AZURE_CREDENTIALS_QC_CLUSTER:
         required: true
       AZURE_SUBSCRIPTION_ID_NEW_CLUSTER:
         required: true
-      SLACK_DEPLOYMENT_NOTIFICATIONS_WEBHOOK:
+      DISCORD_WEBHOOK:
         required: true
       PROD_DB_USERNAME:
         required: false
@@ -24,6 +24,12 @@ on:
         required: false
     inputs:
       env:
+        required: true
+        type: string
+      cluster-name:
+        required: true
+        type: string
+      resource-group:
         required: true
         type: string
       docker-file:
@@ -93,17 +99,14 @@ jobs:
           git reset --hard origin/develop
           echo "Jumped to commit $(git log -1 --format='%H')"
 
-      - name: Slack Notification
-        uses: rtCamp/action-slack-notify@v2
+      - name: Discord Notification
+        uses: rjstone/discord-webhook-notify@v1
         if: |-
           ${{ (contains(steps.pull-origin.outcome, 'failure')) }}
-        env:
-          SLACK_CHANNEL: deployments
-          SLACK_COLOR: ${{ steps.pull-origin.outcome }}
-          SLACK_ICON: https://github.com/rtCamp.png?size=48
-          SLACK_TITLE: ${{ inputs.service }} Pull Origin Failed
-          SLACK_USERNAME: Github Slack Bot
-          SLACK_WEBHOOK: ${{ secrets.SLACK_DEPLOYMENT_NOTIFICATIONS_WEBHOOK }}
+        with:
+          severity: error
+          details: ${{ inputs.service }} Pull Origin Failed
+          webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
 
       - name: Exit on Pull Origin Failure
         if: |-
@@ -140,17 +143,14 @@ jobs:
           mv core-utils ../core-utils
           mvn clean install package -DskipTests
 
-      - name: Slack Notification
-        uses: rtCamp/action-slack-notify@v2
+      - name: Discord Notification
+        uses: rjstone/discord-webhook-notify@v1
         if: |-
           ${{ (contains(steps.maven-build.outcome, 'failure')) }}
-        env:
-          SLACK_CHANNEL: deployments
-          SLACK_COLOR: ${{ steps.maven-build.outcome }}
-          SLACK_ICON: https://github.com/rtCamp.png?size=48
-          SLACK_TITLE: ${{ inputs.service }} Maven Build Failed
-          SLACK_USERNAME: Github Slack Bot
-          SLACK_WEBHOOK: ${{ secrets.SLACK_DEPLOYMENT_NOTIFICATIONS_WEBHOOK }}
+        with:
+          severity: error
+          details: ${{ inputs.service }} Maven Build Failed
+          webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
 
       - name: Exit on Maven Build Failure
         if: |-
@@ -184,17 +184,14 @@ jobs:
             echo "::set-output name=BACKUP_IMAGE::not_exists"
           fi
 
-      - name: Slack Notification
-        uses: rtCamp/action-slack-notify@v2
+      - name: Discord Notification
+        uses: rjstone/discord-webhook-notify@v1
         if: |-
           ${{ (contains(steps.docker-backup.outcome, 'failure')) }}
-        env:
-          SLACK_CHANNEL: deployments
-          SLACK_COLOR: ${{ steps.docker-backup.outcome }}
-          SLACK_ICON: https://github.com/rtCamp.png?size=48
-          SLACK_TITLE: ${{ inputs.service }} Docker Backup Failed
-          SLACK_USERNAME: Github Slack Bot
-          SLACK_WEBHOOK: ${{ secrets.SLACK_DEPLOYMENT_NOTIFICATIONS_WEBHOOK }}
+        with:
+          severity: error
+          details: ${{ inputs.service }} Docker Backup Failed
+          webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
 
       - name: Exit on Docker Backup Failure
         if: |-
@@ -207,12 +204,17 @@ jobs:
           docker push groyyoOrgServiceRegistry.azurecr.io/${{ inputs.container-image }}
 
       # Continuous Deployment
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS_QC_CLUSTER }}
+
       - name: Set AKS Context
         uses: azure/aks-set-context@v1
         with:
-          creds: '${{ secrets.AZURE_CREDENTIALS_NEW_CLUSTER }}'
-          cluster-name: groyyo-ks-cluster-spring
-          resource-group: groyyo-rg-ci-1
+          creds: '${{ secrets.AZURE_CREDENTIALS_QC_CLUSTER }}'
+          cluster-name: ${{ inputs.cluster-name }}
+          resource-group: ${{ inputs.resource-group }}
 
       - name: Create Secret
         uses: azure/k8s-create-secret@v1
@@ -236,11 +238,6 @@ jobs:
             ${{ inputs.service }}-acr-secret
           namespace: default
 
-      - name: Azure Login
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS_NEW_CLUSTER }}
-
       - name: Restart deployment
         run: |
           az account set --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID_NEW_CLUSTER }}
@@ -248,7 +245,7 @@ jobs:
 
       # Verify deployment status
       - name: Wait for Deployment to Complete
-        run: sleep 45
+        run: sleep 15
 
       - name: Verify Successful Deployment
         id: deployment
@@ -280,17 +277,23 @@ jobs:
 #            az account set --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID_NEW_CLUSTER }}
 #            kubectl apply -f kubernetes/${{ inputs.network-policy-file }}.yaml
 
-      - name: Slack Notification
-        uses: rtCamp/action-slack-notify@v2
+      - name: Discord Notification
+        uses: rjstone/discord-webhook-notify@v1
         if: |-
           ${{ (contains(steps.deployment.outputs.DEPLOYMENT_STATUS, 'failure')) }}
-        env:
-          SLACK_CHANNEL: deployments
-          SLACK_COLOR: ${{ steps.deployment.outputs.DEPLOYMENT_STATUS }}
-          SLACK_ICON: https://github.com/rtCamp.png?size=48
-          SLACK_TITLE: ${{ inputs.service }} Deployment Failed
-          SLACK_USERNAME: Github Slack Bot
-          SLACK_WEBHOOK: ${{ secrets.SLACK_DEPLOYMENT_NOTIFICATIONS_WEBHOOK }}
+        with:
+          severity: error
+          details: ${{ inputs.service }} Deployment Failed
+          webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
+
+      - name: Discord Notification
+        uses: rjstone/discord-webhook-notify@v1
+        if: |-
+          ${{ (contains(steps.deployment.outputs.DEPLOYMENT_STATUS, 'success')) }}
+        with:
+          severity: info
+          details: ${{ inputs.service }} deployed successfully!!!
+          webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
 
 #      # Delete deployment on failure
 #      - name: Delete deployment

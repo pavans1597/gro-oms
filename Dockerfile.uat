@@ -1,5 +1,5 @@
-FROM amazoncorretto:17
+FROM amazoncorretto:11
 WORKDIR /app
-COPY /target/oauth-service-1.0-SNAPSHOT.jar /app/
-COPY /src/main/resources/application-uat.yml /app/
-ENTRYPOINT ["java", "-jar", "-Dspring.profiles.active=uat", "/app/oauth-service-1.0-SNAPSHOT.jar"]
+COPY /order-management-service/target/order-management-service.jar /app/
+COPY /order-management-service/src/main/resources/application-uat.yml /app/
+ENTRYPOINT ["java", "-jar", "-Dspring.profiles.active=uat", "/app/order-management-service.jar"]

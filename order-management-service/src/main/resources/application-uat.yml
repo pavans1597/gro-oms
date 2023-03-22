@@ -30,9 +30,9 @@ cache:
 ########## Services URL's ##############
 service:
   user:
-    url: https://intent.groyyo.com/user-service/
+    url: https://intent-uat.groyyo.com/user-service/
   masterData:
-    url: https://intent.groyyo.com/master-data-service
+    url: https://intent-uat.groyyo.com/master-data-service
 
 ############## Hibernate Configuration ##############
 hibernate:
@@ -76,12 +76,12 @@ jdbc:
   acquire:
     increment: '2'
   master:
-    url: jdbc:postgresql://groyyo-postgres-db-prod.postgres.database.azure.com:5432/order_management_service
-    username: groyyopgadminprod
+    url: jdbc:postgresql://groyyo-postgres-db-uat.postgres.database.azure.com:5432/order_management_service
+    username: groyyopgadminuat
     password: J-Y@WnAh8nJ#k2D%
   slave:
-    url: jdbc:postgresql://groyyo-postgres-db-prod.postgres.database.azure.com:5432/order_management_service
-    username: groyyopgadminprod
+    url: jdbc:postgresql://groyyo-postgres-db-uat.postgres.database.azure.com:5432/order_management_service
+    username: groyyopgadminuat
     password: J-Y@WnAh8nJ#k2D%
   checkout:
     timeout: '5000'
@@ -136,14 +136,14 @@ kafka:
   consumer:
     autostart: 'false'
   base:
-    topic: kafka-orderManagement-topic-prod
+    topic: kafka-orderManagement-topic-uat
   master:
     updates:
-      topic: master-data-updates-prod
+      topic: master-data-updates-uat
   quality-management:
-    topic: qc-taskAssignment-topic-prod
+    topic: qc-taskAssignment-topic-uat
   notification:
-    topic :  kafka-notification-topic-prod
+    topic :  kafka-notification-topic-uat
 
 ############### healthcheck spring properties ###############
 management:

@@ -1,38 +1,39 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: oauth-service-uat
+  name: order-management-service-uat
 spec:
   ports:
     - port: 80
       protocol: TCP
-      targetPort: 17000
+      targetPort: 8008
       name: http
   selector:
-    app: oauth-service-uat
-  type: LoadBalancer
-  #type: ClusterIP
-#---
-#apiVersion: networking.k8s.io/v1
-#kind: Ingress
-#metadata:
-#  name: oauth-service-uat
-#  annotations:
-#    cert-manager.io/cluster-issuer: letsencrypt-uatconsole
-#spec:
-#  ingressClassName: uatconsole-nginx
-#  tls:
-#    - hosts:
-#        - uatconsole.groyyo.com
-#      secretName: tls-secret-uatconsole
-#  rules:
-#    - host: uatconsole.groyyo.com
-#      http:
-#        paths:
-#          - path: /oauth-service-uat
-#            pathType: Prefix
-#            backend:
-#              service:
-#                name: oauth-service-uat
-#                port:
-#                  number: 80
+    app: order-management-service-uat
+  type: ClusterIP
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: order-management-service-uat
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-qc-uat
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - intent-uat.groyyo.com
+      secretName: letsencrypt-qc-uat
+  rules:
+    - host: intent-uat.groyyo.com
+      http:
+        paths:
+          - path: /order-management-service
+            pathType: Prefix
+            backend:
+              service:
+                name: order-management-service-uat
+                port:
+                  number: 80

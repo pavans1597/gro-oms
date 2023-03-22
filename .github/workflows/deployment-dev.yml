@@ -5,7 +5,7 @@ name: order-management-service-deployment-action-dev
 
 on:
   push:
-    branches: [ 'develop' ]
+    branches: [ 'develop']
 
 jobs:
   deploy-service:
@@ -14,6 +14,8 @@ jobs:
     uses: ./.github/workflows/service-deployment-workflow.yml
     with:
       env: "dev"
+      cluster-name: "groyyo-ks-cluster-spring"
+      resource-group: "groyyo-rg-ci-1"
       docker-file: "Dockerfile.dev"
       service: "order-management-service"
       service-file: "service-dev"
@@ -29,9 +31,7 @@ jobs:
     secrets:
       AZURE_REGISTRY_PASSWORD: "${{ secrets.AZURE_REGISTRY_PASSWORD }}"
       AZURE_REGISTRY_USERNAME: "${{ secrets.AZURE_REGISTRY_USERNAME }}"
-      AZURE_CREDENTIALS_NEW_CLUSTER: "${{ secrets.AZURE_CREDENTIALS_NEW_CLUSTER }}"
+      AZURE_CREDENTIALS_QC_CLUSTER: "${{ secrets.AZURE_CREDENTIALS_NEW_CLUSTER }}"
       AZURE_SUBSCRIPTION_ID_NEW_CLUSTER: "${{ secrets.AZURE_SUBSCRIPTION_ID_NEW_CLUSTER }}"
-      SLACK_DEPLOYMENT_NOTIFICATIONS_WEBHOOK: "${{ secrets.SLACK_DEPLOYMENT_NOTIFICATIONS_WEBHOOK }}"
-      PROD_DB_USERNAME: "${{ secrets.PROD_DB_USERNAME }}"
-      PROD_DB_PASSWORD: "${{ secrets.PROD_DB_PASSWORD }}"
+      DISCORD_WEBHOOK: "${{ secrets.DISCORD_WEBHOOK }}"
       GH_ACCESS_TOKEN: "${{ secrets.GH_ACCESS_TOKEN }}"
