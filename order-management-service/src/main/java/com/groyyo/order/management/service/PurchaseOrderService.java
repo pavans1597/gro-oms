@@ -6,6 +6,7 @@ import com.groyyo.core.base.common.dto.PageResponse;
 import com.groyyo.core.dto.PurchaseOrder.PurchaseOrderResponseDto;
 import com.groyyo.core.dto.PurchaseOrder.PurchaseOrderStatus;
 import com.groyyo.order.management.dto.filter.PurchaseOrderFilterDto;
+import com.groyyo.order.management.dto.request.BulkOrderExcelRequestDto;
 import com.groyyo.order.management.dto.request.BulkPurchaseOrderRequestDto;
 import com.groyyo.order.management.dto.request.PurchaseOrderRequestDto;
 import com.groyyo.order.management.dto.request.PurchaseOrderUpdateDto;
@@ -30,4 +31,5 @@ public interface PurchaseOrderService {
 
     List<PurchaseOrderResponseDto> addBulkPurchaseOrder(List<BulkPurchaseOrderRequestDto> purchaseOrderRequestsDto);
 
+    List<BulkPurchaseOrderRequestDto> parseBulkOrderExcelData(List<BulkOrderExcelRequestDto> bulkOrderExcelList);
 }

@@ -54,4 +54,14 @@ public class BuyerDbServiceImpl extends AbstractJpaServiceImpl<Buyer, Long, Buye
     public boolean isEntityExistsByName(String name) {
         return Objects.nonNull(buyerRepository.findByName(name));
     }
+
+    @Override
+    public Buyer findOrCreate(Buyer buyer) {
+        Buyer entity = buyerRepository.findByName(buyer.getName());
+        if (entity == null) {
+            entity = buyer;
+            save(entity);
+        }
+        return entity;
+    }
 }
