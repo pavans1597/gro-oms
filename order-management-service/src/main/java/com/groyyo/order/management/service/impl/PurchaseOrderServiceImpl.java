@@ -665,7 +665,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
             if (poHash.get(bulkOrderExcelList.get(i).getPurchaseOrderNumber()) == null) {
                 poHash.put(bulkOrderExcelList.get(i).getPurchaseOrderNumber(), hash);
                 bulkPurchaseOrderRequestData.add(BuilderUtils.buildBulkPOFromExcel(bulkOrderExcelList.get(i)));
-            } else if (!Objects.equals(poHash.get(bulkOrderExcelList.get(i).getPurchaseOrderNumber()), hash)) {
+            } else if (!StringUtils.equals(poHash.get(bulkOrderExcelList.get(i).getPurchaseOrderNumber()), hash)) {
                 errorMessages.put("purchaseOrder", "For one po there should be same Style Number/Style Name/Product Name/Buyer/Season/Fit/Ex-Fty Date/Parts/Variance");
             } else {
                 int finalI = i;
