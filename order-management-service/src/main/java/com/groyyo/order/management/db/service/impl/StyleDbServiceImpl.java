@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Objects;
 
 import com.groyyo.order.management.entity.Style;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -61,12 +62,12 @@ public class StyleDbServiceImpl extends AbstractJpaServiceImpl<Style, Long, Styl
 
     @Override
     public Style findOrCreate(Style style) {
-        Style entity = styleRepository.findByStyleNumber(style.getStyleNumber());
-        if (entity == null) {
+        Style entity = styleRepository.findByNameAndFactoryId(style.getStyleNumber(), style.getFactoryId());
+        if (Objects.isNull(entity)) {
             entity = style;
             save(entity);
         } else {
-            if (!Objects.equals(entity.getName(), style.getName())) {
+            if (StringUtils.equals(entity.getName(), style.getName())) {
                 throw new InputMismatchException("Style Name is different for the provided styleNumber: " + entity.getStyleNumber());
             }
             if (!Objects.equals(entity.getProductId(), style.getProductId())) {

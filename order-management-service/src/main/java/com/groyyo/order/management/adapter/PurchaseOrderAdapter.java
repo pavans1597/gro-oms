@@ -105,8 +105,9 @@ public class PurchaseOrderAdapter {
         return purchaseOrders.stream().map(PurchaseOrderAdapter::buildResponseFromEntity).collect(Collectors.toList());
     }
 
-    public BulkPurchaseOrderRequestDto buildBulkPOFromExcel(BulkOrderExcelRequestDto bulkOrderExcelData) {
-        return BulkPurchaseOrderRequestDto.builder()
+    public BulkPurchaseOrderRequestDto buildBulkPOFromExcel(BulkOrderExcelRequestDto bulkOrderExcelData, BulkPartRequestDto part) {
+        return BulkPurchaseOrderRequestDto
+                .builder()
                 .name(bulkOrderExcelData.getPurchaseOrderNumber())
                 .styleNumber(bulkOrderExcelData.getStyleNumber())
                 .styleName(bulkOrderExcelData.getStyleName())
@@ -115,18 +116,7 @@ public class PurchaseOrderAdapter {
                 .seasonName(bulkOrderExcelData.getSeasonName())
                 .fitName(bulkOrderExcelData.getFitName())
                 .exFtyDate(bulkOrderExcelData.getExFtyDate())
-                .part(BulkPartRequestDto.builder()
-                        .name(bulkOrderExcelData.getPart())
-                        .tolerance(bulkOrderExcelData.getVariance())
-                        .sizeGroup(bulkOrderExcelData.getSizeGroup())
-                        .sizes(new ArrayList<>(bulkOrderExcelData.getSizes().keySet()))
-                        .colors(new ArrayList<>(
-                                List.of(new BulkColorRequestDto(bulkOrderExcelData.getColor(), bulkOrderExcelData.getSizes()))
-                        ))
-                        .build())
+                .part(part)
                 .build();
-
     }
-
-
 }

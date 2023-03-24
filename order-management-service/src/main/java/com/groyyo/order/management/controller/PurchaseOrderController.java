@@ -118,13 +118,12 @@ public class PurchaseOrderController {
 	}
 
 
-	@PostMapping("/bulk/add")
+	@PostMapping("bulk/add")
 	public ResponseDto<List<PurchaseOrderResponseDto>> addBulkPurchaseOrder(@RequestBody @Valid List<BulkOrderExcelRequestDto> bulkOrderExcelRequestsDto) {
 
 		log.info("Request received to add purchaseOrder: {}", bulkOrderExcelRequestsDto);
-		List<BulkPurchaseOrderRequestDto> bulkPurchaseOrderRequestsDto = purchaseOrderService.parseBulkOrderExcelData(bulkOrderExcelRequestsDto);
 
-		List<PurchaseOrderResponseDto> purchaseOrderResponses = purchaseOrderService.addBulkPurchaseOrder(bulkPurchaseOrderRequestsDto);
+		List<PurchaseOrderResponseDto> purchaseOrderResponses = purchaseOrderService.createBulkOrderFromExcel(bulkOrderExcelRequestsDto);
 
 		return ResponseDto.success("PurchaseOrders added successfully !!", purchaseOrderResponses);
 	}

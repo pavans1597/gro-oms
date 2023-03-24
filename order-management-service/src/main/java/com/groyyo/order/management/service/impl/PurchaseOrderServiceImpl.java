@@ -20,6 +20,7 @@ import com.groyyo.order.management.dto.request.*;
 import com.groyyo.order.management.dto.response.PurchaseOrderStatusCountDto;
 import com.groyyo.order.management.entity.*;
 import com.groyyo.order.management.service.*;
+import com.groyyo.order.management.util.BuilderUtils;
 import com.groyyo.order.management.util.MapperUtils;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
@@ -399,9 +400,6 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         return purchaseOrderStatusCounts;
     }
 
-    /**
-     * @return
-     */
     private Specification<PurchaseOrder> getSpecificationForPurchaseOrderListing(PurchaseOrderFilterDto purchaseOrderFilterDto, PurchaseOrderStatus purchaseOrderStatus) {
         GroyyoSpecificationBuilder<PurchaseOrder> groyyoSpecificationBuilder = new GroyyoSpecificationBuilder<PurchaseOrder>();
 
@@ -548,24 +546,22 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         }
     }
 
-    // refactoring in wip
-    @Override
-    public List<PurchaseOrderResponseDto> addBulkPurchaseOrder(List<BulkPurchaseOrderRequestDto> purchaseOrderRequestsDto) {
+    private List<PurchaseOrderResponseDto> addBulkPurchaseOrder(List<BulkPurchaseOrderRequestDto> purchaseOrderRequestsDto) {
         String factoryId = HeaderUtil.getFactoryIdHeaderValue();
         List<PurchaseOrderResponseDto> purchaseOrderResponses = new ArrayList<>();
         purchaseOrderRequestsDto.forEach(purchaseOrderRequestDto -> {
             List<PurchaseOrderQuantity> purchaseOrderQuantities = new ArrayList<>();
             List<Size> sizes = new ArrayList<>();
+
             Product product = productService.findOrCreate(purchaseOrderRequestDto.getProductName());
             Buyer buyer = buyerService.findOrCreate(purchaseOrderRequestDto.getBuyerName());
             Season season = seasonService.findOrCreate(purchaseOrderRequestDto.getSeasonName());
             Fit fit = fitService.findOrCreate(purchaseOrderRequestDto.getFitName());
             Part part = partService.findOrCreate(purchaseOrderRequestDto.getPart().getName());
             Style style = styleService.findOrCreate(purchaseOrderRequestDto.getStyleName(), purchaseOrderRequestDto.getStyleNumber(), product);
-            purchaseOrderRequestDto.getPart().getSizes().forEach(name -> {
-                sizes.add(sizeService.findOrCreate(name));
-            });
+            purchaseOrderRequestDto.getPart().getSizes().forEach(name -> sizes.add(sizeService.findOrCreate(name)));
             SizeGroup sizeGroup = sizeGroupService.findOrCreate(purchaseOrderRequestDto.getPart().getSizeGroup(), sizes);
+
             PurchaseOrder purchaseOrder = PurchaseOrder
                     .builder()
                     .name(purchaseOrderRequestDto.getName())
@@ -603,7 +599,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
                     if (result.isPresent()) {
                         size = result.get();
                     } else {
-                        throw new InputMismatchException("");
+                        throw new InputMismatchException("Size should be from size group");
                     }
                     purchaseOrderQuantities.add(
                             PurchaseOrderQuantity
@@ -631,8 +627,8 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         return purchaseOrderResponses;
     }
 
-    @Override
-    public List<BulkPurchaseOrderRequestDto> parseBulkOrderExcelData(List<BulkOrderExcelRequestDto> bulkOrderExcelList) {
+
+    private List<BulkPurchaseOrderRequestDto> parseBulkOrderExcelData(List<BulkOrderExcelRequestDto> bulkOrderExcelList) {
 
         HashMap<String, String> poHash = new HashMap<>();
         HashMap<String, String> errorMessages = new HashMap<>();
@@ -668,13 +664,16 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
             String hash = bulkOrderExcelList.get(i).getStyleNumber() + "$$$" + bulkOrderExcelList.get(i).getStyleName() + "$$$" + bulkOrderExcelList.get(i).getProductName() + "$$$" + bulkOrderExcelList.get(i).getBuyerName() + "$$$" + bulkOrderExcelList.get(i).getSeasonName() + "$$$" + bulkOrderExcelList.get(i).getFitName() + "$$$" + bulkOrderExcelList.get(i).getExFtyDate() + "$$$" + bulkOrderExcelList.get(i).getPart() + "$$$" + bulkOrderExcelList.get(i).getVariance();
             if (poHash.get(bulkOrderExcelList.get(i).getPurchaseOrderNumber()) == null) {
                 poHash.put(bulkOrderExcelList.get(i).getPurchaseOrderNumber(), hash);
-                bulkPurchaseOrderRequestData.add(PurchaseOrderAdapter.buildBulkPOFromExcel(bulkOrderExcelList.get(i)));
+                bulkPurchaseOrderRequestData.add(BuilderUtils.buildBulkPOFromExcel(bulkOrderExcelList.get(i)));
             } else if (!Objects.equals(poHash.get(bulkOrderExcelList.get(i).getPurchaseOrderNumber()), hash)) {
                 errorMessages.put("purchaseOrder", "For one po there should be same Style Number/Style Name/Product Name/Buyer/Season/Fit/Ex-Fty Date/Parts/Variance");
             } else {
                 int finalI = i;
                 bulkPurchaseOrderRequestData.forEach(x -> {
-                    if (Objects.equals(x.getName(), bulkOrderExcelList.get(finalI).getPurchaseOrderNumber())) {
+                    if (StringUtils.equals(x.getName(), bulkOrderExcelList.get(finalI).getPurchaseOrderNumber())) {
+                        if (x.getPart().getColors().stream().anyMatch(y -> y.getName().equals(bulkOrderExcelList.get(finalI).getColor()))) {
+                            errorMessages.put("Row Number: " + finalI + " color ", " same color provided 2 times for a po");
+                        }
                         x.getPart().getColors().add(new BulkColorRequestDto(bulkOrderExcelList.get(finalI).getColor(), bulkOrderExcelList.get(finalI).getSizes()));
                     }
                 });
@@ -686,4 +685,9 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         return bulkPurchaseOrderRequestData;
     }
 
+    @Override
+    public List<PurchaseOrderResponseDto> createBulkOrderFromExcel(List<BulkOrderExcelRequestDto> bulkOrderExcelRequestsDto) {
+        List<BulkPurchaseOrderRequestDto> bulkPurchaseOrderRequestsDto = parseBulkOrderExcelData(bulkOrderExcelRequestsDto);
+        return addBulkPurchaseOrder(bulkPurchaseOrderRequestsDto);
+    }
 }

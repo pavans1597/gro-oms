@@ -57,8 +57,8 @@ public class PartDbServiceImpl extends AbstractJpaServiceImpl<Part, Long, PartRe
 
 	@Override
 	public Part findOrCreate(Part part) {
-		Part entity = partRepository.findByName(part.getName());
-		if (entity == null) {
+		Part entity = partRepository.findByNameAndFactoryId(part.getName(), part.getFactoryId());
+		if (Objects.isNull(entity)) {
 			entity = part;
 			save(entity);
 		}

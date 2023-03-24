@@ -15,7 +15,6 @@ import java.util.Map;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-@Validated
 public class BulkOrderExcelRequestDto {
 
 
@@ -33,15 +32,12 @@ public class BulkOrderExcelRequestDto {
 
     private String fitName;
 
-
     private Date exFtyDate;
 
     private String part;
 
-    @DecimalMin("0.0")
     private Double variance;
 
-    @Size(max = 4)
     private String color;
 
     private String sizeGroup;
