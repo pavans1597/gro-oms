@@ -10,24 +10,28 @@ import com.groyyo.order.management.dto.request.BulkPurchaseOrderRequestDto;
 import com.groyyo.order.management.dto.request.PurchaseOrderRequestDto;
 import com.groyyo.order.management.dto.request.PurchaseOrderUpdateDto;
 import com.groyyo.order.management.dto.response.PurchaseOrderStatusCountDto;
-import com.groyyo.order.management.entity.PurchaseOrder;
 
 public interface PurchaseOrderService {
 
-    List<PurchaseOrderResponseDto> getAllPurchaseOrders(Boolean status);
+	List<PurchaseOrderResponseDto> getAllPurchaseOrders(Boolean status);
 
-    PurchaseOrderResponseDto getPurchaseOrderById(String id);
+	PurchaseOrderResponseDto getPurchaseOrderById(String id);
 
-    PurchaseOrderResponseDto addPurchaseOrder(PurchaseOrderRequestDto purchaseOrderRequestDto);
+	PurchaseOrderResponseDto addPurchaseOrder(PurchaseOrderRequestDto purchaseOrderRequestDto);
 
-    PurchaseOrderResponseDto updatePurchaseOrder(PurchaseOrderUpdateDto purchaseOrderUpdateDto);
+	PurchaseOrderResponseDto updatePurchaseOrder(PurchaseOrderUpdateDto purchaseOrderUpdateDto);
 
-    PageResponse<PurchaseOrderResponseDto> getPurchaseOrderListing(PurchaseOrderFilterDto purchaseOrderFilterDto, PurchaseOrderStatus purchaseOrderStatus, int page, int limit);
+	PageResponse<PurchaseOrderResponseDto> getPurchaseOrderListing(PurchaseOrderFilterDto purchaseOrderFilterDto, PurchaseOrderStatus purchaseOrderStatus, int page, int limit);
 
-    void changeStatusOfPurchaseOrder(String purchaseOrderId, PurchaseOrderStatus desiredPurchaseOrderStatus, Boolean forceUpdate);
+	void changeStatusOfPurchaseOrder(String purchaseOrderId, PurchaseOrderStatus desiredPurchaseOrderStatus, Boolean forceUpdate);
 
-    PurchaseOrderStatusCountDto getPurchaseOrderStatusCounts(Boolean status);
+	PurchaseOrderStatusCountDto getPurchaseOrderStatusCounts(Boolean status);
 
-    List<PurchaseOrderResponseDto> addBulkPurchaseOrder(List<BulkPurchaseOrderRequestDto> purchaseOrderRequestsDto);
+	List<PurchaseOrderResponseDto> addBulkPurchaseOrder(List<BulkPurchaseOrderRequestDto> purchaseOrderRequestsDto);
+
+	/**
+	 * @param purchaseOrderId
+	 */
+	void markPurchaseOrderCompleteAndRemoveAssignments(String purchaseOrderId);
 
 }
