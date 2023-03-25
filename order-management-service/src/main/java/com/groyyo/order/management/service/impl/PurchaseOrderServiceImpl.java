@@ -1,5 +1,22 @@
 package com.groyyo.order.management.service.impl;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.groyyo.core.base.common.dto.PageResponse;
 import com.groyyo.core.base.exception.NoRecordException;
 import com.groyyo.core.base.exception.RecordExistsException;
@@ -23,18 +40,6 @@ import com.groyyo.order.management.service.*;
 import com.groyyo.order.management.util.BuilderUtils;
 import com.groyyo.order.management.util.MapperUtils;
 import lombok.extern.log4j.Log4j2;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort.Direction;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.*;
-import java.util.stream.Collectors;
 
 @Log4j2
 @Service
@@ -47,8 +52,11 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
     @Autowired
     private PurchaseOrderQuantityService purchaseOrderQuantityService;
 
-    @Autowired
-    private LineCheckerAssignmentDbService lineCheckerAssignmentDbService;
+	@Autowired
+	private LineCheckerAssignmentService lineCheckerAssignmentService;
+
+	@Autowired
+	private LineCheckerAssignmentDbService lineCheckerAssignmentDbService;
 
     @Autowired
     private StyleService styleService;
@@ -508,13 +516,16 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
             }
         }
 
-        purchaseOrderDbService.saveAndFlush(purchaseOrder);
+		purchaseOrderDbService.saveAndFlush(purchaseOrder);
+	}
 
-        if (purchaseOrder.getPurchaseOrderStatus().equals(PurchaseOrderStatus.COMPLETED)) {
-            notificationTriggerService.notifyOrderCompletion(purchaseOrder);
-        }
+	@Override
+	public void markPurchaseOrderCompleteAndRemoveAssignments(String purchaseOrderId) {
 
-    }
+		changeStatusOfPurchaseOrder(purchaseOrderId, PurchaseOrderStatus.COMPLETED, Boolean.TRUE);
+
+		lineCheckerAssignmentService.disableLineAssignmentsOnOrderCompletion(purchaseOrderId);
+	}
 
     private boolean isEntityExistsWithName(String name) {
 
