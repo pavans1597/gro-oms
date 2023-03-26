@@ -1,10 +1,6 @@
 package com.groyyo.order.management.service.impl;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -545,18 +541,6 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         }
     }
 
-    public static Size getDesiredSize(List<Size> sizes, String desiredValue) throws Exception {
-        Optional<Size> result = sizes.stream()
-                .filter(obj -> obj.getName().equals(desiredValue))
-                .findFirst();
-
-        if (result.isPresent()) {
-            return result.get();
-        } else {
-            throw new Exception("Desired value not found.");
-        }
-    }
-
     private List<PurchaseOrderResponseDto> addBulkPurchaseOrder(List<BulkPurchaseOrderRequestDto> purchaseOrderRequestsDto) {
         String factoryId = HeaderUtil.getFactoryIdHeaderValue();
         List<PurchaseOrderResponseDto> purchaseOrderResponses = new ArrayList<>();
@@ -599,7 +583,11 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
             purchaseOrder = purchaseOrderDbService.savePurchaseOrder(purchaseOrder);
             PurchaseOrder finalPurchaseOrder = purchaseOrder;
             purchaseOrderRequestDto.getPart().getColors().forEach(colorData -> {
-                Color color = colorService.findOrCreate(colorData.getName(), "#ffffff");
+                // temporary color hex code generation
+                Random random = new Random();
+                java.awt.Color colour = new java.awt.Color(random.nextInt(256), random.nextInt(256), random.nextInt(256));
+                String colorCode = String.format("#%02x%02x%02x", colour.getRed(), colour.getGreen(), colour.getBlue());
+                Color color = colorService.findOrCreate(colorData.getName(), colorCode);
                 colorData.getSizes().forEach((k, v) -> {
                     Long targetQuantity = Objects.nonNull(v) ? (long) (v + (v * purchaseOrderRequestDto.getPart().getTolerance()) / 100) : 0L;
                     Size size;
