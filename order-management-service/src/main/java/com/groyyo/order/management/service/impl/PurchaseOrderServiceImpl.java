@@ -523,7 +523,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 		PurchaseOrderStatus currentPurchaseOrderStatus = purchaseOrder.getPurchaseOrderStatus();
 		log.info("Current status of purchase order with uuid: {} is: {}", purchaseOrder.getUuid(), currentPurchaseOrderStatus);
 
-		if (desiredPurchaseOrderStatus.getSequenceId() > currentPurchaseOrderStatus.getSequenceId()) {
+		if (desiredPurchaseOrderStatus.getSequenceId() >= currentPurchaseOrderStatus.getSequenceId()) {
 			log.info("Changing the status of purchase order from current status: {} to desired status: {}", currentPurchaseOrderStatus, desiredPurchaseOrderStatus);
 			purchaseOrder.setPurchaseOrderStatus(desiredPurchaseOrderStatus);
 		}
