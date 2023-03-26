@@ -111,9 +111,11 @@ public class PurchaseOrderController {
 
 	@PostMapping("assign/checkers")
 	public ResponseDto<List<LineCheckerAssignment>> assignCheckers(@RequestBody LineCheckerAssignmentRequestDto checkerAssignDto) {
+
 		log.info("Request received to update assign Checkers: {}", checkerAssignDto);
 
 		String factoryIdHeaderValue = HeaderUtil.getFactoryIdHeaderValue();
+
 		List<LineCheckerAssignment> lineCheckerAssignments = lineCheckerAssignmentService.lineCheckerAssignment(checkerAssignDto, factoryIdHeaderValue);
 
 		return Objects.isNull(lineCheckerAssignments) ? ResponseDto.failure("Unable to assign Checkers to purchaseOrder !!")
