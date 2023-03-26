@@ -498,10 +498,10 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         PurchaseOrderStatus currentPurchaseOrderStatus = purchaseOrder.getPurchaseOrderStatus();
         log.info("Current status of purchase order with uuid: {} is: {}", purchaseOrder.getUuid(), currentPurchaseOrderStatus);
 
-        if (desiredPurchaseOrderStatus.getSequenceId() > currentPurchaseOrderStatus.getSequenceId()) {
-            log.info("Changing the status of purchase order from current status: {} to desired status: {}", currentPurchaseOrderStatus, desiredPurchaseOrderStatus);
-            purchaseOrder.setPurchaseOrderStatus(desiredPurchaseOrderStatus);
-        }
+		if (desiredPurchaseOrderStatus.getSequenceId() >= currentPurchaseOrderStatus.getSequenceId()) {
+			log.info("Changing the status of purchase order from current status: {} to desired status: {}", currentPurchaseOrderStatus, desiredPurchaseOrderStatus);
+			purchaseOrder.setPurchaseOrderStatus(desiredPurchaseOrderStatus);
+		}
 
         if (desiredPurchaseOrderStatus.getSequenceId() < currentPurchaseOrderStatus.getSequenceId()) {
             log.info("Cannot move the status to a level: {} lower than the current level: {}", desiredPurchaseOrderStatus.getSequenceId(), currentPurchaseOrderStatus.getSequenceId());
@@ -512,6 +512,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
             }
         }
 
+		purchaseOrder.setUpdatedAt(new Date());
 		purchaseOrderDbService.saveAndFlush(purchaseOrder);
 	}
 
