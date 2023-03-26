@@ -537,6 +537,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 			}
 		}
 
+		purchaseOrder.setUpdatedAt(new Date());
 		purchaseOrderDbService.saveAndFlush(purchaseOrder);
 	}
 
