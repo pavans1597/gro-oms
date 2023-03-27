@@ -16,6 +16,9 @@ spec:
       containers:
         - image: groyyoOrgServiceRegistry.azurecr.io/order-management-service-uat:backup
           name: order-management-service-uat
+          env:
+            - name: TZ
+              value: Asia/Kolkata
           resources:
             requests:
               memory: "500Mi"
