@@ -61,8 +61,8 @@ public class ColorDbServiceImpl extends AbstractJpaServiceImpl<Color, Long, Colo
 
 	@Override
 	public Color findOrCreate(Color color) {
-		Color entity = colorRepository.findByName(color.getName());
-		if (entity == null) {
+		Color entity = colorRepository.findByNameAndFactoryId(color.getName(),  color.getFactoryId());
+		if (Objects.isNull(entity)) {
 			entity = color;
 			save(entity);
 		}

@@ -56,4 +56,11 @@ public class BuyerAdapter {
         return buyers.stream().map(BuyerAdapter::buildResponseFromEntity).collect(Collectors.toList());
     }
 
+    public Buyer buildBuyerFromName(String name, String factoryId) {
+        return Buyer
+                .builder()
+                .name(name)
+                .factoryId(factoryId)
+                .build();
+    }
 }

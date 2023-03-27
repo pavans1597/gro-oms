@@ -1,26 +1,33 @@
 package com.groyyo.order.management.controller;
 
+import java.util.List;
+import java.util.Objects;
+
+import javax.validation.Valid;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.groyyo.core.base.common.dto.PageResponse;
 import com.groyyo.core.base.common.dto.ResponseDto;
 import com.groyyo.core.base.http.utils.HeaderUtil;
 import com.groyyo.core.dto.PurchaseOrder.PurchaseOrderResponseDto;
 import com.groyyo.core.dto.PurchaseOrder.PurchaseOrderStatus;
 import com.groyyo.order.management.dto.filter.PurchaseOrderFilterDto;
-import com.groyyo.order.management.dto.request.BulkPurchaseOrderRequestDto;
-import com.groyyo.order.management.dto.request.LineCheckerAssignmentRequestDto;
-import com.groyyo.order.management.dto.request.PurchaseOrderRequestDto;
-import com.groyyo.order.management.dto.request.PurchaseOrderUpdateDto;
+import com.groyyo.order.management.dto.request.*;
 import com.groyyo.order.management.dto.response.PurchaseOrderStatusCountDto;
 import com.groyyo.order.management.entity.LineCheckerAssignment;
 import com.groyyo.order.management.service.LineCheckerAssignmentService;
 import com.groyyo.order.management.service.PurchaseOrderService;
-import lombok.extern.log4j.Log4j2;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
-import java.util.List;
-import java.util.Objects;
+import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 @RestController
@@ -101,9 +108,11 @@ public class PurchaseOrderController {
 
 	@PostMapping("assign/checkers")
 	public ResponseDto<List<LineCheckerAssignment>> assignCheckers(@RequestBody LineCheckerAssignmentRequestDto checkerAssignDto) {
+
 		log.info("Request received to update assign Checkers: {}", checkerAssignDto);
 
 		String factoryIdHeaderValue = HeaderUtil.getFactoryIdHeaderValue();
+
 		List<LineCheckerAssignment> lineCheckerAssignments = lineCheckerAssignmentService.lineCheckerAssignment(checkerAssignDto, factoryIdHeaderValue);
 
 		return Objects.isNull(lineCheckerAssignments) ? ResponseDto.failure("Unable to assign Checkers to purchaseOrder !!")
@@ -120,14 +129,24 @@ public class PurchaseOrderController {
 		return ResponseDto.success("Updated status of purchase order with id: " + id);
 	}
 
+	@PutMapping("mark/complete/id/{purchaseOrderId}")
+	public ResponseDto<Void> markPurchaseOrderCompleteAndRemoveAssignments(@PathVariable String purchaseOrderId) {
 
-	@PostMapping("/bulk/add")
-	public ResponseDto<List<PurchaseOrderResponseDto>> addBulkPurchaseOrder(@RequestBody @Valid List<BulkPurchaseOrderRequestDto> bulkPurchaseOrderRequestsDto) {
+		log.info("Request received to mark complete purchase order with uuid: {}", purchaseOrderId);
 
-		log.info("Request received to add purchaseOrder: {}", bulkPurchaseOrderRequestsDto);
+		purchaseOrderService.markPurchaseOrderCompleteAndRemoveAssignments(purchaseOrderId);
 
-		List<PurchaseOrderResponseDto> purchaseOrderResponses = purchaseOrderService.addBulkPurchaseOrder(bulkPurchaseOrderRequestsDto);
+		return ResponseDto.success("Marked purchase order completed with id: " + purchaseOrderId);
+	}
 
-		return ResponseDto.success("PurchaseOrders added successfully !!", purchaseOrderResponses);
+	@PostMapping("bulk/add")
+	public ResponseDto<List<PurchaseOrderResponseDto>> addBulkPurchaseOrder(@RequestBody @Valid List<BulkOrderExcelRequestDto> bulkOrderExcelRequestsDto) {
+
+		log.info("Request received to add purchaseOrder: {}", bulkOrderExcelRequestsDto);
+
+		List<PurchaseOrderResponseDto> purchaseOrderResponses = purchaseOrderService.createBulkOrderFromExcel(bulkOrderExcelRequestsDto);
+
+		return Objects.isNull(purchaseOrderResponses) ? ResponseDto.failure("Unable to add purchase orders")
+				: ResponseDto.success("PurchaseOrders added successfully !!", purchaseOrderResponses);
 	}
 }

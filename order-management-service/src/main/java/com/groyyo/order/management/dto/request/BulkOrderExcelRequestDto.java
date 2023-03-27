@@ -2,9 +2,11 @@ package com.groyyo.order.management.dto.request;
 
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.springframework.validation.annotation.Validated;
 
+import javax.validation.constraints.DecimalMin;
+import javax.validation.constraints.Size;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
 
 @Getter
@@ -13,8 +15,10 @@ import java.util.Map;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class BulkPurchaseOrderRequestDto {
-    private String name;
+public class BulkOrderExcelRequestDto {
+
+
+    private String purchaseOrderNumber;
 
     private String styleNumber;
 
@@ -30,6 +34,14 @@ public class BulkPurchaseOrderRequestDto {
 
     private Date exFtyDate;
 
-    private BulkPartRequestDto part;
+    private String part;
+
+    private Double variance;
+
+    private String color;
+
+    private String sizeGroup;
+
+    private Map<String, Long> sizes;
 
 }

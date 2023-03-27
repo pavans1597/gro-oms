@@ -57,8 +57,8 @@ public class SeasonDbServiceImpl extends AbstractJpaServiceImpl<Season, Long, Se
 
 	@Override
 	public Season findOrCreate(Season season) {
-		Season entity = seasonRepository.findByName(season.getName());
-		if (entity == null) {
+		Season entity = seasonRepository.findByNameAndFactoryId(season.getName(), season.getFactoryId());
+		if (Objects.isNull(entity)) {
 			entity = season;
 			save(entity);
 		}

@@ -57,8 +57,8 @@ public class ProductDbServiceImpl extends AbstractJpaServiceImpl<Product, Long, 
 
 	@Override
 	public Product findOrCreate(Product product) {
-		Product entity = productRepository.findByName(product.getName());
-		if (entity == null) {
+		Product entity = productRepository.findByNameAndFactoryId(product.getName(), product.getFactoryId());
+		if (Objects.isNull(entity)) {
 			entity = product;
 			save(entity);
 		}

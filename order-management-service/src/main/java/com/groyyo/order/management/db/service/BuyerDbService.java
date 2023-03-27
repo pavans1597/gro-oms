@@ -24,4 +24,6 @@ public interface BuyerDbService extends AbstractJpaService<Buyer, Long> {
 
 
     boolean isEntityExistsByName(String name);
+
+    Buyer findOrCreate(Buyer buyer);
 }

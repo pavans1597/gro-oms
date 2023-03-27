@@ -1,12 +1,23 @@
 package com.groyyo.order.management.service.impl;
 
+import java.util.ArrayList;
+import java.util.InputMismatchException;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.groyyo.core.base.exception.NoRecordException;
 import com.groyyo.core.base.exception.PreconditionFailedException;
 import com.groyyo.core.base.http.utils.HeaderUtil;
 import com.groyyo.core.dto.PurchaseOrder.PurchaseOrderResponseDto;
 import com.groyyo.core.dto.PurchaseOrder.PurchaseOrderStatus;
 import com.groyyo.core.dto.PurchaseOrder.UserLineDetails;
-import com.groyyo.core.user.client.api.UserClientApi;
 import com.groyyo.core.user.dto.response.LineUserResponseDto;
 import com.groyyo.order.management.adapter.LineCheckerAssignmentAdapter;
 import com.groyyo.order.management.db.service.LineCheckerAssignmentDbService;
@@ -17,21 +28,12 @@ import com.groyyo.order.management.entity.PurchaseOrder;
 import com.groyyo.order.management.kafka.publisher.PurchaseOrderPublisher;
 import com.groyyo.order.management.service.LineCheckerAssignmentService;
 import com.groyyo.order.management.service.PurchaseOrderService;
-import lombok.extern.log4j.Log4j2;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import lombok.extern.log4j.Log4j2;
 
 @Service
 @Log4j2
 public class LineCheckerAssignmentServiceImpl implements LineCheckerAssignmentService {
-
-	@Autowired
-	private UserClientApi userClientApi;
 
 	@Autowired
 	private PurchaseOrderService purchaseOrderService;
@@ -61,8 +63,12 @@ public class LineCheckerAssignmentServiceImpl implements LineCheckerAssignmentSe
 			List<UserLineDetails> assignments = lineCheckerAssignmentRequestDto.getAssignment();
 
 			for (UserLineDetails userLineDetails : assignments) {
-				LineCheckerAssignment lineCheckerAssignment = LineCheckerAssignmentAdapter.buildLineCheckerAssignmentFromRequest(userLineDetails, purchaseOrderId, salesOrderId, factoryId);
-				lineCheckerAssignments.add(lineCheckerAssignment);
+
+				if (isValidRequestForUserLineDetails(userLineDetails)) {
+
+					LineCheckerAssignment lineCheckerAssignment = LineCheckerAssignmentAdapter.buildLineCheckerAssignmentFromRequest(userLineDetails, purchaseOrderId, salesOrderId, factoryId);
+					lineCheckerAssignments.add(lineCheckerAssignment);
+				}
 			}
 
 			if (Objects.nonNull(purchaseOrderResponseDto) && CollectionUtils.isNotEmpty(lineCheckerAssignments)) {
@@ -87,6 +93,12 @@ public class LineCheckerAssignmentServiceImpl implements LineCheckerAssignmentSe
 		}
 
 		return lineCheckerAssignments;
+	}
+
+	private boolean isValidRequestForUserLineDetails(UserLineDetails userLineDetails) {
+
+		return StringUtils.isNoneBlank(userLineDetails.getLineId(), userLineDetails.getLineName(), userLineDetails.getUserId(), userLineDetails.getUserName())
+				&& Objects.nonNull(userLineDetails.getLineType());
 	}
 
 	private void publishQcTaskAssignment(String purchaseOrderId) {
@@ -131,20 +143,20 @@ public class LineCheckerAssignmentServiceImpl implements LineCheckerAssignmentSe
 
 	@Override
 	public List<LineUserResponseDto> getUsers(String factoryId, List<String> userIds) {
-		log.info( "Serving Request received to fetch users for factoryId: {} and userIds: {}", factoryId, userIds);
-		if(CollectionUtils.isEmpty(userIds)){
+		log.info("Serving Request received to fetch users for factoryId: {} and userIds: {}", factoryId, userIds);
+		if (CollectionUtils.isEmpty(userIds)) {
 			throw new InputMismatchException("userIds can't empty");
 		}
-		List<LineCheckerAssignment>lineCheckerAssignments=lineCheckerAssignmentDbService.getLineCheckerAssignment(factoryId,userIds);
-		if(CollectionUtils.isEmpty(lineCheckerAssignments)){
-			log.info("No users are found with factoryId:{} and userIds:{}",factoryId,userIds);
+		List<LineCheckerAssignment> lineCheckerAssignments = lineCheckerAssignmentDbService.getLineCheckerAssignment(factoryId, userIds);
+		if (CollectionUtils.isEmpty(lineCheckerAssignments)) {
+			log.info("No users are found with factoryId:{} and userIds:{}", factoryId, userIds);
 			return new ArrayList<>();
 		}
-		Map<String,String>purchaseOrderIdToName=init(lineCheckerAssignments);
-		return LineCheckerAssignmentAdapter.buildResponseDtoList(lineCheckerAssignments,purchaseOrderIdToName);
+		Map<String, String> purchaseOrderIdToName = init(lineCheckerAssignments);
+		return LineCheckerAssignmentAdapter.buildResponseDtoList(lineCheckerAssignments, purchaseOrderIdToName);
 	}
 
-	private Map<String,String> init(List<LineCheckerAssignment> lineCheckerAssignments){
+	private Map<String, String> init(List<LineCheckerAssignment> lineCheckerAssignments) {
 		List<String> poIds = lineCheckerAssignments.stream()
 				.map(LineCheckerAssignment::getPurchaseOrderId)
 				.collect(Collectors.toList());
