@@ -146,6 +146,7 @@ public class PurchaseOrderController {
 
 		List<PurchaseOrderResponseDto> purchaseOrderResponses = purchaseOrderService.createBulkOrderFromExcel(bulkOrderExcelRequestsDto);
 
-		return ResponseDto.success("PurchaseOrders added successfully !!", purchaseOrderResponses);
+		return Objects.isNull(purchaseOrderResponses) ? ResponseDto.failure("Unable to add purchase orders")
+				: ResponseDto.success("PurchaseOrders added successfully !!", purchaseOrderResponses);
 	}
 }
