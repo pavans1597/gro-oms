@@ -30,4 +30,6 @@ public interface ColorRepository extends AbstractJpaRepository<Color, Long> {
 	List<Color> findByFactoryIdOrderByNameAsc(String factoryId);
 
 	Color findByNameAndHexCodeAndFactoryId(String name, String hexCode, String factoryId);
+
+	Color findByNameAndFactoryId(String name, String factoryId);
 }

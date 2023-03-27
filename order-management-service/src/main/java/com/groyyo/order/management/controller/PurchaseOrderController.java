@@ -21,10 +21,7 @@ import com.groyyo.core.base.http.utils.HeaderUtil;
 import com.groyyo.core.dto.PurchaseOrder.PurchaseOrderResponseDto;
 import com.groyyo.core.dto.PurchaseOrder.PurchaseOrderStatus;
 import com.groyyo.order.management.dto.filter.PurchaseOrderFilterDto;
-import com.groyyo.order.management.dto.request.BulkPurchaseOrderRequestDto;
-import com.groyyo.order.management.dto.request.LineCheckerAssignmentRequestDto;
-import com.groyyo.order.management.dto.request.PurchaseOrderRequestDto;
-import com.groyyo.order.management.dto.request.PurchaseOrderUpdateDto;
+import com.groyyo.order.management.dto.request.*;
 import com.groyyo.order.management.dto.response.PurchaseOrderStatusCountDto;
 import com.groyyo.order.management.entity.LineCheckerAssignment;
 import com.groyyo.order.management.service.LineCheckerAssignmentService;
@@ -142,13 +139,14 @@ public class PurchaseOrderController {
 		return ResponseDto.success("Marked purchase order completed with id: " + purchaseOrderId);
 	}
 
-	@PostMapping("/bulk/add")
-	public ResponseDto<List<PurchaseOrderResponseDto>> addBulkPurchaseOrder(@RequestBody @Valid List<BulkPurchaseOrderRequestDto> bulkPurchaseOrderRequestsDto) {
+	@PostMapping("bulk/add")
+	public ResponseDto<List<PurchaseOrderResponseDto>> addBulkPurchaseOrder(@RequestBody @Valid List<BulkOrderExcelRequestDto> bulkOrderExcelRequestsDto) {
 
-		log.info("Request received to add purchaseOrder: {}", bulkPurchaseOrderRequestsDto);
+		log.info("Request received to add purchaseOrder: {}", bulkOrderExcelRequestsDto);
 
-		List<PurchaseOrderResponseDto> purchaseOrderResponses = purchaseOrderService.addBulkPurchaseOrder(bulkPurchaseOrderRequestsDto);
+		List<PurchaseOrderResponseDto> purchaseOrderResponses = purchaseOrderService.createBulkOrderFromExcel(bulkOrderExcelRequestsDto);
 
-		return ResponseDto.success("PurchaseOrders added successfully !!", purchaseOrderResponses);
+		return Objects.isNull(purchaseOrderResponses) ? ResponseDto.failure("Unable to add purchase orders")
+				: ResponseDto.success("PurchaseOrders added successfully !!", purchaseOrderResponses);
 	}
 }

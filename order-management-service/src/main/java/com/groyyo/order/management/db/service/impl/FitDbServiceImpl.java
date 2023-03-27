@@ -59,8 +59,8 @@ public class FitDbServiceImpl extends AbstractJpaServiceImpl<Fit, Long, FitRepos
 
 	@Override
 	public Fit findOrCreate(Fit fit) {
-		Fit entity = fitRepository.findByName(fit.getName());
-		if (entity == null) {
+		Fit entity = fitRepository.findByNameAndFactoryId(fit.getName(), fit.getFactoryId());
+		if (Objects.isNull(entity)) {
 			entity = fit;
 			save(entity);
 		}

@@ -57,8 +57,8 @@ public class SizeGroupDbServiceImpl extends AbstractJpaServiceImpl<SizeGroup, Lo
 
 	@Override
 	public SizeGroup findOrCreate(SizeGroup sizeGroup) {
-		SizeGroup entity = sizeGroupRepository.findByName(sizeGroup.getName());
-		if (entity == null) {
+		SizeGroup entity = sizeGroupRepository.findByNameAndFactoryId(sizeGroup.getName(), sizeGroup.getFactoryId());
+		if (Objects.isNull(entity)) {
 			entity = sizeGroup;
 			save(entity);
 		}

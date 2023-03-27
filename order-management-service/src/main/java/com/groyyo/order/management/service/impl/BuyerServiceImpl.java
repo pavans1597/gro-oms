@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import com.groyyo.order.management.adapter.BuyerAdapter;
+import com.groyyo.order.management.entity.Buyer;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,11 +17,9 @@ import com.groyyo.core.base.exception.RecordExistsException;
 import com.groyyo.core.base.http.utils.HeaderUtil;
 import com.groyyo.core.kafka.dto.KafkaDTO;
 import com.groyyo.core.kafka.producer.NotificationProducer;
-import com.groyyo.order.management.adapter.BuyerAdapter;
 import com.groyyo.order.management.db.service.BuyerDbService;
 import com.groyyo.order.management.dto.request.BuyerRequestDto;
 import com.groyyo.order.management.dto.response.BuyerResponseDto;
-import com.groyyo.order.management.entity.Buyer;
 import com.groyyo.order.management.service.BuyerService;
 
 import lombok.extern.log4j.Log4j2;
@@ -171,5 +171,12 @@ public class BuyerServiceImpl implements BuyerService {
 			String errorMsg = "Buyer cannot be created/updated as record already exists with name: " + buyerRequestDto.getName();
 			throw new RecordExistsException(errorMsg);
 		}
+	}
+
+	@Override
+	public Buyer findOrCreate(String name) {
+		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+		Buyer buyer = BuyerAdapter.buildBuyerFromName(name, factoryId);
+		return buyerDbService.findOrCreate(buyer);
 	}
 }

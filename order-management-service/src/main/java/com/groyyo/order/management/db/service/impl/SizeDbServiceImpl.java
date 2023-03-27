@@ -57,8 +57,8 @@ public class SizeDbServiceImpl extends AbstractJpaServiceImpl<Size, Long, SizeRe
 
 	@Override
 	public Size findOrCreate(Size size) {
-		Size entity = sizeRepository.findByName(size.getName());
-		if (entity == null) {
+		Size entity = sizeRepository.findByNameAndFactoryId(size.getName(), size.getFactoryId());
+		if (Objects.isNull(entity)) {
 			entity = size;
 			save(entity);
 		}
