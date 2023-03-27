@@ -136,14 +136,14 @@ kafka:
   consumer:
     autostart: 'false'
   base:
-    topic: kafka-orderManagement-topic
+    topic: kafka-orderManagement-topic-dev
   master:
     updates:
-      topic: master-data-updates
+      topic: master-data-updates-dev
   quality-management:
-    topic: qc-taskAssignment-topic
+    topic: qc-taskAssignment-topic-dev
   notification:
-    topic :  kafka-notification-topic
+    topic :  kafka-notification-topic-dev
 
 ############### healthcheck spring properties ###############
 management:
