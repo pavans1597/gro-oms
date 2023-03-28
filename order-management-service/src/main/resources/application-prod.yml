@@ -76,11 +76,11 @@ jdbc:
   acquire:
     increment: '2'
   master:
-    url: jdbc:postgresql://groyyo-postgres-db-prod.postgres.database.azure.com:5432/order-management-service
+    url: jdbc:postgresql://groyyo-postgres-db-prod.postgres.database.azure.com:5432/order_management_service
     username:
     password:
   slave:
-    url: jdbc:postgresql://groyyo-postgres-db-prod.postgres.database.azure.com:5432/order-management-service
+    url: jdbc:postgresql://groyyo-postgres-db-prod.postgres.database.azure.com:5432/order_management_service
     username:
     password:
   checkout:
