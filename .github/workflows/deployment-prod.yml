@@ -13,7 +13,7 @@ jobs:
     with:
       env: "prod"
       cluster-name: "groyyo-ks-cluster-spring-prod"
-      resource-group: "groyyo-new-rg"
+      resource-group: "groyyo-qc-prod-rg"
       docker-file: "Dockerfile.prod"
       service: "order-management-service-prod"
       service-file: "service-prod"
