@@ -29,6 +29,7 @@ jobs:
       is-version-change: "true"
       network-policy-file: "network-policy-dev"
     secrets:
+      AZURE_REGISTRY_LOGINURL: "${{ secrets.AZURE_REGISTRY_LOGINURL }}"
       AZURE_REGISTRY_PASSWORD: "${{ secrets.AZURE_REGISTRY_PASSWORD }}"
       AZURE_REGISTRY_USERNAME: "${{ secrets.AZURE_REGISTRY_USERNAME }}"
       AZURE_CREDENTIALS_QC_CLUSTER: "${{ secrets.AZURE_CREDENTIALS_NEW_CLUSTER }}"
