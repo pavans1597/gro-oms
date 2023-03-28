@@ -561,6 +561,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
             PurchaseOrder purchaseOrder = PurchaseOrder
                     .builder()
                     .name(purchaseOrderRequestDto.getName())
+                    .purchaseOrderStatus(PurchaseOrderStatus.YET_TO_START)
                     .styleId(Objects.nonNull(style) ? style.getUuid() : null)
                     .styleNumber(Objects.nonNull(style) ? style.getStyleNumber() : null)
                     .styleName(Objects.nonNull(style) ? style.getName() : null)

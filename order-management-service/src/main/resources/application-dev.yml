@@ -30,9 +30,9 @@ cache:
 ########## Services URL's ##############
 service:
   user:
-    url: https://groyyoconsoledev.groyyo.com/user-service/
+    url: http://user-service/user-service/
   masterData:
-    url: https://groyyoconsoledev.groyyo.com/master-data-service
+    url: https://master-data-service/master-data-service
 
 ############## Hibernate Configuration ##############
 hibernate:

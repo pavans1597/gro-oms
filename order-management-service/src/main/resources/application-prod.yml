@@ -7,7 +7,7 @@ server:
     max-threads: '50'
     accesslog:
       enabled: 'true'
-      prefix: order-management-service
+      prefix: order-management-service-prod
       pattern: '%h %l %u %t "%r" %I %s %b %F %D'
       suffix: .log
       file-date-format: .yyyy-MM-dd
@@ -30,9 +30,9 @@ cache:
 ########## Services URL's ##############
 service:
   user:
-    url: https://intent.groyyo.com/user-service/
+    url: http://user-service-prod/user-service/
   masterData:
-    url: https://intent.groyyo.com/master-data-service
+    url: http://master-data-service-prod/master-data-service
 
 ############## Hibernate Configuration ##############
 hibernate:
@@ -76,13 +76,13 @@ jdbc:
   acquire:
     increment: '2'
   master:
-    url: jdbc:postgresql://groyyo-postgres-db-prod.postgres.database.azure.com:5432/order_management_service
-    username: groyyopgadminprod
-    password: J-Y@WnAh8nJ#k2D%
+    url: jdbc:postgresql://groyyo-postgres-db-prod.postgres.database.azure.com:5432/order-management-service
+    username:
+    password:
   slave:
-    url: jdbc:postgresql://groyyo-postgres-db-prod.postgres.database.azure.com:5432/order_management_service
-    username: groyyopgadminprod
-    password: J-Y@WnAh8nJ#k2D%
+    url: jdbc:postgresql://groyyo-postgres-db-prod.postgres.database.azure.com:5432/order-management-service
+    username:
+    password:
   checkout:
     timeout: '5000'
 
@@ -118,7 +118,7 @@ spring:
       sasl:
         mechanism: PLAIN
         jaas:
-          config: org.apache.kafka.common.security.plain.PlainLoginModule   required username='L6PSDVDYIKTBGXZX' password='aNCSMMHWqaOPScAL025TYLfF0Y0adV2Q4uScspx4MuarA0P6DPU9Z1AY6theXYOW';
+          config: org.apache.kafka.common.security.plain.PlainLoginModule   required username='HM45PJ6VPGU5B43F' password='kfUGMtmWoheKUL2t2w+Oi32UGl+58hupFF7tXuc/FSpxeWwZAUqshI4/4Khd+aPD';
       retries: '1'
     #client-id: bootstrapServiceClient
     listener:
