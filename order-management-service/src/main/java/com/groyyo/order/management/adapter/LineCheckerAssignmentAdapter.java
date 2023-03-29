@@ -6,7 +6,6 @@ import com.groyyo.order.management.entity.LineCheckerAssignment;
 import lombok.experimental.UtilityClass;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -59,6 +58,7 @@ public class LineCheckerAssignmentAdapter {
 	}
 
 	private static LineUserResponseDto buildResponseDto(LineCheckerAssignment lineCheckerAssignment) {
+		String departmentName = lineCheckerAssignment.getLineType().getLineTypeName().split(" ")[0];
 		return LineUserResponseDto.builder()
 				.id(lineCheckerAssignment.getUuid())
 				.lineId(lineCheckerAssignment.getLineId())
@@ -67,6 +67,7 @@ public class LineCheckerAssignmentAdapter {
 				.factoryId(lineCheckerAssignment.getFactoryId())
 				.userId(lineCheckerAssignment.getUserId())
 				.userName(lineCheckerAssignment.getUserName())
+				.departmentName(departmentName)
 				.purchaseOrderId(lineCheckerAssignment.getPurchaseOrderId())
 				.status(lineCheckerAssignment.isStatus())
 				.build();
