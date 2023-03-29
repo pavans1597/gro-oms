@@ -21,7 +21,10 @@ import com.groyyo.core.base.http.utils.HeaderUtil;
 import com.groyyo.core.dto.PurchaseOrder.PurchaseOrderResponseDto;
 import com.groyyo.core.dto.PurchaseOrder.PurchaseOrderStatus;
 import com.groyyo.order.management.dto.filter.PurchaseOrderFilterDto;
-import com.groyyo.order.management.dto.request.*;
+import com.groyyo.order.management.dto.request.BulkOrderExcelRequestDto;
+import com.groyyo.order.management.dto.request.LineCheckerAssignmentRequestDto;
+import com.groyyo.order.management.dto.request.PurchaseOrderRequestDto;
+import com.groyyo.order.management.dto.request.PurchaseOrderUpdateDto;
 import com.groyyo.order.management.dto.response.PurchaseOrderStatusCountDto;
 import com.groyyo.order.management.entity.LineCheckerAssignment;
 import com.groyyo.order.management.service.LineCheckerAssignmentService;
@@ -59,6 +62,17 @@ public class PurchaseOrderController {
 
 		return Objects.isNull(purchaseOrderResponseDto) ? ResponseDto.failure("Found no purchaseOrder with id: " + id)
 				: ResponseDto.success("Found purchaseOrder with id: " + id, purchaseOrderResponseDto);
+	}
+
+	@GetMapping("exists/{purchaseOrderNumber}")
+	public ResponseDto<Boolean> existsByPurchaseOrderNumber(@PathVariable String purchaseOrderNumber) {
+
+		log.info("Request received to check if an purchase order exists with purchaseOrderNumber: {}", purchaseOrderNumber);
+
+		boolean poExists = purchaseOrderService.existsByNameAndFactoryId(purchaseOrderNumber, HeaderUtil.getFactoryIdHeaderValue());
+
+		return poExists ? ResponseDto.failure("Purchase Order already exists with number: " + purchaseOrderNumber)
+				: ResponseDto.success("No Purchase order exists with number: " + purchaseOrderNumber, poExists);
 	}
 
 	@PostMapping("get/listing/{page}/{limit}")

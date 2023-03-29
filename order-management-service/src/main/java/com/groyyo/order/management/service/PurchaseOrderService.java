@@ -7,7 +7,6 @@ import com.groyyo.core.dto.PurchaseOrder.PurchaseOrderResponseDto;
 import com.groyyo.core.dto.PurchaseOrder.PurchaseOrderStatus;
 import com.groyyo.order.management.dto.filter.PurchaseOrderFilterDto;
 import com.groyyo.order.management.dto.request.BulkOrderExcelRequestDto;
-import com.groyyo.order.management.dto.request.BulkPurchaseOrderRequestDto;
 import com.groyyo.order.management.dto.request.PurchaseOrderRequestDto;
 import com.groyyo.order.management.dto.request.PurchaseOrderUpdateDto;
 import com.groyyo.order.management.dto.response.PurchaseOrderStatusCountDto;
@@ -33,5 +32,12 @@ public interface PurchaseOrderService {
 	 */
 	void markPurchaseOrderCompleteAndRemoveAssignments(String purchaseOrderId);
 
-    List<PurchaseOrderResponseDto> createBulkOrderFromExcel(List<BulkOrderExcelRequestDto> bulkOrderExcelRequestsDto);
+	List<PurchaseOrderResponseDto> createBulkOrderFromExcel(List<BulkOrderExcelRequestDto> bulkOrderExcelRequestsDto);
+
+	/**
+	 * @param purchaseOrderNumber
+	 * @param factoryId
+	 * @return
+	 */
+	Boolean existsByNameAndFactoryId(String purchaseOrderNumber, String factoryId);
 }
