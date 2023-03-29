@@ -58,6 +58,7 @@ public class LineCheckerAssignmentAdapter {
 	}
 
 	private static LineUserResponseDto buildResponseDto(LineCheckerAssignment lineCheckerAssignment) {
+		String departmentName = lineCheckerAssignment.getLineType().getLineTypeName().split(" ")[0];
 		return LineUserResponseDto.builder()
 				.id(lineCheckerAssignment.getUuid())
 				.lineId(lineCheckerAssignment.getLineId())
@@ -66,7 +67,7 @@ public class LineCheckerAssignmentAdapter {
 				.factoryId(lineCheckerAssignment.getFactoryId())
 				.userId(lineCheckerAssignment.getUserId())
 				.userName(lineCheckerAssignment.getUserName())
-				.departmentName(lineCheckerAssignment.getLineType().getLineTypeName())
+				.departmentName(departmentName)
 				.purchaseOrderId(lineCheckerAssignment.getPurchaseOrderId())
 				.status(lineCheckerAssignment.isStatus())
 				.build();
