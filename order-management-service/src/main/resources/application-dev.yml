@@ -32,7 +32,7 @@ service:
   user:
     url: http://user-service/user-service/
   masterData:
-    url: https://master-data-service/master-data-service
+    url: https://groyyoconsoledev.groyyo.com/master-data-service
 
 ############## Hibernate Configuration ##############
 hibernate:
