@@ -2,11 +2,6 @@ package com.groyyo.order.management.dto.request;
 
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.springframework.validation.annotation.Validated;
-
-import javax.validation.constraints.DecimalMin;
-import javax.validation.constraints.Size;
-import java.util.Date;
 import java.util.Map;
 
 @Getter
@@ -32,7 +27,7 @@ public class BulkOrderExcelRequestDto {
 
     private String fitName;
 
-    private Date exFtyDate;
+    private String exFtyDate;
 
     private String part;
 

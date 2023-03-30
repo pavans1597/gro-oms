@@ -62,15 +62,15 @@ public class StyleDbServiceImpl extends AbstractJpaServiceImpl<Style, Long, Styl
 
     @Override
     public Style findOrCreate(Style style) {
-        Style entity = styleRepository.findByNameAndFactoryId(style.getStyleNumber(), style.getFactoryId());
+        Style entity = styleRepository.findByStyleNumberAndFactoryId(style.getStyleNumber(), style.getFactoryId());
         if (Objects.isNull(entity)) {
             entity = style;
             save(entity);
         } else {
-            if (StringUtils.equals(entity.getName(), style.getName())) {
+            if (!StringUtils.equals(entity.getName(), style.getName())) {
                 throw new InputMismatchException("Style Name is different for the provided styleNumber: " + entity.getStyleNumber());
             }
-            if (!Objects.equals(entity.getProductId(), style.getProductId())) {
+            if (!StringUtils.equals(entity.getProductId(), style.getProductId())) {
                 throw new InputMismatchException(style.getProductName() + " - this product name is not attached with this style- " + style.getName());
             }
         }
