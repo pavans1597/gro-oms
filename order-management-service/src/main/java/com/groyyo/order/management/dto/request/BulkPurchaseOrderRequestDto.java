@@ -4,8 +4,6 @@ import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.util.Date;
-import java.util.List;
-import java.util.Map;
 
 @Getter
 @Setter
