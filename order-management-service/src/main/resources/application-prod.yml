@@ -33,6 +33,8 @@ service:
     url: http://user-service-prod/user-service/
   masterData:
     url: http://master-data-service-prod/master-data-service
+  file_management:
+      url: https://file-management-service-prod/file-management-service
 
 ############## Hibernate Configuration ##############
 hibernate:

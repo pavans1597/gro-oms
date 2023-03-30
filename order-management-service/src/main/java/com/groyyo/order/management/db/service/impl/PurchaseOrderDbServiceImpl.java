@@ -59,4 +59,9 @@ public class PurchaseOrderDbServiceImpl extends AbstractJpaServiceImpl<PurchaseO
 		return purchaseOrderRepository.existsByNameAndFactoryId(purchaseOrderNumber, factoryId);
 	}
 
+	@Override
+	public boolean isEntityExistsByNameAndFactoryId(String name, String factoryId) {
+		return Objects.nonNull(purchaseOrderRepository.findByNameAndFactoryId(name, factoryId));
+	}
+
 }
