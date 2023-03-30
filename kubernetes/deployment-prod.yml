@@ -14,7 +14,7 @@ spec:
         group: service-prod
     spec:
       containers:
-        - image: groyyoOrgServiceRegistry.azurecr.io/order-management-service-prod:latest
+        - image: groyyoqcacr.azurecr.io/order-management-service-prod:latest
           name: order-management-service-prod
           resources:
             requests:

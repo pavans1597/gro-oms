@@ -38,6 +38,7 @@ import com.groyyo.order.management.entity.*;
 import com.groyyo.order.management.service.*;
 import com.groyyo.order.management.util.BuilderUtils;
 import com.groyyo.order.management.util.MapperUtils;
+
 import lombok.extern.log4j.Log4j2;
 
 @Log4j2
@@ -45,11 +46,11 @@ import lombok.extern.log4j.Log4j2;
 @Transactional
 public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
-    @Autowired
-    private PurchaseOrderDbService purchaseOrderDbService;
+	@Autowired
+	private PurchaseOrderDbService purchaseOrderDbService;
 
-    @Autowired
-    private PurchaseOrderQuantityService purchaseOrderQuantityService;
+	@Autowired
+	private PurchaseOrderQuantityService purchaseOrderQuantityService;
 
     @Autowired
     private LineCheckerAssignmentService lineCheckerAssignmentService;
@@ -57,8 +58,8 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
     @Autowired
     private LineCheckerAssignmentDbService lineCheckerAssignmentDbService;
 
-    @Autowired
-    private StyleService styleService;
+	@Autowired
+	private StyleService styleService;
 
     @Autowired
     private SeasonService seasonService;
@@ -501,10 +502,10 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         PurchaseOrderStatus currentPurchaseOrderStatus = purchaseOrder.getPurchaseOrderStatus();
         log.info("Current status of purchase order with uuid: {} is: {}", purchaseOrder.getUuid(), currentPurchaseOrderStatus);
 
-        if (desiredPurchaseOrderStatus.getSequenceId() >= currentPurchaseOrderStatus.getSequenceId()) {
-            log.info("Changing the status of purchase order from current status: {} to desired status: {}", currentPurchaseOrderStatus, desiredPurchaseOrderStatus);
-            purchaseOrder.setPurchaseOrderStatus(desiredPurchaseOrderStatus);
-        }
+		if (desiredPurchaseOrderStatus.getSequenceId() >= currentPurchaseOrderStatus.getSequenceId()) {
+			log.info("Changing the status of purchase order from current status: {} to desired status: {}", currentPurchaseOrderStatus, desiredPurchaseOrderStatus);
+			purchaseOrder.setPurchaseOrderStatus(desiredPurchaseOrderStatus);
+		}
 
         if (desiredPurchaseOrderStatus.getSequenceId() < currentPurchaseOrderStatus.getSequenceId()) {
             log.info("Cannot move the status to a level: {} lower than the current level: {}", desiredPurchaseOrderStatus.getSequenceId(), currentPurchaseOrderStatus.getSequenceId());
@@ -519,8 +520,8 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         purchaseOrderDbService.saveAndFlush(purchaseOrder);
     }
 
-    @Override
-    public void markPurchaseOrderCompleteAndRemoveAssignments(String purchaseOrderId) {
+	@Override
+	public void markPurchaseOrderCompleteAndRemoveAssignments(String purchaseOrderId) {
 
         changeStatusOfPurchaseOrder(purchaseOrderId, PurchaseOrderStatus.COMPLETED, Boolean.TRUE);
 
@@ -714,4 +715,10 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
             throw new InputMismatchException("Row Number: " + i + " Invalid ex Fty date " + bulkOrderExcelList.get(i).getExFtyDate());
         }
     }
+
+	@Override
+	public Boolean existsByNameAndFactoryId(String purchaseOrderNumber, String factoryId) {
+
+		return purchaseOrderDbService.existsByNameAndFactoryId(purchaseOrderNumber, factoryId);
+	}
 }

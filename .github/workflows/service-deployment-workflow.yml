@@ -8,6 +8,8 @@ on:
     secrets:
       GH_ACCESS_TOKEN:
         required: true
+      AZURE_REGISTRY_LOGINURL:
+        required: true
       AZURE_REGISTRY_PASSWORD:
         required: true
       AZURE_REGISTRY_USERNAME:
@@ -79,7 +81,7 @@ jobs:
       name: ${{ inputs.env }}
     steps:
       # Continuous Integration
-      - name: Checkout Github Respository
+      - name: Checkout Github Repository
         uses: actions/checkout@v3
 
       - name: Checkout core utils
@@ -124,10 +126,12 @@ jobs:
         run: |
           #Install yq
           sudo snap install yq
-          path="$(pwd)"
+          path="order-management-service/src/main/resources/application-prod.yml"
 
-          yq -i '.spring.datasource.username = "${{secrets.PROD_DB_USERNAME}}"' ${path}/src/main/resources/application-prod.yml
-          yq -i '.spring.datasource.password = "${{secrets.PROD_DB_PASSWORD}}"' ${path}/src/main/resources/application-prod.yml
+          yq -i '.jdbc.slave.username = "${{secrets.PROD_DB_USERNAME}}"' ${path}
+          yq -i '.jdbc.slave.password = "${{secrets.PROD_DB_PASSWORD}}"' ${path}
+          yq -i '.jdbc.master.username = "${{secrets.PROD_DB_USERNAME}}"' ${path}
+          yq -i '.jdbc.master.password = "${{secrets.PROD_DB_PASSWORD}}"' ${path}
 
       - name: Cache Maven packages
         uses: actions/cache@v2
@@ -160,24 +164,24 @@ jobs:
       - name: Docker Login
         uses: azure/docker-login@v1
         with:
-          username: groyyoOrgServiceRegistry
+          username: ${{ secrets.AZURE_REGISTRY_USERNAME }}
           password: ${{ secrets.AZURE_REGISTRY_PASSWORD }}
-          login-server: groyyoOrgServiceRegistry.azurecr.io
+          login-server: ${{ secrets.AZURE_REGISTRY_LOGINURL }}
 
       - name: Backup Docker Image
         id: docker-backup
         continue-on-error: true
         run: |
           #Check if image exists
-          IMAGE_EXISTS="$(docker manifest inspect groyyoOrgServiceRegistry.azurecr.io/${{ inputs.container-image }} > /dev/null ; echo $?)"
+          IMAGE_EXISTS="$(docker manifest inspect ${{ secrets.AZURE_REGISTRY_LOGINURL }}/${{ inputs.container-image }} > /dev/null ; echo $?)"
           echo "$IMAGE_EXISTS"
 
           #Create backup from latest
           if [ "1" != "$IMAGE_EXISTS" ];
           then
-            docker pull groyyoOrgServiceRegistry.azurecr.io/${{ inputs.container-image }}
-            docker image tag groyyoOrgServiceRegistry.azurecr.io/${{ inputs.container-image }} groyyoOrgServiceRegistry.azurecr.io/${{ inputs.container-image-backup }}
-            docker push groyyoOrgServiceRegistry.azurecr.io/${{ inputs.container-image-backup }}
+            docker pull ${{ secrets.AZURE_REGISTRY_LOGINURL }}/${{ inputs.container-image }}
+            docker image tag ${{ secrets.AZURE_REGISTRY_LOGINURL }}/${{ inputs.container-image }} ${{ secrets.AZURE_REGISTRY_LOGINURL }}/${{ inputs.container-image-backup }}
+            docker push ${{ secrets.AZURE_REGISTRY_LOGINURL }}/${{ inputs.container-image-backup }}
 
             echo "::set-output name=BACKUP_IMAGE::exists"
           else
@@ -200,8 +204,8 @@ jobs:
 
       - name: Build and push docker image
         run: |
-          docker build . -t groyyoOrgServiceRegistry.azurecr.io/${{ inputs.container-image }} -f ${{ inputs.docker-file }}
-          docker push groyyoOrgServiceRegistry.azurecr.io/${{ inputs.container-image }}
+          docker build . -t ${{ secrets.AZURE_REGISTRY_LOGINURL }}/${{ inputs.container-image }} -f ${{ inputs.docker-file }}
+          docker push ${{ secrets.AZURE_REGISTRY_LOGINURL }}/${{ inputs.container-image }}
 
       # Continuous Deployment
       - name: Azure Login
@@ -212,14 +216,14 @@ jobs:
       - name: Set AKS Context
         uses: azure/aks-set-context@v1
         with:
-          creds: '${{ secrets.AZURE_CREDENTIALS_QC_CLUSTER }}'
+          creds: ${{ secrets.AZURE_CREDENTIALS_QC_CLUSTER }}
           cluster-name: ${{ inputs.cluster-name }}
           resource-group: ${{ inputs.resource-group }}
 
       - name: Create Secret
         uses: azure/k8s-create-secret@v1
         with:
-          container-registry-url: groyyoOrgServiceRegistry.azurecr.io
+          container-registry-url: ${{ secrets.AZURE_REGISTRY_LOGINURL }}
           container-registry-username: ${{ secrets.AZURE_REGISTRY_USERNAME }}
           container-registry-password: ${{ secrets.AZURE_REGISTRY_PASSWORD }}
           secret-name: ${{ inputs.service }}-acr-secret
@@ -233,7 +237,7 @@ jobs:
             kubernetes/${{ inputs.deployment-file }}.yml
             kubernetes/${{ inputs.service-file }}.yml
           images: |
-            groyyoOrgServiceRegistry.azurecr.io/${{ inputs.container-image }}
+            ${{ secrets.AZURE_REGISTRY_LOGINURL }}/${{ inputs.container-image }}
           imagepullsecrets: |
             ${{ inputs.service }}-acr-secret
           namespace: default
@@ -272,10 +276,10 @@ jobs:
             done
           fi
 
-#      - name: Apply network policy
-#        run: |
-#            az account set --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID_NEW_CLUSTER }}
-#            kubectl apply -f kubernetes/${{ inputs.network-policy-file }}.yaml
+      #      - name: Apply network policy
+      #        run: |
+      #            az account set --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID_NEW_CLUSTER }}
+      #            kubectl apply -f kubernetes/${{ inputs.network-policy-file }}.yaml
 
       - name: Discord Notification
         uses: rjstone/discord-webhook-notify@v1
@@ -295,36 +299,36 @@ jobs:
           details: ${{ inputs.service }} deployed successfully!!!
           webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
 
-#      # Delete deployment on failure
-#      - name: Delete deployment
-#        if: contains(steps.deployment.outputs.DEPLOYMENT_STATUS, 'failure')
-#        run: |
-#          az account set --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID_NEW_CLUSTER }}
-#          kubectl delete deployment ${{ inputs.service }}
-#
-#      # Rollback deployment on failure
-#      - name: Deploy to Cluster
-#        uses: azure/k8s-deploy@v1
-#        if: |-
-#          ${{ (contains(steps.deployment.outputs.DEPLOYMENT_STATUS, 'failure')) &&
-#              (contains(steps.docker-backup.outputs.BACKUP_IMAGE, 'exists')) }}
-#        with:
-#          manifests: |
-#            kubernetes/${{ inputs.deployment-file-rollback }}.yml
-#            kubernetes/${{ inputs.service-file }}.yml
-#          images: |
-#            groyyoOrgServiceRegistry.azurecr.io/${{ inputs.container-image-backup }}
-#          imagepullsecrets: |
-#            ${{ inputs.service }}-acr-secret
-#          namespace: default
-#
-#      - name: Restart deployment
-#        if: |-
-#          ${{ (contains(steps.deployment.outputs.DEPLOYMENT_STATUS, 'failure')) &&
-#              (contains(steps.docker-backup.outputs.BACKUP_IMAGE, 'exists')) }}
-#        run: |
-#          az account set --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID_NEW_CLUSTER }}
-#          kubectl rollout restart deployment ${{ inputs.service }}
+      #      # Delete deployment on failure
+      #      - name: Delete deployment
+      #        if: contains(steps.deployment.outputs.DEPLOYMENT_STATUS, 'failure')
+      #        run: |
+      #          az account set --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID_NEW_CLUSTER }}
+      #          kubectl delete deployment ${{ inputs.service }}
+      #
+      #      # Rollback deployment on failure
+      #      - name: Deploy to Cluster
+      #        uses: azure/k8s-deploy@v1
+      #        if: |-
+      #          ${{ (contains(steps.deployment.outputs.DEPLOYMENT_STATUS, 'failure')) &&
+      #              (contains(steps.docker-backup.outputs.BACKUP_IMAGE, 'exists')) }}
+      #        with:
+      #          manifests: |
+      #            kubernetes/${{ inputs.deployment-file-rollback }}.yml
+      #            kubernetes/${{ inputs.service-file }}.yml
+      #          images: |
+      #            groyyoOrgServiceRegistry.azurecr.io/${{ inputs.container-image-backup }}
+      #          imagepullsecrets: |
+      #            ${{ inputs.service }}-acr-secret
+      #          namespace: default
+      #
+      #      - name: Restart deployment
+      #        if: |-
+      #          ${{ (contains(steps.deployment.outputs.DEPLOYMENT_STATUS, 'failure')) &&
+      #              (contains(steps.docker-backup.outputs.BACKUP_IMAGE, 'exists')) }}
+      #        run: |
+      #          az account set --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID_NEW_CLUSTER }}
+      #          kubectl rollout restart deployment ${{ inputs.service }}
 
       # Continuous Testing
 #      - name: Run Integration Test

@@ -20,4 +20,6 @@ public interface PurchaseOrderRepository extends AbstractJpaRepository<PurchaseO
 
 	PurchaseOrder findByNameAndFactoryId(String name, String factoryId);
 
+	Boolean existsByNameAndFactoryId(String purchaseOrderNumber, String factoryId);
+
 }
