@@ -1,5 +1,8 @@
 package com.groyyo.order.management.service.impl;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -48,11 +51,11 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
     @Autowired
     private PurchaseOrderQuantityService purchaseOrderQuantityService;
 
-	@Autowired
-	private LineCheckerAssignmentService lineCheckerAssignmentService;
+    @Autowired
+    private LineCheckerAssignmentService lineCheckerAssignmentService;
 
-	@Autowired
-	private LineCheckerAssignmentDbService lineCheckerAssignmentDbService;
+    @Autowired
+    private LineCheckerAssignmentDbService lineCheckerAssignmentDbService;
 
     @Autowired
     private StyleService styleService;
@@ -498,10 +501,10 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         PurchaseOrderStatus currentPurchaseOrderStatus = purchaseOrder.getPurchaseOrderStatus();
         log.info("Current status of purchase order with uuid: {} is: {}", purchaseOrder.getUuid(), currentPurchaseOrderStatus);
 
-		if (desiredPurchaseOrderStatus.getSequenceId() >= currentPurchaseOrderStatus.getSequenceId()) {
-			log.info("Changing the status of purchase order from current status: {} to desired status: {}", currentPurchaseOrderStatus, desiredPurchaseOrderStatus);
-			purchaseOrder.setPurchaseOrderStatus(desiredPurchaseOrderStatus);
-		}
+        if (desiredPurchaseOrderStatus.getSequenceId() >= currentPurchaseOrderStatus.getSequenceId()) {
+            log.info("Changing the status of purchase order from current status: {} to desired status: {}", currentPurchaseOrderStatus, desiredPurchaseOrderStatus);
+            purchaseOrder.setPurchaseOrderStatus(desiredPurchaseOrderStatus);
+        }
 
         if (desiredPurchaseOrderStatus.getSequenceId() < currentPurchaseOrderStatus.getSequenceId()) {
             log.info("Cannot move the status to a level: {} lower than the current level: {}", desiredPurchaseOrderStatus.getSequenceId(), currentPurchaseOrderStatus.getSequenceId());
@@ -512,21 +515,26 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
             }
         }
 
-		purchaseOrder.setUpdatedAt(new Date());
-		purchaseOrderDbService.saveAndFlush(purchaseOrder);
-	}
+        purchaseOrder.setUpdatedAt(new Date());
+        purchaseOrderDbService.saveAndFlush(purchaseOrder);
+    }
 
-	@Override
-	public void markPurchaseOrderCompleteAndRemoveAssignments(String purchaseOrderId) {
+    @Override
+    public void markPurchaseOrderCompleteAndRemoveAssignments(String purchaseOrderId) {
 
-		changeStatusOfPurchaseOrder(purchaseOrderId, PurchaseOrderStatus.COMPLETED, Boolean.TRUE);
+        changeStatusOfPurchaseOrder(purchaseOrderId, PurchaseOrderStatus.COMPLETED, Boolean.TRUE);
 
-		lineCheckerAssignmentService.disableLineAssignmentsOnOrderCompletion(purchaseOrderId);
-	}
+        lineCheckerAssignmentService.disableLineAssignmentsOnOrderCompletion(purchaseOrderId);
+    }
 
     private boolean isEntityExistsWithName(String name) {
 
         return StringUtils.isNotBlank(name) && purchaseOrderDbService.isEntityExistsByName(name);
+    }
+
+    private boolean isEntityExistsWithNameAndFactoryId(String name) {
+        String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+        return StringUtils.isNotBlank(name) && purchaseOrderDbService.isEntityExistsByNameAndFactoryId(name, factoryId);
     }
 
     private void runValidations(PurchaseOrderRequestDto purchaseOrderRequestDto) {
@@ -638,29 +646,34 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         for (int i = 0; i < bulkOrderExcelList.size(); i++) {
             MapperUtils.getTrimmedDto(bulkOrderExcelList.get(i));
             if (StringUtils.isBlank(bulkOrderExcelList.get(i).getPurchaseOrderNumber())) {
-                errorMessages.put("Row Number: " + i + " purchaseOrderNumber", "Mandatory Field Missing");
+                errorMessages.put("Row Number: " + i + " purchaseOrderNumber", "Purchase Order Number cannot be blank.");
+            }
+            if (isEntityExistsWithNameAndFactoryId(bulkOrderExcelList.get(i).getPurchaseOrderNumber())) {
+                errorMessages.put("Row Number: " + i + " purchaseOrderNumber ", " " + bulkOrderExcelList.get(i).getPurchaseOrderNumber() + " is already present in the factory.");
             }
             if (StringUtils.isBlank(bulkOrderExcelList.get(i).getStyleName())) {
-                errorMessages.put("Row Number: " + i + " styleName", "Mandatory Field Missing");
+                errorMessages.put("Row Number: " + i + " styleName", " Please enter a valid style name");
             }
             if (StringUtils.isBlank(bulkOrderExcelList.get(i).getStyleNumber())) {
-                errorMessages.put("Row Number: " + i + " styleNumber", "Mandatory Field Missing");
+                errorMessages.put("Row Number: " + i + " styleNumber", "Please enter a valid style number");
             }
             if (StringUtils.isBlank(bulkOrderExcelList.get(i).getProductName())) {
-                errorMessages.put("Row Number: " + i + " productName", "Mandatory Field Missing");
+                errorMessages.put("Row Number: " + i + " productName", "Please enter a valid product name");
             }
             if (StringUtils.isBlank(bulkOrderExcelList.get(i).getBuyerName())) {
-                errorMessages.put("Row Number: " + i + " buyerName", "Mandatory Field Missing");
+                errorMessages.put("Row Number: " + i + " buyerName", "Please enter a valid buyer name");
             }
             if (StringUtils.isBlank(bulkOrderExcelList.get(i).getSeasonName())) {
-                errorMessages.put("Row Number: " + i + " seasonName", "Mandatory Field Missing");
+                errorMessages.put("Row Number: " + i + " seasonName", "Please enter a valid season name");
             }
             if (StringUtils.isBlank(bulkOrderExcelList.get(i).getFitName())) {
-                errorMessages.put("Row Number: " + i + " fitName", "Mandatory Field Missing");
+                errorMessages.put("Row Number: " + i + " fitName", "Please enter a valid fit name");
             }
             if (StringUtils.isBlank(bulkOrderExcelList.get(i).getPart())) {
-                errorMessages.put("Row Number: " + i + " part", "Mandatory Field Missing");
+                errorMessages.put("Row Number: " + i + " part", "Please enter a valid part name");
             }
+            validateDateFormat(bulkOrderExcelList, i);
+
 
             String hash = bulkOrderExcelList.get(i).getStyleNumber() + "$$$" + bulkOrderExcelList.get(i).getStyleName() + "$$$" + bulkOrderExcelList.get(i).getProductName() + "$$$" + bulkOrderExcelList.get(i).getBuyerName() + "$$$" + bulkOrderExcelList.get(i).getSeasonName() + "$$$" + bulkOrderExcelList.get(i).getFitName() + "$$$" + bulkOrderExcelList.get(i).getExFtyDate() + "$$$" + bulkOrderExcelList.get(i).getPart() + "$$$" + bulkOrderExcelList.get(i).getVariance();
             if (poHash.get(bulkOrderExcelList.get(i).getPurchaseOrderNumber()) == null) {
@@ -690,5 +703,15 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
     public List<PurchaseOrderResponseDto> createBulkOrderFromExcel(List<BulkOrderExcelRequestDto> bulkOrderExcelRequestsDto) {
         List<BulkPurchaseOrderRequestDto> bulkPurchaseOrderRequestsDto = parseBulkOrderExcelData(bulkOrderExcelRequestsDto);
         return addBulkPurchaseOrder(bulkPurchaseOrderRequestsDto);
+    }
+
+
+    private static void validateDateFormat(List<BulkOrderExcelRequestDto> bulkOrderExcelList, int i) {
+        try {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+            LocalDate.parse(bulkOrderExcelList.get(i).getExFtyDate(), formatter);
+        } catch (DateTimeParseException e) {
+            throw new InputMismatchException("Row Number: " + i + " Invalid ex Fty date " + bulkOrderExcelList.get(i).getExFtyDate());
+        }
     }
 }

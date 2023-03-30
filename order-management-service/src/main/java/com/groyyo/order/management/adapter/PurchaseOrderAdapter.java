@@ -1,11 +1,11 @@
 package com.groyyo.order.management.adapter;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
 import com.groyyo.order.management.dto.request.*;
+import com.groyyo.order.management.util.DateUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import com.groyyo.core.dto.PurchaseOrder.PurchaseOrderResponseDto;
@@ -105,7 +105,7 @@ public class PurchaseOrderAdapter {
         return purchaseOrders.stream().map(PurchaseOrderAdapter::buildResponseFromEntity).collect(Collectors.toList());
     }
 
-    public BulkPurchaseOrderRequestDto buildBulkPOFromExcel(BulkOrderExcelRequestDto bulkOrderExcelData, BulkPartRequestDto part) {
+    public BulkPurchaseOrderRequestDto buildBulkPOFromExcel(BulkOrderExcelRequestDto bulkOrderExcelData, BulkPartRequestDto part){
         return BulkPurchaseOrderRequestDto
                 .builder()
                 .name(bulkOrderExcelData.getPurchaseOrderNumber())
@@ -115,7 +115,7 @@ public class PurchaseOrderAdapter {
                 .productName(bulkOrderExcelData.getProductName())
                 .seasonName(bulkOrderExcelData.getSeasonName())
                 .fitName(bulkOrderExcelData.getFitName())
-                .exFtyDate(bulkOrderExcelData.getExFtyDate())
+                .exFtyDate(DateUtils.convertDate(bulkOrderExcelData.getExFtyDate()))
                 .part(part)
                 .build();
     }

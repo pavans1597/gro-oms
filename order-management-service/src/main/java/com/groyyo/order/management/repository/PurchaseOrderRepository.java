@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.springframework.stereotype.Repository;
 
-import com.groyyo.core.dto.PurchaseOrder.PurchaseOrderStatus;
 import com.groyyo.core.sqlPostgresJpa.repository.AbstractJpaRepository;
 import com.groyyo.order.management.entity.PurchaseOrder;
 
@@ -18,5 +17,7 @@ public interface PurchaseOrderRepository extends AbstractJpaRepository<PurchaseO
 	PurchaseOrder findByName(String name);
 
 	PurchaseOrder findByNameAndStatus(String name, Boolean status);
+
+	PurchaseOrder findByNameAndFactoryId(String name, String factoryId);
 
 }

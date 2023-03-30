@@ -25,4 +25,6 @@ public interface PurchaseOrderDbService extends AbstractJpaService<PurchaseOrder
 
     boolean isEntityExistsByName(String name);
 
+    boolean isEntityExistsByNameAndFactoryId(String name, String factoryId);
+
 }
