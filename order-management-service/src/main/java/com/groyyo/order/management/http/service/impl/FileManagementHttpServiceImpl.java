@@ -32,7 +32,7 @@ public class FileManagementHttpServiceImpl implements FileManagementHttpService 
 
 		try {
 
-			styleImage = fileManagementApi.getSignedUrl(imageUuid, ServiceName.ORDER, Boolean.TRUE);
+			styleImage = fileManagementApi.getInternalSignedUrl(imageUuid, ServiceName.ORDER, Boolean.TRUE);
 
 		} catch (Exception e) {
 
