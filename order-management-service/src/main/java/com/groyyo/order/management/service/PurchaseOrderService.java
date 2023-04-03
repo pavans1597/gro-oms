@@ -40,4 +40,9 @@ public interface PurchaseOrderService {
 	 * @return
 	 */
 	Boolean existsByNameAndFactoryId(String purchaseOrderNumber, String factoryId);
+
+	/**
+	 * @param purchaseOrderIds
+	 */
+	void publishPurchaseOrderPackets(List<String> purchaseOrderIds);
 }

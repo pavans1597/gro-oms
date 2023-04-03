@@ -101,7 +101,8 @@ public class LineCheckerAssignmentServiceImpl implements LineCheckerAssignmentSe
 				&& Objects.nonNull(userLineDetails.getLineType());
 	}
 
-	private void publishQcTaskAssignment(String purchaseOrderId) {
+	@Override
+	public void publishQcTaskAssignment(String purchaseOrderId) {
 
 		PurchaseOrderResponseDto purchaseOrderResponseDto = purchaseOrderService.getPurchaseOrderById(purchaseOrderId);
 
