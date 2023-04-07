@@ -209,8 +209,7 @@ public class PurchaseOrderQuantityServiceImpl implements PurchaseOrderQuantitySe
 
 	private boolean isPurchaseOrderQuantitySpecificationRequired(PurchaseOrderFilterDto purchaseOrderFilterDto) {
 
-		return StringUtils.isNotBlank(purchaseOrderFilterDto.getColorId()) || StringUtils.isNotBlank(purchaseOrderFilterDto.getColorName()) || Objects.nonNull(purchaseOrderFilterDto.getQuantity())
-				|| Objects.nonNull(purchaseOrderFilterDto.getTargetQuantity());
+		return StringUtils.isNotBlank(purchaseOrderFilterDto.getColorId()) || StringUtils.isNotBlank(purchaseOrderFilterDto.getColorName());
 	}
 
 	private Specification<PurchaseOrderQuantity> getSpecificationForPurchaseOrderQuantity(PurchaseOrderFilterDto purchaseOrderFilterDto) {
@@ -227,13 +226,6 @@ public class PurchaseOrderQuantityServiceImpl implements PurchaseOrderQuantitySe
 			if (Objects.nonNull(purchaseOrderFilterDto.getColorName()))
 				groyyoSpecificationBuilder.with(FilterConstants.PurchaseOrderQuantityFilterConstants.PURCHASE_ORDER_QUANTITY_COLOR_NAME, CriteriaOperation.ILIKE,
 						getObjectForILikeSearchCriteria(purchaseOrderFilterDto.getColorName()));
-
-			if (Objects.nonNull(purchaseOrderFilterDto.getQuantity()))
-				groyyoSpecificationBuilder.with(FilterConstants.PurchaseOrderQuantityFilterConstants.PURCHASE_ORDER_QUANTITY_QUANTITY, CriteriaOperation.EQ, purchaseOrderFilterDto.getQuantity());
-
-			if (Objects.nonNull(purchaseOrderFilterDto.getTargetQuantity()))
-				groyyoSpecificationBuilder.with(FilterConstants.PurchaseOrderQuantityFilterConstants.PURCHASE_ORDER_QUANTITY_TARGET_QUANTITY, CriteriaOperation.EQ,
-						purchaseOrderFilterDto.getTargetQuantity());
 
 		}
 

@@ -208,7 +208,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 	public PageResponse<PurchaseOrderResponseDto> getPurchaseOrderListing(PurchaseOrderFilterDto purchaseOrderFilterDto, PurchaseOrderStatus purchaseOrderStatus, int page, int limit) {
 
 		purchaseOrderQuantityService.getPurchaseOrderIdsForQuantitiesAndSearch(purchaseOrderFilterDto);
-		
+
 		Specification<PurchaseOrder> specification = getSpecificationForPurchaseOrderListing(purchaseOrderFilterDto, purchaseOrderStatus);
 
 		Pageable pageable = PaginationUtility.getPageRequest(page, limit, FilterConstants.UPDATED_AT, Direction.DESC);
@@ -513,6 +513,13 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 			if (StringUtils.isNotBlank(purchaseOrderFilterDto.getProductName()))
 				groyyoSpecificationBuilder.with(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_PRODUCT_NAME, CriteriaOperation.ILIKE,
 						getObjectForILikeSearchCriteria(purchaseOrderFilterDto.getProductName()));
+
+			if (Objects.nonNull(purchaseOrderFilterDto.getQuantity()))
+				groyyoSpecificationBuilder.with(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_QUANTITY, CriteriaOperation.EQ, purchaseOrderFilterDto.getQuantity());
+
+			if (Objects.nonNull(purchaseOrderFilterDto.getTargetQuantity()))
+				groyyoSpecificationBuilder.with(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_TARGET_QUANTITY, CriteriaOperation.EQ,
+						purchaseOrderFilterDto.getTargetQuantity());
 
 		}
 

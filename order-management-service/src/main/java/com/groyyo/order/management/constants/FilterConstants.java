@@ -40,6 +40,8 @@ public class FilterConstants {
 		public final String PURCHASE_ORDER_PRODUCT_NAME = "productName";
 		public final String PURCHASE_ORDER_EX_FTY_DATE = "exFtyDate";
 		public final String PURCHASE_ORDER_RECEIVE_DATE = "receiveDate";
+		public final String PURCHASE_ORDER_QUANTITY = "quantity";
+		public final String PURCHASE_ORDER_TARGET_QUANTITY = "targetQuantity";
 	}
 
 	@UtilityClass
