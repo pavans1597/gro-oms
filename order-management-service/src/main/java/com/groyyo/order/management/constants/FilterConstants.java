@@ -42,4 +42,15 @@ public class FilterConstants {
 		public final String PURCHASE_ORDER_RECEIVE_DATE = "receiveDate";
 	}
 
+	@UtilityClass
+	public class PurchaseOrderQuantityFilterConstants {
+
+		/*
+		 * Purchase Order Quantity Filters
+		 */
+		public final String PURCHASE_ORDER_QUANTITY_FACTORY_ID = "factoryId";
+		public final String PURCHASE_ORDER_QUANTITY_COLOR_NAME = "colourName";
+		public final String PURCHASE_ORDER_QUANTITY_QUANTITY = "quantity";
+		public final String PURCHASE_ORDER_QUANTITY_TARGET_QUANTITY = "targetQuantity";
+	}
 }

@@ -5,11 +5,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,8 +20,13 @@ import com.groyyo.core.base.exception.NoRecordException;
 import com.groyyo.core.base.exception.RecordExistsException;
 import com.groyyo.core.base.http.utils.HeaderUtil;
 import com.groyyo.core.dto.PurchaseOrder.PurchaseOrderQuantityResponseDto;
+import com.groyyo.core.sqlPostgresJpa.specification.utils.CriteriaOperation;
+import com.groyyo.core.sqlPostgresJpa.specification.utils.GroyyoSpecificationBuilder;
 import com.groyyo.order.management.adapter.PurchaseOrderQuantityAdapter;
+import com.groyyo.order.management.constants.FilterConstants;
+import com.groyyo.order.management.constants.SymbolConstants;
 import com.groyyo.order.management.db.service.PurchaseOrderQuantityDbService;
+import com.groyyo.order.management.dto.filter.PurchaseOrderFilterDto;
 import com.groyyo.order.management.dto.request.PurchaseOrderQuantityCreateDto;
 import com.groyyo.order.management.dto.request.PurchaseOrderQuantityRequestDto;
 import com.groyyo.order.management.entity.PurchaseOrderQuantity;
@@ -197,6 +205,82 @@ public class PurchaseOrderQuantityServiceImpl implements PurchaseOrderQuantitySe
 		});
 
 		return purchaseOrderIdAndTotalQuantityMap;
+	}
+
+	private boolean isPurchaseOrderQuantitySpecificationRequired(PurchaseOrderFilterDto purchaseOrderFilterDto) {
+
+		return StringUtils.isNotBlank(purchaseOrderFilterDto.getColorId()) || StringUtils.isNotBlank(purchaseOrderFilterDto.getColorName()) || Objects.nonNull(purchaseOrderFilterDto.getQuantity())
+				|| Objects.nonNull(purchaseOrderFilterDto.getTargetQuantity());
+	}
+
+	private Specification<PurchaseOrderQuantity> getSpecificationForPurchaseOrderQuantity(PurchaseOrderFilterDto purchaseOrderFilterDto) {
+
+		GroyyoSpecificationBuilder<PurchaseOrderQuantity> groyyoSpecificationBuilder = new GroyyoSpecificationBuilder<PurchaseOrderQuantity>();
+
+		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+
+		if (StringUtils.isNotBlank(factoryId))
+			groyyoSpecificationBuilder.with(FilterConstants.PurchaseOrderQuantityFilterConstants.PURCHASE_ORDER_QUANTITY_FACTORY_ID, CriteriaOperation.EQ, factoryId);
+
+		if (Objects.nonNull(purchaseOrderFilterDto)) {
+
+			if (Objects.nonNull(purchaseOrderFilterDto.getColorName()))
+				groyyoSpecificationBuilder.with(FilterConstants.PurchaseOrderQuantityFilterConstants.PURCHASE_ORDER_QUANTITY_COLOR_NAME, CriteriaOperation.ILIKE,
+						getObjectForILikeSearchCriteria(purchaseOrderFilterDto.getColorName()));
+
+			if (Objects.nonNull(purchaseOrderFilterDto.getQuantity()))
+				groyyoSpecificationBuilder.with(FilterConstants.PurchaseOrderQuantityFilterConstants.PURCHASE_ORDER_QUANTITY_QUANTITY, CriteriaOperation.EQ, purchaseOrderFilterDto.getQuantity());
+
+			if (Objects.nonNull(purchaseOrderFilterDto.getTargetQuantity()))
+				groyyoSpecificationBuilder.with(FilterConstants.PurchaseOrderQuantityFilterConstants.PURCHASE_ORDER_QUANTITY_TARGET_QUANTITY, CriteriaOperation.EQ,
+						purchaseOrderFilterDto.getTargetQuantity());
+
+		}
+
+		return groyyoSpecificationBuilder.build();
+	}
+
+	private List<PurchaseOrderQuantity> getPurchaseOrderQuantitiesForSearch(PurchaseOrderFilterDto purchaseOrderFilterDto) {
+
+		List<PurchaseOrderQuantity> purchaseOrderQuantities = new ArrayList<PurchaseOrderQuantity>();
+
+		if (isPurchaseOrderQuantitySpecificationRequired(purchaseOrderFilterDto)) {
+
+			Specification<PurchaseOrderQuantity> specification = getSpecificationForPurchaseOrderQuantity(purchaseOrderFilterDto);
+
+			purchaseOrderQuantities = purchaseOrderQuantityDbService.findAll(specification);
+
+		}
+
+		return purchaseOrderQuantities;
+	}
+
+	private List<String> getPurchaseOrderIdsForQuantities(List<PurchaseOrderQuantity> purchaseOrderQuantities) {
+
+		Set<String> purchaseOrderIdsSet = purchaseOrderQuantities.stream().map(PurchaseOrderQuantity::getPurchaseOrderId).collect(Collectors.toSet());
+
+		log.info("Fetched {} purchase order ids for {} purchase order quantities", purchaseOrderIdsSet.size(), purchaseOrderQuantities.size());
+
+		return purchaseOrderIdsSet.stream().collect(Collectors.toList());
+	}
+
+	@Override
+	public void getPurchaseOrderIdsForQuantitiesAndSearch(PurchaseOrderFilterDto purchaseOrderFilterDto) {
+
+		List<PurchaseOrderQuantity> purchaseOrderQuantities = getPurchaseOrderQuantitiesForSearch(purchaseOrderFilterDto);
+
+		if (CollectionUtils.isNotEmpty(purchaseOrderQuantities)) {
+
+			List<String> purchaseOrderIds = getPurchaseOrderIdsForQuantities(purchaseOrderQuantities);
+
+			if (CollectionUtils.isNotEmpty(purchaseOrderIds))
+				purchaseOrderFilterDto.setUuids(purchaseOrderIds);
+		}
+	}
+
+	private Object getObjectForILikeSearchCriteria(String fieldValue) {
+
+		return SymbolConstants.SYMBOL_PERCENT + StringUtils.trim(fieldValue) + SymbolConstants.SYMBOL_PERCENT;
 	}
 
 	private boolean isEntityExistsWithName(String name) {

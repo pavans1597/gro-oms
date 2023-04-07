@@ -207,6 +207,8 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 	@Override
 	public PageResponse<PurchaseOrderResponseDto> getPurchaseOrderListing(PurchaseOrderFilterDto purchaseOrderFilterDto, PurchaseOrderStatus purchaseOrderStatus, int page, int limit) {
 
+		purchaseOrderQuantityService.getPurchaseOrderIdsForQuantitiesAndSearch(purchaseOrderFilterDto);
+		
 		Specification<PurchaseOrder> specification = getSpecificationForPurchaseOrderListing(purchaseOrderFilterDto, purchaseOrderStatus);
 
 		Pageable pageable = PaginationUtility.getPageRequest(page, limit, FilterConstants.UPDATED_AT, Direction.DESC);
@@ -443,6 +445,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 	}
 
 	private Specification<PurchaseOrder> getSpecificationForPurchaseOrderListing(PurchaseOrderFilterDto purchaseOrderFilterDto, PurchaseOrderStatus purchaseOrderStatus) {
+
 		GroyyoSpecificationBuilder<PurchaseOrder> groyyoSpecificationBuilder = new GroyyoSpecificationBuilder<PurchaseOrder>();
 
 		groyyoSpecificationBuilder.with(FilterConstants.STATUS, CriteriaOperation.TRUE, Boolean.TRUE);
@@ -462,6 +465,9 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
 			if (Objects.nonNull(purchaseOrderFilterDto.getUuid()))
 				groyyoSpecificationBuilder.with(FilterConstants.UUID, CriteriaOperation.EQ, purchaseOrderFilterDto.getUuid());
+
+			if (CollectionUtils.isNotEmpty(purchaseOrderFilterDto.getUuids()))
+				groyyoSpecificationBuilder.with(FilterConstants.UUID, CriteriaOperation.IN, purchaseOrderFilterDto.getUuids());
 
 			if (Objects.nonNull(purchaseOrderFilterDto.getName()))
 				groyyoSpecificationBuilder.with(FilterConstants.NAME, CriteriaOperation.EQ, purchaseOrderFilterDto.getName());
@@ -486,31 +492,36 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
 			if (StringUtils.isNotBlank(purchaseOrderFilterDto.getPurchaseOrderNumber()))
 				groyyoSpecificationBuilder.with(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_NUMBER, CriteriaOperation.ILIKE,
-						SymbolConstants.SYMBOL_PERCENT + StringUtils.trim(purchaseOrderFilterDto.getPurchaseOrderNumber()) + SymbolConstants.SYMBOL_PERCENT);
+						getObjectForILikeSearchCriteria(purchaseOrderFilterDto.getPurchaseOrderNumber()));
 
 			if (StringUtils.isNotBlank(purchaseOrderFilterDto.getFabricName()))
 				groyyoSpecificationBuilder.with(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_FABRIC_NAME, CriteriaOperation.ILIKE,
-						SymbolConstants.SYMBOL_PERCENT + StringUtils.trim(purchaseOrderFilterDto.getFabricName()) + SymbolConstants.SYMBOL_PERCENT);
+						getObjectForILikeSearchCriteria(purchaseOrderFilterDto.getFabricName()));
 
 			if (StringUtils.isNotBlank(purchaseOrderFilterDto.getBuyerName()))
 				groyyoSpecificationBuilder.with(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_BUYER_NAME, CriteriaOperation.ILIKE,
-						SymbolConstants.SYMBOL_PERCENT + StringUtils.trim(purchaseOrderFilterDto.getBuyerName()) + SymbolConstants.SYMBOL_PERCENT);
+						getObjectForILikeSearchCriteria(purchaseOrderFilterDto.getBuyerName()));
 
 			if (StringUtils.isNotBlank(purchaseOrderFilterDto.getStyleNumber()))
 				groyyoSpecificationBuilder.with(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_STYLE_NUMBER, CriteriaOperation.ILIKE,
-						SymbolConstants.SYMBOL_PERCENT + StringUtils.trim(purchaseOrderFilterDto.getStyleNumber()) + SymbolConstants.SYMBOL_PERCENT);
+						getObjectForILikeSearchCriteria(purchaseOrderFilterDto.getStyleNumber()));
 
 			if (StringUtils.isNotBlank(purchaseOrderFilterDto.getStyleName()))
 				groyyoSpecificationBuilder.with(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_STYLE_NAME, CriteriaOperation.ILIKE,
-						SymbolConstants.SYMBOL_PERCENT + StringUtils.trim(purchaseOrderFilterDto.getStyleName()) + SymbolConstants.SYMBOL_PERCENT);
+						getObjectForILikeSearchCriteria(purchaseOrderFilterDto.getStyleName()));
 
 			if (StringUtils.isNotBlank(purchaseOrderFilterDto.getProductName()))
 				groyyoSpecificationBuilder.with(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_PRODUCT_NAME, CriteriaOperation.ILIKE,
-						SymbolConstants.SYMBOL_PERCENT + StringUtils.trim(purchaseOrderFilterDto.getProductName()) + SymbolConstants.SYMBOL_PERCENT);
+						getObjectForILikeSearchCriteria(purchaseOrderFilterDto.getProductName()));
 
 		}
 
 		return groyyoSpecificationBuilder.build();
+	}
+
+	private Object getObjectForILikeSearchCriteria(String fieldValue) {
+
+		return SymbolConstants.SYMBOL_PERCENT + StringUtils.trim(fieldValue) + SymbolConstants.SYMBOL_PERCENT;
 	}
 
 	@SuppressWarnings("unused")
