@@ -1,17 +1,16 @@
 package com.groyyo.order.management.adapter;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import com.groyyo.order.management.dto.request.*;
+import com.groyyo.order.management.dto.response.PurchaseOrderDetailResponseDto;
 import org.apache.commons.lang3.StringUtils;
 
 import com.groyyo.core.dto.PurchaseOrder.PurchaseOrderResponseDto;
-import com.groyyo.order.management.dto.request.BulkOrderExcelRequestDto;
-import com.groyyo.order.management.dto.request.BulkPartRequestDto;
-import com.groyyo.order.management.dto.request.BulkPurchaseOrderRequestDto;
-import com.groyyo.order.management.dto.request.PurchaseOrderRequestDto;
 import com.groyyo.order.management.entity.PurchaseOrder;
 import com.groyyo.order.management.util.DateUtils;
 
@@ -121,6 +120,20 @@ public class PurchaseOrderAdapter {
                 .fitName(bulkOrderExcelData.getFitName())
                 .exFtyDate(DateUtils.convertDate(bulkOrderExcelData.getExFtyDate()))
                 .part(part)
+                .build();
+    }
+
+    public static List<PurchaseOrderDetailResponseDto> buildPurchaseOrderDetailResponseDto(List<PurchaseOrder> orders) {
+       if(orders.isEmpty()){
+           return  new ArrayList<>();
+       }
+        return orders.stream().map(PurchaseOrderAdapter::buildPurchaseOrderDetailResponseDto)
+                .collect(Collectors.toList());
+    }
+    private static PurchaseOrderDetailResponseDto buildPurchaseOrderDetailResponseDto(PurchaseOrder order){
+        return PurchaseOrderDetailResponseDto.builder().poId(order.getUuid()).poName(order.getName())
+                .purchaseOrderStatus(order.getPurchaseOrderStatus())
+                .exFtyDate(order.getExFtyDate())
                 .build();
     }
 }

@@ -3,17 +3,11 @@ package com.groyyo.order.management.service.impl;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.InputMismatchException;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.Collectors;
 
+import com.groyyo.order.management.dto.request.*;
+import com.groyyo.order.management.dto.response.PurchaseOrderDetailResponseDto;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,11 +38,6 @@ import com.groyyo.order.management.constants.SymbolConstants;
 import com.groyyo.order.management.db.service.LineCheckerAssignmentDbService;
 import com.groyyo.order.management.db.service.PurchaseOrderDbService;
 import com.groyyo.order.management.dto.filter.PurchaseOrderFilterDto;
-import com.groyyo.order.management.dto.request.BulkColorRequestDto;
-import com.groyyo.order.management.dto.request.BulkOrderExcelRequestDto;
-import com.groyyo.order.management.dto.request.BulkPurchaseOrderRequestDto;
-import com.groyyo.order.management.dto.request.PurchaseOrderRequestDto;
-import com.groyyo.order.management.dto.request.PurchaseOrderUpdateDto;
 import com.groyyo.order.management.dto.response.PurchaseOrderStatusCountDto;
 import com.groyyo.order.management.entity.Buyer;
 import com.groyyo.order.management.entity.Color;
@@ -792,4 +781,24 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 		}
 
 	}
+
+	@Override
+	public List<PurchaseOrderDetailResponseDto> getPurchaseOrdersStatusWise(List<PurchaseOrderStatus> requestDto, String factoryId) {
+		log.info("Serving request to get purchaseOrders based on status", requestDto);
+
+		List<PurchaseOrderDetailResponseDto> purchaseOrderDetailResponseDtoList = new ArrayList<>();
+
+			List<PurchaseOrder> orders = purchaseOrderDbService.findByFactoryIdAndPurchaseOrderStatus(factoryId, requestDto);
+			List<PurchaseOrderDetailResponseDto> orderResponses = PurchaseOrderAdapter.buildPurchaseOrderDetailResponseDto(orders);
+			purchaseOrderDetailResponseDtoList.addAll(orderResponses);
+
+		return sortByDateDescending(purchaseOrderDetailResponseDtoList);
+	}
+
+	private List<PurchaseOrderDetailResponseDto> sortByDateDescending(List<PurchaseOrderDetailResponseDto> orders) {
+		return orders.stream()
+				.sorted(Comparator.comparing(PurchaseOrderDetailResponseDto::getExFtyDate).reversed())
+				.collect(Collectors.toList());
+	}
+
 }

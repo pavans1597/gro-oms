@@ -9,6 +9,7 @@ import com.groyyo.order.management.dto.filter.PurchaseOrderFilterDto;
 import com.groyyo.order.management.dto.request.BulkOrderExcelRequestDto;
 import com.groyyo.order.management.dto.request.PurchaseOrderRequestDto;
 import com.groyyo.order.management.dto.request.PurchaseOrderUpdateDto;
+import com.groyyo.order.management.dto.response.PurchaseOrderDetailResponseDto;
 import com.groyyo.order.management.dto.response.PurchaseOrderStatusCountDto;
 
 public interface PurchaseOrderService {
@@ -45,4 +46,6 @@ public interface PurchaseOrderService {
 	 * @param purchaseOrderIds
 	 */
 	void publishPurchaseOrderPackets(List<String> purchaseOrderIds);
+
+	List<PurchaseOrderDetailResponseDto> getPurchaseOrdersStatusWise(List<PurchaseOrderStatus> requestDto, String factoryId);
 }
