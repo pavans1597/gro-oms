@@ -223,7 +223,7 @@ public class PurchaseOrderQuantityServiceImpl implements PurchaseOrderQuantitySe
 
 		if (Objects.nonNull(purchaseOrderFilterDto)) {
 
-			if (Objects.nonNull(purchaseOrderFilterDto.getColorName()))
+			if (StringUtils.isNotBlank(purchaseOrderFilterDto.getColorName()))
 				groyyoSpecificationBuilder.with(FilterConstants.PurchaseOrderQuantityFilterConstants.PURCHASE_ORDER_QUANTITY_COLOR_NAME, CriteriaOperation.ILIKE,
 						getObjectForILikeSearchCriteria(purchaseOrderFilterDto.getColorName()));
 
