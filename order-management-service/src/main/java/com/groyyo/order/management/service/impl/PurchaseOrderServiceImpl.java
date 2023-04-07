@@ -486,27 +486,27 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
 			if (StringUtils.isNotBlank(purchaseOrderFilterDto.getPurchaseOrderNumber()))
 				groyyoSpecificationBuilder.with(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_NUMBER, CriteriaOperation.ILIKE,
-						SymbolConstants.SYMBOL_PERCENT + purchaseOrderFilterDto.getPurchaseOrderNumber() + SymbolConstants.SYMBOL_PERCENT);
+						SymbolConstants.SYMBOL_PERCENT + StringUtils.trim(purchaseOrderFilterDto.getPurchaseOrderNumber()) + SymbolConstants.SYMBOL_PERCENT);
 
 			if (StringUtils.isNotBlank(purchaseOrderFilterDto.getFabricName()))
 				groyyoSpecificationBuilder.with(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_FABRIC_NAME, CriteriaOperation.ILIKE,
-						SymbolConstants.SYMBOL_PERCENT + purchaseOrderFilterDto.getFabricName() + SymbolConstants.SYMBOL_PERCENT);
+						SymbolConstants.SYMBOL_PERCENT + StringUtils.trim(purchaseOrderFilterDto.getFabricName()) + SymbolConstants.SYMBOL_PERCENT);
 
 			if (StringUtils.isNotBlank(purchaseOrderFilterDto.getBuyerName()))
 				groyyoSpecificationBuilder.with(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_BUYER_NAME, CriteriaOperation.ILIKE,
-						SymbolConstants.SYMBOL_PERCENT + purchaseOrderFilterDto.getBuyerName() + SymbolConstants.SYMBOL_PERCENT);
+						SymbolConstants.SYMBOL_PERCENT + StringUtils.trim(purchaseOrderFilterDto.getBuyerName()) + SymbolConstants.SYMBOL_PERCENT);
 
 			if (StringUtils.isNotBlank(purchaseOrderFilterDto.getStyleNumber()))
 				groyyoSpecificationBuilder.with(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_STYLE_NUMBER, CriteriaOperation.ILIKE,
-						SymbolConstants.SYMBOL_PERCENT + purchaseOrderFilterDto.getStyleNumber() + SymbolConstants.SYMBOL_PERCENT);
+						SymbolConstants.SYMBOL_PERCENT + StringUtils.trim(purchaseOrderFilterDto.getStyleNumber()) + SymbolConstants.SYMBOL_PERCENT);
 
 			if (StringUtils.isNotBlank(purchaseOrderFilterDto.getStyleName()))
 				groyyoSpecificationBuilder.with(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_STYLE_NAME, CriteriaOperation.ILIKE,
-						SymbolConstants.SYMBOL_PERCENT + purchaseOrderFilterDto.getStyleName() + SymbolConstants.SYMBOL_PERCENT);
+						SymbolConstants.SYMBOL_PERCENT + StringUtils.trim(purchaseOrderFilterDto.getStyleName()) + SymbolConstants.SYMBOL_PERCENT);
 
 			if (StringUtils.isNotBlank(purchaseOrderFilterDto.getProductName()))
 				groyyoSpecificationBuilder.with(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_PRODUCT_NAME, CriteriaOperation.ILIKE,
-						SymbolConstants.SYMBOL_PERCENT + purchaseOrderFilterDto.getProductName() + SymbolConstants.SYMBOL_PERCENT);
+						SymbolConstants.SYMBOL_PERCENT + StringUtils.trim(purchaseOrderFilterDto.getProductName()) + SymbolConstants.SYMBOL_PERCENT);
 
 		}
 
