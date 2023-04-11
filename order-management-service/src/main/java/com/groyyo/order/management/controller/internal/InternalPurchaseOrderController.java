@@ -5,6 +5,9 @@ package com.groyyo.order.management.controller.internal;
 
 import javax.validation.Valid;
 
+import com.groyyo.core.base.http.utils.HeaderUtil;
+import com.groyyo.core.dto.PurchaseOrder.PurchaseOrderStatus;
+import com.groyyo.order.management.dto.response.PurchaseOrderDetailResponseDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,6 +24,8 @@ import com.groyyo.order.management.dto.response.PurchaseOrderStatusCountDto;
 import com.groyyo.order.management.service.PurchaseOrderService;
 
 import lombok.extern.log4j.Log4j2;
+
+import java.util.List;
 
 /**
  * @author nipunaggarwal
@@ -62,5 +67,12 @@ public class InternalPurchaseOrderController {
 		purchaseOrderService.publishPurchaseOrderPackets(purchaseOrderListRequestDto.getPurchaseOrderIds());
 
 		return ResponseDto.success("Published purchase order ids: " + purchaseOrderListRequestDto.getPurchaseOrderIds());
+	}
+	@PostMapping("get/purchaseOrders")
+	public  ResponseDto<List<PurchaseOrderDetailResponseDto>> getPurchaseOrdersStatusWise(@RequestBody List<PurchaseOrderStatus> requestDto){
+		log.info("Request received to publish Purchase orders based on status",requestDto);
+		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+		List<PurchaseOrderDetailResponseDto> purchaseOrderStatusWiseResponse	=purchaseOrderService.getPurchaseOrdersStatusWise(requestDto,factoryId);
+		return ResponseDto.success("PurchaseOrders retrieved successfully "+purchaseOrderStatusWiseResponse.size(),purchaseOrderStatusWiseResponse);
 	}
 }

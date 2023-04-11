@@ -1,10 +1,32 @@
 package com.groyyo.order.management.service.impl;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import com.groyyo.order.management.dto.request.*;
+import com.groyyo.order.management.dto.response.PurchaseOrderDetailResponseDto;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.groyyo.core.base.common.dto.PageResponse;
 import com.groyyo.core.base.exception.NoRecordException;
 import com.groyyo.core.base.exception.RecordExistsException;
 import com.groyyo.core.base.http.utils.HeaderUtil;
-import com.groyyo.core.dto.PurchaseOrder.*;
+import com.groyyo.core.dto.PurchaseOrder.PurchaseOrderQuantityResponseDto;
+import com.groyyo.core.dto.PurchaseOrder.PurchaseOrderResponseDto;
+import com.groyyo.core.dto.PurchaseOrder.PurchaseOrderStatus;
+import com.groyyo.core.dto.PurchaseOrder.StyleDto;
+import com.groyyo.core.dto.PurchaseOrder.UserLineDetails;
 import com.groyyo.core.dto.userservice.LineType;
 import com.groyyo.core.sqlPostgresJpa.specification.utils.CriteriaOperation;
 import com.groyyo.core.sqlPostgresJpa.specification.utils.GroyyoSpecificationBuilder;
@@ -16,28 +38,35 @@ import com.groyyo.order.management.constants.SymbolConstants;
 import com.groyyo.order.management.db.service.LineCheckerAssignmentDbService;
 import com.groyyo.order.management.db.service.PurchaseOrderDbService;
 import com.groyyo.order.management.dto.filter.PurchaseOrderFilterDto;
-import com.groyyo.order.management.dto.request.*;
 import com.groyyo.order.management.dto.response.PurchaseOrderStatusCountDto;
-import com.groyyo.order.management.entity.*;
-import com.groyyo.order.management.service.*;
+import com.groyyo.order.management.entity.Buyer;
+import com.groyyo.order.management.entity.Color;
+import com.groyyo.order.management.entity.Fit;
+import com.groyyo.order.management.entity.LineCheckerAssignment;
+import com.groyyo.order.management.entity.Part;
+import com.groyyo.order.management.entity.Product;
+import com.groyyo.order.management.entity.PurchaseOrder;
+import com.groyyo.order.management.entity.PurchaseOrderQuantity;
+import com.groyyo.order.management.entity.Season;
+import com.groyyo.order.management.entity.Size;
+import com.groyyo.order.management.entity.SizeGroup;
+import com.groyyo.order.management.entity.Style;
+import com.groyyo.order.management.service.BuyerService;
+import com.groyyo.order.management.service.ColorService;
+import com.groyyo.order.management.service.FitService;
+import com.groyyo.order.management.service.LineCheckerAssignmentService;
+import com.groyyo.order.management.service.PartService;
+import com.groyyo.order.management.service.ProductService;
+import com.groyyo.order.management.service.PurchaseOrderQuantityService;
+import com.groyyo.order.management.service.PurchaseOrderService;
+import com.groyyo.order.management.service.SeasonService;
+import com.groyyo.order.management.service.SizeGroupService;
+import com.groyyo.order.management.service.SizeService;
+import com.groyyo.order.management.service.StyleService;
 import com.groyyo.order.management.util.BuilderUtils;
 import com.groyyo.order.management.util.MapperUtils;
-import lombok.extern.log4j.Log4j2;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort.Direction;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
-import java.util.*;
-import java.util.stream.Collectors;
+import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 @Service
@@ -166,6 +195,8 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
 	@Override
 	public PageResponse<PurchaseOrderResponseDto> getPurchaseOrderListing(PurchaseOrderFilterDto purchaseOrderFilterDto, PurchaseOrderStatus purchaseOrderStatus, int page, int limit) {
+
+		purchaseOrderQuantityService.getPurchaseOrderIdsForQuantitiesAndSearch(purchaseOrderFilterDto);
 
 		Specification<PurchaseOrder> specification = getSpecificationForPurchaseOrderListing(purchaseOrderFilterDto, purchaseOrderStatus);
 
@@ -403,6 +434,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 	}
 
 	private Specification<PurchaseOrder> getSpecificationForPurchaseOrderListing(PurchaseOrderFilterDto purchaseOrderFilterDto, PurchaseOrderStatus purchaseOrderStatus) {
+
 		GroyyoSpecificationBuilder<PurchaseOrder> groyyoSpecificationBuilder = new GroyyoSpecificationBuilder<PurchaseOrder>();
 
 		groyyoSpecificationBuilder.with(FilterConstants.STATUS, CriteriaOperation.TRUE, Boolean.TRUE);
@@ -422,6 +454,9 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
 			if (Objects.nonNull(purchaseOrderFilterDto.getUuid()))
 				groyyoSpecificationBuilder.with(FilterConstants.UUID, CriteriaOperation.EQ, purchaseOrderFilterDto.getUuid());
+
+			if (CollectionUtils.isNotEmpty(purchaseOrderFilterDto.getUuids()))
+				groyyoSpecificationBuilder.with(FilterConstants.UUID, CriteriaOperation.IN, purchaseOrderFilterDto.getUuids());
 
 			if (Objects.nonNull(purchaseOrderFilterDto.getName()))
 				groyyoSpecificationBuilder.with(FilterConstants.NAME, CriteriaOperation.EQ, purchaseOrderFilterDto.getName());
@@ -445,27 +480,47 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 				groyyoSpecificationBuilder.with(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_RECEIVE_DATE, CriteriaOperation.DATE_EQ, purchaseOrderFilterDto.getReceiveDate());
 
 			if (StringUtils.isNotBlank(purchaseOrderFilterDto.getPurchaseOrderNumber()))
-				addExternalSpecificationsForLikeSearch(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_NUMBER, purchaseOrderFilterDto.getPurchaseOrderNumber(), groyyoSpecificationBuilder);
+				groyyoSpecificationBuilder.with(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_NUMBER, CriteriaOperation.ILIKE,
+						getObjectForILikeSearchCriteria(purchaseOrderFilterDto.getPurchaseOrderNumber()));
 
 			if (StringUtils.isNotBlank(purchaseOrderFilterDto.getFabricName()))
-				addExternalSpecificationsForLikeSearch(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_FABRIC_NAME, purchaseOrderFilterDto.getFabricName(), groyyoSpecificationBuilder);
+				groyyoSpecificationBuilder.with(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_FABRIC_NAME, CriteriaOperation.ILIKE,
+						getObjectForILikeSearchCriteria(purchaseOrderFilterDto.getFabricName()));
 
 			if (StringUtils.isNotBlank(purchaseOrderFilterDto.getBuyerName()))
-				addExternalSpecificationsForLikeSearch(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_BUYER_NAME, purchaseOrderFilterDto.getBuyerName(), groyyoSpecificationBuilder);
+				groyyoSpecificationBuilder.with(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_BUYER_NAME, CriteriaOperation.ILIKE,
+						getObjectForILikeSearchCriteria(purchaseOrderFilterDto.getBuyerName()));
 
 			if (StringUtils.isNotBlank(purchaseOrderFilterDto.getStyleNumber()))
-				addExternalSpecificationsForLikeSearch(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_STYLE_NUMBER, purchaseOrderFilterDto.getStyleNumber(), groyyoSpecificationBuilder);
+				groyyoSpecificationBuilder.with(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_STYLE_NUMBER, CriteriaOperation.ILIKE,
+						getObjectForILikeSearchCriteria(purchaseOrderFilterDto.getStyleNumber()));
 
 			if (StringUtils.isNotBlank(purchaseOrderFilterDto.getStyleName()))
-				addExternalSpecificationsForLikeSearch(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_STYLE_NAME, purchaseOrderFilterDto.getStyleName(), groyyoSpecificationBuilder);
+				groyyoSpecificationBuilder.with(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_STYLE_NAME, CriteriaOperation.ILIKE,
+						getObjectForILikeSearchCriteria(purchaseOrderFilterDto.getStyleName()));
 
 			if (StringUtils.isNotBlank(purchaseOrderFilterDto.getProductName()))
-				addExternalSpecificationsForLikeSearch(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_PRODUCT_NAME, purchaseOrderFilterDto.getProductName(), groyyoSpecificationBuilder);
+				groyyoSpecificationBuilder.with(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_PRODUCT_NAME, CriteriaOperation.ILIKE,
+						getObjectForILikeSearchCriteria(purchaseOrderFilterDto.getProductName()));
+
+			if (Objects.nonNull(purchaseOrderFilterDto.getQuantity()))
+				groyyoSpecificationBuilder.with(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_QUANTITY, CriteriaOperation.EQ, purchaseOrderFilterDto.getQuantity());
+
+			if (Objects.nonNull(purchaseOrderFilterDto.getTargetQuantity()))
+				groyyoSpecificationBuilder.with(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_TARGET_QUANTITY, CriteriaOperation.EQ,
+						purchaseOrderFilterDto.getTargetQuantity());
+
 		}
 
 		return groyyoSpecificationBuilder.build();
 	}
 
+	private Object getObjectForILikeSearchCriteria(String fieldValue) {
+
+		return SymbolConstants.SYMBOL_PERCENT + StringUtils.trim(fieldValue) + SymbolConstants.SYMBOL_PERCENT;
+	}
+
+	@SuppressWarnings("unused")
 	private void addExternalSpecificationsForLikeSearch(String fieldName, String fieldValue, GroyyoSpecificationBuilder<PurchaseOrder> groyyoSpecificationBuilder) {
 
 		Specification<PurchaseOrder> specification = new GroyyoSpecificationBuilder<PurchaseOrder>()
@@ -726,4 +781,24 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 		}
 
 	}
+
+	@Override
+	public List<PurchaseOrderDetailResponseDto> getPurchaseOrdersStatusWise(List<PurchaseOrderStatus> requestDto, String factoryId) {
+		log.info("Serving request to get purchaseOrders based on status", requestDto);
+
+		List<PurchaseOrderDetailResponseDto> purchaseOrderDetailResponseDtoList = new ArrayList<>();
+
+			List<PurchaseOrder> orders = purchaseOrderDbService.findByFactoryIdAndPurchaseOrderStatus(factoryId, requestDto);
+			List<PurchaseOrderDetailResponseDto> orderResponses = PurchaseOrderAdapter.buildPurchaseOrderDetailResponseDto(orders);
+			purchaseOrderDetailResponseDtoList.addAll(orderResponses);
+
+		return sortByDateDescending(purchaseOrderDetailResponseDtoList);
+	}
+
+	private List<PurchaseOrderDetailResponseDto> sortByDateDescending(List<PurchaseOrderDetailResponseDto> orders) {
+		return orders.stream()
+				.sorted(Comparator.comparing(PurchaseOrderDetailResponseDto::getExFtyDate).reversed())
+				.collect(Collectors.toList());
+	}
+
 }

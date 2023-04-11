@@ -2,6 +2,7 @@ package com.groyyo.order.management.db.service;
 
 import java.util.List;
 
+import com.groyyo.core.dto.PurchaseOrder.PurchaseOrderStatus;
 import com.groyyo.core.sqlPostgresJpa.service.AbstractJpaService;
 import com.groyyo.order.management.entity.PurchaseOrder;
 
@@ -28,4 +29,5 @@ public interface PurchaseOrderDbService extends AbstractJpaService<PurchaseOrder
 
     boolean isEntityExistsByNameAndFactoryId(String name, String factoryId);
 
+    List<PurchaseOrder> findByFactoryIdAndPurchaseOrderStatus(String factoryId,List<PurchaseOrderStatus> status);
 }

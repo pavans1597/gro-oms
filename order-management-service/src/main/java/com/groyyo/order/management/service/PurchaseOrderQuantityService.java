@@ -3,12 +3,13 @@ package com.groyyo.order.management.service;
 import java.util.List;
 import java.util.Map;
 
-import com.groyyo.order.management.entity.PurchaseOrderQuantity;
 import org.apache.commons.lang3.tuple.Pair;
 
 import com.groyyo.core.dto.PurchaseOrder.PurchaseOrderQuantityResponseDto;
+import com.groyyo.order.management.dto.filter.PurchaseOrderFilterDto;
 import com.groyyo.order.management.dto.request.PurchaseOrderQuantityCreateDto;
 import com.groyyo.order.management.dto.request.PurchaseOrderQuantityRequestDto;
+import com.groyyo.order.management.entity.PurchaseOrderQuantity;
 
 public interface PurchaseOrderQuantityService {
 
@@ -53,5 +54,10 @@ public interface PurchaseOrderQuantityService {
 	 * @return
 	 */
 	Map<String, Pair<Long, Long>> getTotalQuantityAndTotalTargetQuantityForPurchaseOrders(List<String> purchaseOrderIds);
+
+	/**
+	 * @param purchaseOrderFilterDto
+	 */
+	void getPurchaseOrderIdsForQuantitiesAndSearch(PurchaseOrderFilterDto purchaseOrderFilterDto);
 
 }
