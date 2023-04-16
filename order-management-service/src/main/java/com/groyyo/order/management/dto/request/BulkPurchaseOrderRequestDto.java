@@ -26,7 +26,7 @@ public class BulkPurchaseOrderRequestDto {
 
     private String fitName;
 
-    private Date exFtyDate;
+    private String exFtyDate;
 
     private BulkPartRequestDto part;
 

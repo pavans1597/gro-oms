@@ -57,11 +57,17 @@ public class BuyerDbServiceImpl extends AbstractJpaServiceImpl<Buyer, Long, Buye
 
     @Override
     public Buyer findOrCreate(Buyer buyer) {
-        Buyer entity = buyerRepository.findByName(buyer.getName());
+        Buyer entity = buyerRepository.findByNameAndFactoryId(buyer.getName(), buyer.getFactoryId());
         if (entity == null) {
             entity = buyer;
             save(entity);
         }
         return entity;
+    }
+
+
+    @Override
+    public Buyer findByNameAndFactoryId(String name, String factoryId) {
+        return buyerRepository.findByNameAndFactoryId(name, factoryId);
     }
 }
