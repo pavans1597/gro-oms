@@ -18,4 +18,6 @@ public interface BuyerRepository extends AbstractJpaRepository<Buyer, Long> {
 
 	Buyer findByNameAndStatus(String name, Boolean status);
 
+	Buyer findByNameAndFactoryId(String name, String factoryId);
+
 }

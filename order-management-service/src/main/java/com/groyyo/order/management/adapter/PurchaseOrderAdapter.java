@@ -118,7 +118,7 @@ public class PurchaseOrderAdapter {
                 .productName(bulkOrderExcelData.getProductName())
                 .seasonName(bulkOrderExcelData.getSeasonName())
                 .fitName(bulkOrderExcelData.getFitName())
-                .exFtyDate(DateUtils.convertDate(bulkOrderExcelData.getExFtyDate()))
+                .exFtyDate(bulkOrderExcelData.getExFtyDate())
                 .part(part)
                 .build();
     }

@@ -80,36 +80,36 @@ public class PurchaseOrder extends AbstractJpaEntity {
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date exFtyDate;
 
-	@Column(name = "season_id", columnDefinition = "varchar(40)", nullable = false)
+	@Column(name = "season_id", columnDefinition = "varchar(40)")
 	private String seasonId;
 
-	@Column(name = "season_name", columnDefinition = "varchar(40)", nullable = true)
+	@Column(name = "season_name", columnDefinition = "varchar(40)")
 	private String seasonName;
 
-	@Column(name = "fit_id", columnDefinition = "varchar(40)", nullable = false)
+	@Column(name = "fit_id", columnDefinition = "varchar(40)")
 	private String fitId;
 
-	@Column(name = "fit_name", columnDefinition = "varchar(40)", nullable = true)
+	@Column(name = "fit_name", columnDefinition = "varchar(40)")
 	private String fitName;
 
-	@Column(name = "part_id", columnDefinition = "varchar(40)", nullable = false)
+	@Column(name = "part_id", columnDefinition = "varchar(40)")
 	private String partId;
 
-	@Column(name = "part_name", columnDefinition = "varchar(40)", nullable = true)
+	@Column(name = "part_name", columnDefinition = "varchar(40)")
 	private String partName;
 
-	@Column(name = "order_id", columnDefinition = "varchar(40)", nullable = true)
+	@Column(name = "order_id", columnDefinition = "varchar(40)")
 	private String orderId;
 
-	@Column(name = "order_name", columnDefinition = "varchar(40)", nullable = true)
+	@Column(name = "order_name", columnDefinition = "varchar(40)")
 	private String orderName;
 
-	@Column(name = "quantity", columnDefinition = "BIGINT", nullable = true)
+	@Column(name = "quantity", columnDefinition = "BIGINT")
 	private Long totalQuantity;
 
-	@Column(name = "targetQuantity", columnDefinition = "BIGINT", nullable = true)
+	@Column(name = "targetQuantity", columnDefinition = "BIGINT")
 	private Long totalTargetQuantity;
 
-	@Column(columnDefinition = "varchar(40)", nullable = true)
+	@Column(columnDefinition = "varchar(40)")
 	private String factoryId;
 }
