@@ -754,12 +754,12 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
 			String hash = bulkOrderExcelList.get(i).getStyleNumber() + "$$$" + bulkOrderExcelList.get(i).getStyleName() + "$$$" + bulkOrderExcelList.get(i).getProductName() + "$$$"
 					+ bulkOrderExcelList.get(i).getBuyerName() + "$$$" + bulkOrderExcelList.get(i).getSeasonName() + "$$$" + bulkOrderExcelList.get(i).getFitName() + "$$$"
-					+ bulkOrderExcelList.get(i).getExFtyDate() + "$$$" + bulkOrderExcelList.get(i).getPart() + "$$$" + bulkOrderExcelList.get(i).getVariance();
+					+ bulkOrderExcelList.get(i).getExFtyDate() + "$$$" + bulkOrderExcelList.get(i).getPart() + "$$$" + bulkOrderExcelList.get(i).getVariance() + "$$$" + bulkOrderExcelList.get(i).getSizeGroup();
 			if (poHash.get(bulkOrderExcelList.get(i).getPurchaseOrderNumber()) == null) {
 				poHash.put(bulkOrderExcelList.get(i).getPurchaseOrderNumber(), hash);
 				bulkPurchaseOrderRequestData.add(BuilderUtils.buildBulkPOFromExcel(bulkOrderExcelList.get(i)));
 			} else if (!StringUtils.equals(poHash.get(bulkOrderExcelList.get(i).getPurchaseOrderNumber()), hash)) {
-				errorMessages.put("purchaseOrder", "For one po there should be same Style Number/Style Name/Product Name/Buyer/Season/Fit/Ex-Fty Date/Parts/Variance");
+				errorMessages.put("purchaseOrder", "For one po there should be same Style Number/Style Name/Product Name/Buyer/Season/Fit/Ex-Fty Date/Parts/Variance/Size-Group");
 			} else {
 				int finalI = i;
 				bulkPurchaseOrderRequestData.forEach(x -> {
