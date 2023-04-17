@@ -709,7 +709,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 	}
 
 	private Date parseDate(String dateString){
-		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH);
+		SimpleDateFormat sdf = new SimpleDateFormat("d/M/yy", Locale.ENGLISH);
 		sdf.setLenient(false);
 		try {
 			return sdf.parse(dateString);
