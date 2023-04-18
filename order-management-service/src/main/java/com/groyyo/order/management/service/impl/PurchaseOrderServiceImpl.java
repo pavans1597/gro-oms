@@ -2,12 +2,20 @@ package com.groyyo.order.management.service.impl;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.InputMismatchException;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Random;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
-import com.groyyo.order.management.dto.request.*;
-import com.groyyo.order.management.dto.response.PurchaseOrderDetailResponseDto;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -39,6 +47,12 @@ import com.groyyo.order.management.constants.SymbolConstants;
 import com.groyyo.order.management.db.service.LineCheckerAssignmentDbService;
 import com.groyyo.order.management.db.service.PurchaseOrderDbService;
 import com.groyyo.order.management.dto.filter.PurchaseOrderFilterDto;
+import com.groyyo.order.management.dto.request.BulkColorRequestDto;
+import com.groyyo.order.management.dto.request.BulkOrderExcelRequestDto;
+import com.groyyo.order.management.dto.request.BulkPurchaseOrderRequestDto;
+import com.groyyo.order.management.dto.request.PurchaseOrderRequestDto;
+import com.groyyo.order.management.dto.request.PurchaseOrderUpdateDto;
+import com.groyyo.order.management.dto.response.PurchaseOrderDetailResponseDto;
 import com.groyyo.order.management.dto.response.PurchaseOrderStatusCountDto;
 import com.groyyo.order.management.entity.Buyer;
 import com.groyyo.order.management.entity.Color;
@@ -142,8 +156,8 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 			String errorMsg = "PurchaseOrder with id: " + id + " not found in the system ";
 			throw new NoRecordException(errorMsg);
 		}
-
-		return buildPurchaseOrderResponseWithQuantitiesAndAssignments(purchaseOrder);
+		
+		return buildPurchaseOrderResponseWithQuantitiesAndAssignmentsAndWithoutImages(purchaseOrder);
 	}
 
 	@Override
@@ -220,8 +234,6 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
 		purchaseOrderDbService.saveAndFlush(purchaseOrder);
 	}
-
-
 
 	private void addPurchaseOrderQuantities(PurchaseOrderRequestDto purchaseOrderRequestDto, PurchaseOrder purchaseOrder) {
 
@@ -340,6 +352,17 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 		PurchaseOrderResponseDto purchaseOrderResponseDto = PurchaseOrderAdapter.buildResponseFromEntity(purchaseOrder);
 
 		populateStyleDtoForPurchaseOrder(purchaseOrderResponseDto);
+		populatePurchaseOrderQuantitiesForPurchaseOrder(purchaseOrderResponseDto);
+		populateTotalQuantitiesForPurchaseOrder(purchaseOrderResponseDto);
+		populateLineCheckerAssignmentsForPurchaseOrder(purchaseOrderResponseDto);
+
+		return purchaseOrderResponseDto;
+	}
+
+	private PurchaseOrderResponseDto buildPurchaseOrderResponseWithQuantitiesAndAssignmentsAndWithoutImages(PurchaseOrder purchaseOrder) {
+
+		PurchaseOrderResponseDto purchaseOrderResponseDto = PurchaseOrderAdapter.buildResponseFromEntity(purchaseOrder);
+
 		populatePurchaseOrderQuantitiesForPurchaseOrder(purchaseOrderResponseDto);
 		populateTotalQuantitiesForPurchaseOrder(purchaseOrderResponseDto);
 		populateLineCheckerAssignmentsForPurchaseOrder(purchaseOrderResponseDto);
@@ -606,13 +629,13 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 			Part part = null;
 			Product product = productService.findOrCreate(purchaseOrderRequestDto.getProductName());
 			Buyer buyer = buyerService.findOrCreate(purchaseOrderRequestDto.getBuyerName());
-			if(StringUtils.isNotBlank(purchaseOrderRequestDto.getSeasonName())){
+			if (StringUtils.isNotBlank(purchaseOrderRequestDto.getSeasonName())) {
 				season = seasonService.findOrCreate(purchaseOrderRequestDto.getSeasonName());
 			}
-			if(StringUtils.isNotBlank(purchaseOrderRequestDto.getFitName())) {
+			if (StringUtils.isNotBlank(purchaseOrderRequestDto.getFitName())) {
 				fit = fitService.findOrCreate(purchaseOrderRequestDto.getFitName());
 			}
-			if(StringUtils.isNotBlank(purchaseOrderRequestDto.getPart().getName())) {
+			if (StringUtils.isNotBlank(purchaseOrderRequestDto.getPart().getName())) {
 				part = partService.findOrCreate(purchaseOrderRequestDto.getPart().getName());
 			}
 			Style style = styleService.findOrCreate(purchaseOrderRequestDto.getStyleName(), purchaseOrderRequestDto.getStyleNumber(), product);
@@ -633,23 +656,23 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 					.tolerance(purchaseOrderRequestDto.getPart().getTolerance())
 					.receiveDate(new Date())
 					.exFtyDate(parseDate(purchaseOrderRequestDto.getExFtyDate()))
-					.seasonId(ObjectUtils.isNotEmpty(season)?season.getUuid():null)
-					.seasonName(ObjectUtils.isNotEmpty(season)?season.getName():null)
-					.fitId(ObjectUtils.isNotEmpty(fit)?fit.getUuid():null)
-					.fitName(ObjectUtils.isNotEmpty(fit)?fit.getName():null)
-					.partId(ObjectUtils.isNotEmpty(part)?part.getUuid():null)
-					.partName(ObjectUtils.isNotEmpty(part)?part.getName():null)
+					.seasonId(ObjectUtils.isNotEmpty(season) ? season.getUuid() : null)
+					.seasonName(ObjectUtils.isNotEmpty(season) ? season.getName() : null)
+					.fitId(ObjectUtils.isNotEmpty(fit) ? fit.getUuid() : null)
+					.fitName(ObjectUtils.isNotEmpty(fit) ? fit.getName() : null)
+					.partId(ObjectUtils.isNotEmpty(part) ? part.getUuid() : null)
+					.partName(ObjectUtils.isNotEmpty(part) ? part.getName() : null)
 					.productId(Objects.nonNull(product) ? product.getUuid() : null)
 					.productName(Objects.nonNull(product) ? product.getName() : null)
 					.factoryId(factoryId)
 					.build();
 			purchaseOrder = purchaseOrderDbService.savePurchaseOrder(purchaseOrder);
-            if (Objects.isNull(purchaseOrder)) {
-                log.error("Unable to add purchaseOrder for object: {}", purchaseOrderRequestDto);
-            }
+			if (Objects.isNull(purchaseOrder)) {
+				log.error("Unable to add purchaseOrder for object: {}", purchaseOrderRequestDto);
+			}
 			PurchaseOrder finalPurchaseOrder = purchaseOrder;
 			AtomicReference<Long> totalQuantity = new AtomicReference<>(0L);
-			AtomicReference<Long> totalTargetQuantity= new AtomicReference<>(0L);
+			AtomicReference<Long> totalTargetQuantity = new AtomicReference<>(0L);
 			purchaseOrderRequestDto.getPart().getColors().forEach(colorData -> {
 				// temporary color hex code generation
 				Random random = new Random();
@@ -659,8 +682,8 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 				colorData.getSizes().forEach((k, v) -> {
 
 					Long targetQuantity = Objects.nonNull(v) ? (long) (v + (v * purchaseOrderRequestDto.getPart().getTolerance()) / 100) : 0L;
-                    totalQuantity.updateAndGet(v1 -> v1 + v);
-                    totalTargetQuantity.updateAndGet(v1 -> v1 + targetQuantity);
+					totalQuantity.updateAndGet(v1 -> v1 + v);
+					totalTargetQuantity.updateAndGet(v1 -> v1 + targetQuantity);
 					Size size;
 					Optional<Size> result = sizes.stream()
 							.filter(obj -> obj.getName().equals(k))
@@ -691,13 +714,13 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
 			});
 			purchaseOrderQuantityService.addBulkPurchaseOrderQuantityWithEntity(purchaseOrderQuantities);
-            updateQuantityInPurchaseOrder(purchaseOrder, totalQuantity.get(), totalTargetQuantity.get());
+			updateQuantityInPurchaseOrder(purchaseOrder, totalQuantity.get(), totalTargetQuantity.get());
 			purchaseOrderResponses.add(buildPurchaseOrderResponseWithQuantitiesAndAssignments(purchaseOrder));
 		});
 		return purchaseOrderResponses;
 	}
 
-	private  Boolean validateDate(String dateString){
+	private Boolean validateDate(String dateString) {
 		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH);
 		sdf.setLenient(false);
 		try {
@@ -708,8 +731,8 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 		}
 	}
 
-	private Date parseDate(String dateString){
-		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH);
+	private Date parseDate(String dateString) {
+		SimpleDateFormat sdf = new SimpleDateFormat("d/M/yy", Locale.ENGLISH);
 		sdf.setLenient(false);
 		try {
 			return sdf.parse(dateString);
@@ -754,7 +777,8 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
 			String hash = bulkOrderExcelList.get(i).getStyleNumber() + "$$$" + bulkOrderExcelList.get(i).getStyleName() + "$$$" + bulkOrderExcelList.get(i).getProductName() + "$$$"
 					+ bulkOrderExcelList.get(i).getBuyerName() + "$$$" + bulkOrderExcelList.get(i).getSeasonName() + "$$$" + bulkOrderExcelList.get(i).getFitName() + "$$$"
-					+ bulkOrderExcelList.get(i).getExFtyDate() + "$$$" + bulkOrderExcelList.get(i).getPart() + "$$$" + bulkOrderExcelList.get(i).getVariance() + "$$$" + bulkOrderExcelList.get(i).getSizeGroup();
+					+ bulkOrderExcelList.get(i).getExFtyDate() + "$$$" + bulkOrderExcelList.get(i).getPart() + "$$$" + bulkOrderExcelList.get(i).getVariance() + "$$$"
+					+ bulkOrderExcelList.get(i).getSizeGroup();
 			if (poHash.get(bulkOrderExcelList.get(i).getPurchaseOrderNumber()) == null) {
 				poHash.put(bulkOrderExcelList.get(i).getPurchaseOrderNumber(), hash);
 				bulkPurchaseOrderRequestData.add(BuilderUtils.buildBulkPOFromExcel(bulkOrderExcelList.get(i)));
@@ -784,11 +808,11 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 		return addBulkPurchaseOrder(bulkPurchaseOrderRequestsDto);
 	}
 
-    private void updateQuantityInPurchaseOrder(PurchaseOrder purchaseOrder, Long totalQuantity, Long totalTargetQuantity) {
-        purchaseOrder.setTotalQuantity(totalQuantity);
-        purchaseOrder.setTotalTargetQuantity(totalTargetQuantity);
-        purchaseOrderDbService.saveAndFlush(purchaseOrder);
-    }
+	private void updateQuantityInPurchaseOrder(PurchaseOrder purchaseOrder, Long totalQuantity, Long totalTargetQuantity) {
+		purchaseOrder.setTotalQuantity(totalQuantity);
+		purchaseOrder.setTotalTargetQuantity(totalTargetQuantity);
+		purchaseOrderDbService.saveAndFlush(purchaseOrder);
+	}
 
 	@Override
 	public Boolean existsByNameAndFactoryId(String purchaseOrderNumber, String factoryId) {
@@ -822,9 +846,9 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
 		List<PurchaseOrderDetailResponseDto> purchaseOrderDetailResponseDtoList = new ArrayList<>();
 
-			List<PurchaseOrder> orders = purchaseOrderDbService.findByFactoryIdAndPurchaseOrderStatus(factoryId, requestDto);
-			List<PurchaseOrderDetailResponseDto> orderResponses = PurchaseOrderAdapter.buildPurchaseOrderDetailResponseDto(orders);
-			purchaseOrderDetailResponseDtoList.addAll(orderResponses);
+		List<PurchaseOrder> orders = purchaseOrderDbService.findByFactoryIdAndPurchaseOrderStatus(factoryId, requestDto);
+		List<PurchaseOrderDetailResponseDto> orderResponses = PurchaseOrderAdapter.buildPurchaseOrderDetailResponseDto(orders);
+		purchaseOrderDetailResponseDtoList.addAll(orderResponses);
 
 		return sortByDateDescending(purchaseOrderDetailResponseDtoList);
 	}
