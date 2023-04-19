@@ -25,7 +25,7 @@ enable:
 ########## Cache Config ##############
 cache:
   masterData:
-    enable: 'false'
+    enable: 'true'
 
 ########## Services URL's ##############
 service:
