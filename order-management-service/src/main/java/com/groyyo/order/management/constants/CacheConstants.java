@@ -20,6 +20,6 @@ public class CacheConstants {
 
 	public static final List<String> ENTITY_LIST_GET = Arrays.asList(COLOR, DEFECT, FIT, PART, PRODUCT, PRODUCT_DEFECT, SEASON, SIZE, SIZE_GROUP);
 	public static final List<String> ENTITY_LIST_POPULATE = Arrays.asList(ALL, COLOR, DEFECT, FIT, PART, PRODUCT, PRODUCT_DEFECT, SEASON, SIZE, SIZE_GROUP);
-	public static final List<String> ENTITY_LIST_SAVE = Arrays.asList(COLOR, DEFECT, FIT, PART, PRODUCT, PRODUCT_DEFECT, SEASON, SIZE, SIZE_GROUP);
+	public static final List<String> ENTITY_LIST_SAVE = Arrays.asList(COLOR, FIT, PART, SEASON, SIZE, SIZE_GROUP);
 
 }
