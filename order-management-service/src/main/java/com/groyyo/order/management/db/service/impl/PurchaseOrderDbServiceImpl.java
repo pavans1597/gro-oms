@@ -1,6 +1,8 @@
 package com.groyyo.order.management.db.service.impl;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -73,6 +75,14 @@ public class PurchaseOrderDbServiceImpl extends AbstractJpaServiceImpl<PurchaseO
 			return new ArrayList<>();
 		}
 		return purchaseOrderList;
+	}
+
+	@Override
+	public List<PurchaseOrder> getAllPurchaseOrdersDateWise(Boolean statusFilter, String factoryId, Date startDate, Date endDate) {
+		if (factoryId == null || startDate == null || endDate == null) {
+			throw new IllegalArgumentException("factoryId, startDate, and endDate parameters cannot be null.");
+		}
+		return purchaseOrderRepository.findByFactoryIdAndStatusAndCreatedAtBetween(factoryId, statusFilter, startDate, endDate);
 	}
 
 }
