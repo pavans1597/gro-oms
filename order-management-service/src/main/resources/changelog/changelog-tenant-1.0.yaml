@@ -1,0 +1,1154 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1681294573743-1
+      author: tenant-mgmt-service
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: buyer_pkey
+                  name: id
+                  startWith: 33
+                  type: BIGINT
+              - column:
+                  name: created_at
+                  type: TIMESTAMP WITHOUT TIME ZONE
+              - column:
+                  name: created_by
+                  type: VARCHAR(40)
+              - column:
+                  defaultValueBoolean: true
+                  name: status
+                  type: BOOLEAN
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP WITHOUT TIME ZONE
+              - column:
+                  name: updated_by
+                  type: VARCHAR(40)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: uuid
+                  type: VARCHAR(40)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: name
+                  type: VARCHAR(100)
+              - column:
+                  name: factory_id
+                  type: VARCHAR(40)
+            tableName: buyer
+  - changeSet:
+      id: 1681294573743-2
+      author: tenant-mgmt-service
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: fabric_pkey
+                  name: id
+                  startWith: 4
+                  type: BIGINT
+              - column:
+                  name: created_at
+                  type: TIMESTAMP WITHOUT TIME ZONE
+              - column:
+                  name: created_by
+                  type: VARCHAR(40)
+              - column:
+                  defaultValueBoolean: true
+                  name: status
+                  type: BOOLEAN
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP WITHOUT TIME ZONE
+              - column:
+                  name: updated_by
+                  type: VARCHAR(40)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: uuid
+                  type: VARCHAR(40)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: fabric_category
+                  type: VARCHAR(40)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: fabric_code
+                  type: VARCHAR(40)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: image_url
+                  type: CHAR(255)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: name
+                  type: VARCHAR(40)
+              - column:
+                  name: factory_id
+                  type: VARCHAR(40)
+            tableName: fabric
+  - changeSet:
+      id: 1681294573743-3
+      author: tenant-mgmt-service
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: fabric_category_pkey
+                  name: id
+                  startWith: 10
+                  type: BIGINT
+              - column:
+                  name: created_at
+                  type: TIMESTAMP WITHOUT TIME ZONE
+              - column:
+                  name: created_by
+                  type: VARCHAR(40)
+              - column:
+                  defaultValueBoolean: true
+                  name: status
+                  type: BOOLEAN
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP WITHOUT TIME ZONE
+              - column:
+                  name: updated_by
+                  type: VARCHAR(40)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: uuid
+                  type: VARCHAR(40)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: name
+                  type: VARCHAR(40)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: type
+                  type: VARCHAR(40)
+              - column:
+                  name: factory_id
+                  type: VARCHAR(40)
+            tableName: fabric_category
+  - changeSet:
+      id: 1681294573743-4
+      author: tenant-mgmt-service
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: purchase_order_pkey
+                  name: id
+                  startWith: 379
+                  type: BIGINT
+              - column:
+                  name: created_at
+                  type: TIMESTAMP WITHOUT TIME ZONE
+              - column:
+                  name: created_by
+                  type: VARCHAR(40)
+              - column:
+                  defaultValueBoolean: true
+                  name: status
+                  type: BOOLEAN
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP WITHOUT TIME ZONE
+              - column:
+                  name: updated_by
+                  type: VARCHAR(40)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: uuid
+                  type: VARCHAR(40)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: buyer_id
+                  type: VARCHAR(40)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: buyer_name
+                  type: VARCHAR(40)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: ex_fty_date
+                  type: TIMESTAMP WITHOUT TIME ZONE
+              - column:
+                  constraints:
+                    nullable: false
+                  name: fabric_id
+                  type: VARCHAR(40)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: fabric_name
+                  type: VARCHAR(40)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: fit_id
+                  type: VARCHAR(40)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: name
+                  type: VARCHAR(40)
+              - column:
+                  name: order_id
+                  type: VARCHAR(40)
+              - column:
+                  name: order_name
+                  type: VARCHAR(40)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: part_id
+                  type: VARCHAR(40)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: product_id
+                  type: VARCHAR(40)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: product_name
+                  type: VARCHAR(40)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: receive_date
+                  type: TIMESTAMP WITHOUT TIME ZONE
+              - column:
+                  constraints:
+                    nullable: false
+                  name: season_id
+                  type: VARCHAR(40)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: style_id
+                  type: VARCHAR(40)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: style_name
+                  type: VARCHAR(40)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: style_number
+                  type: VARCHAR(40)
+              - column:
+                  name: tolerance
+                  type: numeric(10, 2)
+              - column:
+                  name: purchase_order_status
+                  type: VARCHAR(255)
+              - column:
+                  name: quantity
+                  type: BIGINT
+              - column:
+                  name: target_quantity
+                  type: BIGINT
+              - column:
+                  name: factory_id
+                  type: VARCHAR(40)
+              - column:
+                  name: fit_name
+                  type: VARCHAR(40)
+              - column:
+                  name: part_name
+                  type: VARCHAR(40)
+              - column:
+                  name: season_name
+                  type: VARCHAR(40)
+            tableName: purchase_order
+  - changeSet:
+      id: 1681294573743-5
+      author: tenant-mgmt-service
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                  name: id
+                  startWith: 1175
+                  type: BIGINT
+              - column:
+                  name: created_at
+                  type: TIMESTAMP WITHOUT TIME ZONE
+              - column:
+                  name: created_by
+                  type: VARCHAR(40)
+              - column:
+                  defaultValueBoolean: true
+                  name: status
+                  type: BOOLEAN
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP WITHOUT TIME ZONE
+              - column:
+                  name: updated_by
+                  type: VARCHAR(40)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: uuid
+                  type: VARCHAR(40)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: colour_id
+                  type: VARCHAR(40)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: name
+                  type: VARCHAR(100)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: purchase_order_id
+                  type: VARCHAR(40)
+              - column:
+                  name: quantity
+                  type: BIGINT
+              - column:
+                  constraints:
+                    nullable: false
+                  name: size_id
+                  type: VARCHAR(40)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: target_quantity
+                  type: BIGINT
+              - column:
+                  name: sizeName
+                  type: VARCHAR(100)
+              - column:
+                  name: colorName
+                  type: VARCHAR(100)
+              - column:
+                  name: colour_name
+                  type: VARCHAR(100)
+              - column:
+                  name: size_name
+                  type: VARCHAR(100)
+              - column:
+                  name: factory_id
+                  type: VARCHAR(40)
+              - column:
+                  name: size_group_id
+                  type: VARCHAR(40)
+              - column:
+                  name: size_group_name
+                  type: VARCHAR(100)
+            tableName: purchase_order_quantity
+  - changeSet:
+      id: 1681294573743-6
+      author: tenant-mgmt-service
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: line_checker_assignment_pkey
+                  name: id
+                  startWith: 555
+                  type: BIGINT
+              - column:
+                  name: created_at
+                  type: TIMESTAMP WITHOUT TIME ZONE
+              - column:
+                  name: created_by
+                  type: VARCHAR(40)
+              - column:
+                  defaultValueBoolean: true
+                  name: status
+                  type: BOOLEAN
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP WITHOUT TIME ZONE
+              - column:
+                  name: updated_by
+                  type: VARCHAR(40)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: uuid
+                  type: VARCHAR(40)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: factory_id
+                  type: VARCHAR(40)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: line_id
+                  type: VARCHAR(40)
+              - column:
+                  name: line_type
+                  type: VARCHAR(255)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: purchase_order_id
+                  type: VARCHAR(40)
+              - column:
+                  name: sales_order_id
+                  type: VARCHAR(40)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: user_id
+                  type: VARCHAR(40)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: user_name
+                  type: VARCHAR(100)
+              - column:
+                  name: line_name
+                  type: VARCHAR(100)
+            tableName: line_checker_assignment
+  - changeSet:
+      id: 1681294573743-7
+      author: tenant-mgmt-service
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: order_pkey
+                  name: id
+                  type: BIGINT
+              - column:
+                  name: created_at
+                  type: TIMESTAMP WITHOUT TIME ZONE
+              - column:
+                  name: created_by
+                  type: VARCHAR(40)
+              - column:
+                  defaultValueBoolean: true
+                  name: status
+                  type: BOOLEAN
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP WITHOUT TIME ZONE
+              - column:
+                  name: updated_by
+                  type: VARCHAR(40)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: uuid
+                  type: VARCHAR(40)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: name
+                  type: VARCHAR(40)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: product_id
+                  type: VARCHAR(40)
+              - column:
+                  name: product_name
+                  type: VARCHAR(40)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: style_id
+                  type: VARCHAR(40)
+              - column:
+                  name: style_name
+                  type: VARCHAR(40)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: style_number
+                  type: VARCHAR(40)
+              - column:
+                  name: factory_id
+                  type: VARCHAR(40)
+            tableName: order
+  - changeSet:
+      id: 1681294573743-8
+      author: tenant-mgmt-service
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: color_pkey
+                  name: id
+                  startWith: 447
+                  type: BIGINT
+              - column:
+                  name: created_at
+                  type: TIMESTAMP WITHOUT TIME ZONE
+              - column:
+                  name: created_by
+                  type: VARCHAR(40)
+              - column:
+                  defaultValueBoolean: true
+                  name: status
+                  type: BOOLEAN
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP WITHOUT TIME ZONE
+              - column:
+                  name: updated_by
+                  type: VARCHAR(40)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: uuid
+                  type: VARCHAR(40)
+              - column:
+                  name: factory_id
+                  type: VARCHAR(40)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: hex_code
+                  type: VARCHAR(100)
+              - column:
+                  name: master_id
+                  type: VARCHAR(40)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: name
+                  type: VARCHAR(100)
+            tableName: color
+  - changeSet:
+      id: 1681294573743-9
+      author: tenant-mgmt-service
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: fit_pkey
+                  name: id
+                  startWith: 77
+                  type: BIGINT
+              - column:
+                  name: created_at
+                  type: TIMESTAMP WITHOUT TIME ZONE
+              - column:
+                  name: created_by
+                  type: VARCHAR(40)
+              - column:
+                  defaultValueBoolean: true
+                  name: status
+                  type: BOOLEAN
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP WITHOUT TIME ZONE
+              - column:
+                  name: updated_by
+                  type: VARCHAR(40)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: uuid
+                  type: VARCHAR(40)
+              - column:
+                  name: factory_id
+                  type: VARCHAR(40)
+              - column:
+                  name: master_id
+                  type: VARCHAR(40)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: name
+                  type: VARCHAR(100)
+            tableName: fit
+  - changeSet:
+      id: 1681294573743-10
+      author: tenant-mgmt-service
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: part_pkey
+                  name: id
+                  startWith: 84
+                  type: BIGINT
+              - column:
+                  name: created_at
+                  type: TIMESTAMP WITHOUT TIME ZONE
+              - column:
+                  name: created_by
+                  type: VARCHAR(40)
+              - column:
+                  defaultValueBoolean: true
+                  name: status
+                  type: BOOLEAN
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP WITHOUT TIME ZONE
+              - column:
+                  name: updated_by
+                  type: VARCHAR(40)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: uuid
+                  type: VARCHAR(40)
+              - column:
+                  name: factory_id
+                  type: VARCHAR(40)
+              - column:
+                  name: master_id
+                  type: VARCHAR(40)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: name
+                  type: VARCHAR(100)
+            tableName: part
+  - changeSet:
+      id: 1681294573743-11
+      author: tenant-mgmt-service
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: product_pkey
+                  name: id
+                  startWith: 142
+                  type: BIGINT
+              - column:
+                  name: created_at
+                  type: TIMESTAMP WITHOUT TIME ZONE
+              - column:
+                  name: created_by
+                  type: VARCHAR(40)
+              - column:
+                  defaultValueBoolean: true
+                  name: status
+                  type: BOOLEAN
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP WITHOUT TIME ZONE
+              - column:
+                  name: updated_by
+                  type: VARCHAR(40)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: uuid
+                  type: VARCHAR(40)
+              - column:
+                  name: factory_id
+                  type: VARCHAR(40)
+              - column:
+                  name: line_art
+                  type: VARCHAR(100)
+              - column:
+                  name: master_id
+                  type: VARCHAR(40)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: name
+                  type: VARCHAR(100)
+            tableName: product
+  - changeSet:
+      id: 1681294573743-12
+      author: tenant-mgmt-service
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: season_pkey
+                  name: id
+                  startWith: 45
+                  type: BIGINT
+              - column:
+                  name: created_at
+                  type: TIMESTAMP WITHOUT TIME ZONE
+              - column:
+                  name: created_by
+                  type: VARCHAR(40)
+              - column:
+                  defaultValueBoolean: true
+                  name: status
+                  type: BOOLEAN
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP WITHOUT TIME ZONE
+              - column:
+                  name: updated_by
+                  type: VARCHAR(40)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: uuid
+                  type: VARCHAR(40)
+              - column:
+                  name: factory_id
+                  type: VARCHAR(40)
+              - column:
+                  name: master_id
+                  type: VARCHAR(40)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: name
+                  type: VARCHAR(100)
+            tableName: season
+  - changeSet:
+      id: 1681294573743-13
+      author: tenant-mgmt-service
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: size_pkey
+                  name: id
+                  startWith: 51
+                  type: BIGINT
+              - column:
+                  name: created_at
+                  type: TIMESTAMP WITHOUT TIME ZONE
+              - column:
+                  name: created_by
+                  type: VARCHAR(40)
+              - column:
+                  defaultValueBoolean: true
+                  name: status
+                  type: BOOLEAN
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP WITHOUT TIME ZONE
+              - column:
+                  name: updated_by
+                  type: VARCHAR(40)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: uuid
+                  type: VARCHAR(40)
+              - column:
+                  name: factory_id
+                  type: VARCHAR(40)
+              - column:
+                  name: master_id
+                  type: VARCHAR(40)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: name
+                  type: VARCHAR(100)
+            tableName: size
+  - changeSet:
+      id: 1681294573743-14
+      author: tenant-mgmt-service
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: size_group_pkey
+                  name: id
+                  startWith: 117
+                  type: BIGINT
+              - column:
+                  name: created_at
+                  type: TIMESTAMP WITHOUT TIME ZONE
+              - column:
+                  name: created_by
+                  type: VARCHAR(40)
+              - column:
+                  defaultValueBoolean: true
+                  name: status
+                  type: BOOLEAN
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP WITHOUT TIME ZONE
+              - column:
+                  name: updated_by
+                  type: VARCHAR(40)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: uuid
+                  type: VARCHAR(40)
+              - column:
+                  name: factory_id
+                  type: VARCHAR(40)
+              - column:
+                  name: master_id
+                  type: VARCHAR(40)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: name
+                  type: VARCHAR(100)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: size_ids
+                  type: TEXT
+            tableName: size_group
+  - changeSet:
+      id: 1681294573743-15
+      author: tenant-mgmt-service
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: style_pkey
+                  name: id
+                  startWith: 108
+                  type: BIGINT
+              - column:
+                  name: created_at
+                  type: TIMESTAMP WITHOUT TIME ZONE
+              - column:
+                  name: created_by
+                  type: VARCHAR(40)
+              - column:
+                  defaultValueBoolean: true
+                  name: status
+                  type: BOOLEAN
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP WITHOUT TIME ZONE
+              - column:
+                  name: updated_by
+                  type: VARCHAR(40)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: uuid
+                  type: VARCHAR(40)
+              - column:
+                  name: cad_image_id
+                  type: VARCHAR(255)
+              - column:
+                  name: factory_id
+                  type: VARCHAR(40)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: name
+                  type: VARCHAR(100)
+              - column:
+                  name: product_id
+                  type: VARCHAR(40)
+              - column:
+                  name: product_name
+                  type: VARCHAR(100)
+              - column:
+                  name: style_image_id
+                  type: VARCHAR(255)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: style_number
+                  type: VARCHAR(100)
+            tableName: style
+  - changeSet:
+      id: 1681294573743-16
+      author: tenant-mgmt-service
+      changes:
+        - addUniqueConstraint:
+            columnNames: name
+            constraintName: uk_buyer_name
+            tableName: buyer
+  - changeSet:
+      id: 1681294573743-17
+      author: tenant-mgmt-service
+      changes:
+        - addUniqueConstraint:
+            columnNames: uuid
+            constraintName: uk_cuv326nsm3009rlouh8fsrjv6
+            tableName: buyer
+  - changeSet:
+      id: 1681294573743-18
+      author: tenant-mgmt-service
+      changes:
+        - addUniqueConstraint:
+            columnNames: name
+            constraintName: uk_fabric_name
+            tableName: fabric
+  - changeSet:
+      id: 1681294573743-19
+      author: tenant-mgmt-service
+      changes:
+        - addUniqueConstraint:
+            columnNames: uuid
+            constraintName: uk_oy6ik8ysughletlhkimcwmjms
+            tableName: fabric
+  - changeSet:
+      id: 1681294573743-20
+      author: tenant-mgmt-service
+      changes:
+        - addUniqueConstraint:
+            columnNames: uuid
+            constraintName: uk_30u44p2m2jp5pvbbrkl12q5ij
+            tableName: fabric_category
+  - changeSet:
+      id: 1681294573743-21
+      author: tenant-mgmt-service
+      changes:
+        - addUniqueConstraint:
+            columnNames: name
+            constraintName: uk_fabric_category_name
+            tableName: fabric_category
+  - changeSet:
+      id: 1681294573743-22
+      author: tenant-mgmt-service
+      changes:
+        - addUniqueConstraint:
+            columnNames: uuid
+            constraintName: uk_cme43db2k2385owq7sdt8ik6l
+            tableName: purchase_order
+  - changeSet:
+      id: 1681294573743-23
+      author: tenant-mgmt-service
+      changes:
+        - addUniqueConstraint:
+            columnNames: name
+            constraintName: uk_purchase_order_name
+            tableName: purchase_order
+  - changeSet:
+      id: 1681294573743-24
+      author: tenant-mgmt-service
+      changes:
+        - addUniqueConstraint:
+            columnNames: uuid
+            constraintName: uk_apr7xcggpjojkw4w301hb9t47
+            tableName: purchase_order_quantity
+  - changeSet:
+      id: 1681294573743-25
+      author: tenant-mgmt-service
+      changes:
+        - addUniqueConstraint:
+            columnNames: uuid
+            constraintName: uk_fbob1a5om6yhecqw51rw4cqnc
+            tableName: line_checker_assignment
+  - changeSet:
+      id: 1681294573743-26
+      author: tenant-mgmt-service
+      changes:
+        - addUniqueConstraint:
+            columnNames: uuid
+            constraintName: uk_ly2iwdbdejldpfws4g3aixpt3
+            tableName: order
+  - changeSet:
+      id: 1681294573743-27
+      author: tenant-mgmt-service
+      changes:
+        - addUniqueConstraint:
+            columnNames: name
+            constraintName: uk_order_name
+            tableName: order
+  - changeSet:
+      id: 1681294573743-28
+      author: tenant-mgmt-service
+      changes:
+        - addUniqueConstraint:
+            columnNames: name, hex_code, factory_id
+            constraintName: uk_color_name_hex_code_factory_id
+            tableName: color
+  - changeSet:
+      id: 1681294573743-29
+      author: tenant-mgmt-service
+      changes:
+        - addUniqueConstraint:
+            columnNames: uuid
+            constraintName: uk_igcxmder1gphi6tswxj35n69j
+            tableName: color
+  - changeSet:
+      id: 1681294573743-30
+      author: tenant-mgmt-service
+      changes:
+        - addUniqueConstraint:
+            columnNames: uuid
+            constraintName: uk_8ri79ag4e8a1ytsmi4mdcqem7
+            tableName: fit
+  - changeSet:
+      id: 1681294573743-31
+      author: tenant-mgmt-service
+      changes:
+        - addUniqueConstraint:
+            columnNames: name, factory_id
+            constraintName: uk_fit_name_factory_id
+            tableName: fit
+  - changeSet:
+      id: 1681294573743-32
+      author: tenant-mgmt-service
+      changes:
+        - addUniqueConstraint:
+            columnNames: name, factory_id
+            constraintName: uk_part_name_factory_id
+            tableName: part
+  - changeSet:
+      id: 1681294573743-33
+      author: tenant-mgmt-service
+      changes:
+        - addUniqueConstraint:
+            columnNames: uuid
+            constraintName: uk_sow217awrqfmk1spv44rdiaum
+            tableName: part
+  - changeSet:
+      id: 1681294573743-34
+      author: tenant-mgmt-service
+      changes:
+        - addUniqueConstraint:
+            columnNames: uuid
+            constraintName: uk_24bc4yyyk3fj3h7ku64i3yuog
+            tableName: product
+  - changeSet:
+      id: 1681294573743-35
+      author: tenant-mgmt-service
+      changes:
+        - addUniqueConstraint:
+            columnNames: name, factory_id
+            constraintName: uk_product_name_factory_id
+            tableName: product
+  - changeSet:
+      id: 1681294573743-36
+      author: tenant-mgmt-service
+      changes:
+        - addUniqueConstraint:
+            columnNames: uuid
+            constraintName: uk_h3swkbbb6snr0ebtwqqcc79yx
+            tableName: season
+  - changeSet:
+      id: 1681294573743-37
+      author: tenant-mgmt-service
+      changes:
+        - addUniqueConstraint:
+            columnNames: name, factory_id
+            constraintName: uk_season_name_factory_id
+            tableName: season
+  - changeSet:
+      id: 1681294573743-38
+      author: tenant-mgmt-service
+      changes:
+        - addUniqueConstraint:
+            columnNames: uuid
+            constraintName: uk_no6jx61erll27l6oeh25fhra7
+            tableName: size
+  - changeSet:
+      id: 1681294573743-39
+      author: tenant-mgmt-service
+      changes:
+        - addUniqueConstraint:
+            columnNames: name, factory_id
+            constraintName: uk_size_name_factory_id
+            tableName: size
+  - changeSet:
+      id: 1681294573743-40
+      author: tenant-mgmt-service
+      changes:
+        - addUniqueConstraint:
+            columnNames: name, factory_id
+            constraintName: uk_size_group_name_factory_id
+            tableName: size_group
+  - changeSet:
+      id: 1681294573743-41
+      author: tenant-mgmt-service
+      changes:
+        - addUniqueConstraint:
+            columnNames: uuid
+            constraintName: uk_syno0dx4jvydq7dkgx84gk2w6
+            tableName: size_group
+  - changeSet:
+      id: 1681294573743-42
+      author: tenant-mgmt-service
+      changes:
+        - addUniqueConstraint:
+            columnNames: uuid
+            constraintName: uk_pl30g0i99kvhcoix1rlyph1bf
+            tableName: style
+  - changeSet:
+      id: 1681294573743-43
+      author: tenant-mgmt-service
+      changes:
+        - addUniqueConstraint:
+            columnNames: style_number, factory_id
+            constraintName: uk_style_number_factory_id
+            tableName: style
+

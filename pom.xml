@@ -21,6 +21,7 @@
 		<module>../core-utils/base</module>
 		<module>../core-utils/properties</module>
 		<module>../core-utils/utilservice</module>
+		<module>../core-utils/multitenancy-client</module>
 		<module>../core-utils/sql-postgres-jpa</module>
 		<module>../core-utils/pojo</module>
 		<module>../core-utils/kafka</module>

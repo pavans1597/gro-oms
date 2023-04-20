@@ -3,6 +3,7 @@
  */
 package com.groyyo.order.management.config;
 
+import com.groyyo.core.multitenancy.multitenancy.interceptor.TenantInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -85,11 +86,13 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
 	@Override
 	public void addInterceptors(InterceptorRegistry registry) {
+
 		registry.addInterceptor(uidInterceptor())
 				.addPathPatterns("/**").order(Ordered.HIGHEST_PRECEDENCE);
 
 		registry.addInterceptor(authInterceptor())
 				.addPathPatterns("/**")
+				.excludePathPatterns("/**")
 				.excludePathPatterns(
 						"/internal/**",
 						"/ping",

@@ -14,7 +14,7 @@ spec:
         group: service-dev
     spec:
       containers:
-        - image: groyyoOrgServiceRegistry.azurecr.io/order-management-service-dev:backup
+        - image: groyyoacrmulti.azurecr.io/order-management-service-dev:backup
           name: order-management-service
           env:
             - name: TZ

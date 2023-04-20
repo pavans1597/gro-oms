@@ -1,3 +1,4 @@
+/*
 package com.groyyo.order.management.config;
 
 
@@ -183,4 +184,4 @@ public class DatabaseConfig {
 		return jpaTransactionManager;
 	}
 
-}
+}*/
