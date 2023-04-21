@@ -86,7 +86,9 @@ public class SeasonServiceImpl implements SeasonService {
 
 		runValidations(seasonRequestDto);
 
-		Season season = SeasonAdapter.buildSeasonFromRequest(seasonRequestDto);
+		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+
+		Season season = SeasonAdapter.buildSeasonFromRequest(seasonRequestDto, factoryId);
 
 		season = seasonDbService.saveSeason(season);
 

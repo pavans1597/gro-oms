@@ -1,5 +1,6 @@
 package com.groyyo.order.management.service;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import com.groyyo.core.base.common.dto.PageResponse;
@@ -27,6 +28,9 @@ public interface PurchaseOrderService {
 	void changeStatusOfPurchaseOrder(String purchaseOrderId, PurchaseOrderStatus desiredPurchaseOrderStatus, Boolean forceUpdate);
 
 	PurchaseOrderStatusCountDto getPurchaseOrderStatusCounts(Boolean status);
+
+	PurchaseOrderStatusCountDto getPurchaseOrderStatusCounts(Boolean status, LocalDate startDate,LocalDate endDate);
+
 
 	/**
 	 * @param purchaseOrderId

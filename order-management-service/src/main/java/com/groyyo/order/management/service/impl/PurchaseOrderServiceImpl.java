@@ -2,6 +2,7 @@ package com.groyyo.order.management.service.impl;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
@@ -16,6 +17,7 @@ import java.util.Random;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
+import com.groyyo.core.base.utils.DateUtil;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -87,6 +89,7 @@ import lombok.extern.log4j.Log4j2;
 @Service
 @Transactional
 public class PurchaseOrderServiceImpl implements PurchaseOrderService {
+	public static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
 	@Autowired
 	private PurchaseOrderDbService purchaseOrderDbService;
@@ -456,6 +459,30 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
 		}
 
+		return purchaseOrderStatusCounts;
+	}
+
+	@Override
+	public PurchaseOrderStatusCountDto getPurchaseOrderStatusCounts(Boolean status, LocalDate startTime, LocalDate endTime) {
+		PurchaseOrderStatusCountDto purchaseOrderStatusCounts = PurchaseOrderStatusCountDto.builder().build();
+       try {
+		   String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+		   Date startDate = DateUtil.convertToDate(startTime);
+		   Date endDate = DateUtil.convertToDate(endTime);
+		   List<PurchaseOrder> purchaseOrderEntities = purchaseOrderDbService.getAllPurchaseOrdersDateWise(status, factoryId, startDate, endDate);
+
+		   if (CollectionUtils.isNotEmpty(purchaseOrderEntities)) {
+
+			   Map<PurchaseOrderStatus, Long> countMap = purchaseOrderEntities.stream().collect(Collectors.groupingBy(PurchaseOrder::getPurchaseOrderStatus, Collectors.counting()));
+
+			   log.info("Found purchase order status wise counts map: {} for factory id: {}", countMap, factoryId);
+
+			   purchaseOrderStatusCounts.setPurchaseOrderStatusCount(countMap);
+
+		   }
+	   }catch (Exception e){
+		   log.error("Error in getPurchaseOrderStatusCounts() method !! ",e);
+	   }
 		return purchaseOrderStatusCounts;
 	}
 
