@@ -1,5 +1,7 @@
 package com.groyyo.order.management.db.service;
 
+import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 
 import com.groyyo.core.dto.PurchaseOrder.PurchaseOrderStatus;
@@ -30,4 +32,6 @@ public interface PurchaseOrderDbService extends AbstractJpaService<PurchaseOrder
     boolean isEntityExistsByNameAndFactoryId(String name, String factoryId);
 
     List<PurchaseOrder> findByFactoryIdAndPurchaseOrderStatus(String factoryId,List<PurchaseOrderStatus> status);
+
+	List<PurchaseOrder> getAllPurchaseOrdersDateWise(Boolean status, String factoryId, Date startDate, Date endDate);
 }
