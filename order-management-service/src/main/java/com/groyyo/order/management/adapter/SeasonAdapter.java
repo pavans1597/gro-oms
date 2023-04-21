@@ -15,12 +15,13 @@ import lombok.experimental.UtilityClass;
 @UtilityClass
 public class SeasonAdapter {
 
-	public Season buildSeasonFromRequest(SeasonRequestDto seasonRequestDto) {
+	public Season buildSeasonFromRequest(SeasonRequestDto seasonRequestDto, String factoryId) {
 
 		return Season
 				.builder()
 				.name(seasonRequestDto.getName())
 				.masterId(seasonRequestDto.getMasterId())
+				.factoryId(factoryId)
 				.build();
 	}
 
