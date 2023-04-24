@@ -707,36 +707,36 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 				String colorCode = String.format("#%02x%02x%02x", colour.getRed(), colour.getGreen(), colour.getBlue());
 				Color color = colorService.findOrCreate(colorData.getName(), colorCode);
 				colorData.getSizes().forEach((k, v) -> {
+					if(v!=null){
+						Long targetQuantity = (long) (v + v * purchaseOrderRequestDto.getPart().getTolerance() / 100);
+						totalQuantity.updateAndGet(v1 -> v1 + v);
+						totalTargetQuantity.updateAndGet(v1 -> v1 + targetQuantity);
+						Size size;
+						Optional<Size> result = sizes.stream()
+								.filter(obj -> obj.getName().equals(k))
+								.findFirst();
 
-					Long targetQuantity = Objects.nonNull(v) ? (long) (v + (v * purchaseOrderRequestDto.getPart().getTolerance()) / 100) : 0L;
-					totalQuantity.updateAndGet(v1 -> v1 + v);
-					totalTargetQuantity.updateAndGet(v1 -> v1 + targetQuantity);
-					Size size;
-					Optional<Size> result = sizes.stream()
-							.filter(obj -> obj.getName().equals(k))
-							.findFirst();
-
-					if (result.isPresent()) {
-						size = result.get();
-					} else {
-						throw new InputMismatchException("Size should be from size group");
+						if (result.isPresent()) {
+							size = result.get();
+						} else {
+							throw new InputMismatchException("Size should be from size group");
+						}
+						purchaseOrderQuantities.add(
+								PurchaseOrderQuantity
+										.builder()
+										.name(finalPurchaseOrder.getUuid())
+										.purchaseOrderId(finalPurchaseOrder.getUuid())
+										.sizeId(size.getUuid())
+										.sizeName(size.getName())
+										.sizeGroupId(sizeGroup.getUuid())
+										.sizeGroupName(sizeGroup.getName())
+										.colourId(color.getUuid())
+										.colourName(color.getName())
+										.quantity(v)
+										.targetQuantity(targetQuantity)
+										.factoryId(factoryId)
+										.build());
 					}
-					purchaseOrderQuantities.add(
-							PurchaseOrderQuantity
-									.builder()
-									.name(finalPurchaseOrder.getUuid())
-									.purchaseOrderId(finalPurchaseOrder.getUuid())
-									.sizeId(size.getUuid())
-									.sizeName(size.getName())
-									.sizeGroupId(sizeGroup.getUuid())
-									.sizeGroupName(sizeGroup.getName())
-									.colourId(color.getUuid())
-									.colourName(color.getName())
-									.quantity(v)
-									.targetQuantity(targetQuantity)
-									.factoryId(factoryId)
-									.build());
-
 				});
 
 			});
