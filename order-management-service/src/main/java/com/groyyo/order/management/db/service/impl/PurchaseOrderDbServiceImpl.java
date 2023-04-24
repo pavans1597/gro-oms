@@ -1,16 +1,15 @@
 package com.groyyo.order.management.db.service.impl;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
-import com.groyyo.core.dto.PurchaseOrder.PurchaseOrderStatus;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.groyyo.core.dto.PurchaseOrder.PurchaseOrderStatus;
 import com.groyyo.core.sqlPostgresJpa.service.impl.AbstractJpaServiceImpl;
 import com.groyyo.order.management.db.service.PurchaseOrderDbService;
 import com.groyyo.order.management.entity.PurchaseOrder;
@@ -69,9 +68,9 @@ public class PurchaseOrderDbServiceImpl extends AbstractJpaServiceImpl<PurchaseO
 	}
 
 	@Override
-	public List<PurchaseOrder> findByFactoryIdAndPurchaseOrderStatus(String factoryId, List<PurchaseOrderStatus> status ) {
-		List<PurchaseOrder>purchaseOrderList=purchaseOrderRepository.findByFactoryIdAndPurchaseOrderStatusIn(factoryId,status);
-		if(purchaseOrderList==null){
+	public List<PurchaseOrder> findByFactoryIdAndPurchaseOrderStatus(String factoryId, List<PurchaseOrderStatus> status) {
+		List<PurchaseOrder> purchaseOrderList = purchaseOrderRepository.findByFactoryIdAndPurchaseOrderStatusIn(factoryId, status);
+		if (purchaseOrderList == null) {
 			return new ArrayList<>();
 		}
 		return purchaseOrderList;

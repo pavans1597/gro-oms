@@ -17,7 +17,7 @@ public interface PurchaseOrderService {
 
 	List<PurchaseOrderResponseDto> getAllPurchaseOrders(Boolean status);
 
-	PurchaseOrderResponseDto getPurchaseOrderById(String id);
+	PurchaseOrderResponseDto getPurchaseOrderById(String id, boolean styleInfoNeeded);
 
 	PurchaseOrderResponseDto addPurchaseOrder(PurchaseOrderRequestDto purchaseOrderRequestDto);
 
