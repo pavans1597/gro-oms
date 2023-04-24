@@ -17,7 +17,6 @@ import java.util.Random;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
-import com.groyyo.core.base.utils.DateUtil;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -33,6 +32,7 @@ import com.groyyo.core.base.common.dto.PageResponse;
 import com.groyyo.core.base.exception.NoRecordException;
 import com.groyyo.core.base.exception.RecordExistsException;
 import com.groyyo.core.base.http.utils.HeaderUtil;
+import com.groyyo.core.base.utils.DateUtil;
 import com.groyyo.core.dto.PurchaseOrder.PurchaseOrderQuantityResponseDto;
 import com.groyyo.core.dto.PurchaseOrder.PurchaseOrderResponseDto;
 import com.groyyo.core.dto.PurchaseOrder.PurchaseOrderStatus;
@@ -149,7 +149,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 	}
 
 	@Override
-	public PurchaseOrderResponseDto getPurchaseOrderById(String id) {
+	public PurchaseOrderResponseDto getPurchaseOrderById(String id, boolean styleInfoNeeded) {
 
 		log.info("Serving request to get a purchaseOrder by id: {}", id);
 
@@ -159,8 +159,8 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 			String errorMsg = "PurchaseOrder with id: " + id + " not found in the system ";
 			throw new NoRecordException(errorMsg);
 		}
-		
-		return buildPurchaseOrderResponseWithQuantitiesAndAssignmentsAndWithoutImages(purchaseOrder);
+
+		return styleInfoNeeded ? buildPurchaseOrderResponseWithQuantitiesAndAssignments(purchaseOrder) : buildPurchaseOrderResponseWithQuantitiesAndAssignmentsAndWithoutImages(purchaseOrder);
 	}
 
 	@Override
@@ -465,24 +465,24 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 	@Override
 	public PurchaseOrderStatusCountDto getPurchaseOrderStatusCounts(Boolean status, LocalDate startTime, LocalDate endTime) {
 		PurchaseOrderStatusCountDto purchaseOrderStatusCounts = PurchaseOrderStatusCountDto.builder().build();
-       try {
-		   String factoryId = HeaderUtil.getFactoryIdHeaderValue();
-		   Date startDate = DateUtil.convertToDate(startTime);
-		   Date endDate = DateUtil.convertToDate(endTime);
-		   List<PurchaseOrder> purchaseOrderEntities = purchaseOrderDbService.getAllPurchaseOrdersDateWise(status, factoryId, startDate, endDate);
+		try {
+			String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+			Date startDate = DateUtil.convertToDate(startTime);
+			Date endDate = DateUtil.convertToDate(endTime);
+			List<PurchaseOrder> purchaseOrderEntities = purchaseOrderDbService.getAllPurchaseOrdersDateWise(status, factoryId, startDate, endDate);
 
-		   if (CollectionUtils.isNotEmpty(purchaseOrderEntities)) {
+			if (CollectionUtils.isNotEmpty(purchaseOrderEntities)) {
 
-			   Map<PurchaseOrderStatus, Long> countMap = purchaseOrderEntities.stream().collect(Collectors.groupingBy(PurchaseOrder::getPurchaseOrderStatus, Collectors.counting()));
+				Map<PurchaseOrderStatus, Long> countMap = purchaseOrderEntities.stream().collect(Collectors.groupingBy(PurchaseOrder::getPurchaseOrderStatus, Collectors.counting()));
 
-			   log.info("Found purchase order status wise counts map: {} for factory id: {}", countMap, factoryId);
+				log.info("Found purchase order status wise counts map: {} for factory id: {}", countMap, factoryId);
 
-			   purchaseOrderStatusCounts.setPurchaseOrderStatusCount(countMap);
+				purchaseOrderStatusCounts.setPurchaseOrderStatusCount(countMap);
 
-		   }
-	   }catch (Exception e){
-		   log.error("Error in getPurchaseOrderStatusCounts() method !! ",e);
-	   }
+			}
+		} catch (Exception e) {
+			log.error("Error in getPurchaseOrderStatusCounts() method !! ", e);
+		}
 		return purchaseOrderStatusCounts;
 	}
 

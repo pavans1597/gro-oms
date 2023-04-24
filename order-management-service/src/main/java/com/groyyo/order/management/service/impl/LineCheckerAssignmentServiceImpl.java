@@ -56,7 +56,7 @@ public class LineCheckerAssignmentServiceImpl implements LineCheckerAssignmentSe
 
 			String purchaseOrderId = lineCheckerAssignmentRequestDto.getPurchaseOrderId();
 
-			PurchaseOrderResponseDto purchaseOrderResponseDto = purchaseOrderService.getPurchaseOrderById(purchaseOrderId);
+			PurchaseOrderResponseDto purchaseOrderResponseDto = purchaseOrderService.getPurchaseOrderById(purchaseOrderId, Boolean.FALSE);
 
 			String salesOrderId = lineCheckerAssignmentRequestDto.getSalesOrderId();
 
@@ -104,7 +104,7 @@ public class LineCheckerAssignmentServiceImpl implements LineCheckerAssignmentSe
 	@Override
 	public void publishQcTaskAssignment(String purchaseOrderId) {
 
-		PurchaseOrderResponseDto purchaseOrderResponseDto = purchaseOrderService.getPurchaseOrderById(purchaseOrderId);
+		PurchaseOrderResponseDto purchaseOrderResponseDto = purchaseOrderService.getPurchaseOrderById(purchaseOrderId, Boolean.FALSE);
 
 		log.info("Going to publish purchase order dto: {}", purchaseOrderResponseDto);
 

@@ -58,7 +58,7 @@ public class PurchaseOrderController {
 
 		log.info("Request received to get purchaseOrder with id: {}", id);
 
-		PurchaseOrderResponseDto purchaseOrderResponseDto = purchaseOrderService.getPurchaseOrderById(id);
+		PurchaseOrderResponseDto purchaseOrderResponseDto = purchaseOrderService.getPurchaseOrderById(id, Boolean.TRUE);
 
 		return Objects.isNull(purchaseOrderResponseDto) ? ResponseDto.failure("Found no purchaseOrder with id: " + id)
 				: ResponseDto.success("Found purchaseOrder with id: " + id, purchaseOrderResponseDto);
