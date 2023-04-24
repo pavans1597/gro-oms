@@ -34,7 +34,7 @@ service:
   masterData:
     url: http://master-data-service-uat/master-data-service
   file_management:
-      url: https://file-management-service-uat/file-management-service
+      url: https://intent-uat.groyyo.com/file-management-service
 
 ############## Hibernate Configuration ##############
 hibernate:
