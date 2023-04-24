@@ -1,9 +1,11 @@
 package com.groyyo.order.management.dto.request;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import lombok.experimental.SuperBuilder;
-
-import java.util.Date;
 
 @Getter
 @Setter
@@ -12,22 +14,22 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 public class BulkPurchaseOrderRequestDto {
-    private String name;
+	private String name;
 
-    private String styleNumber;
+	private String styleNumber;
 
-    private String styleName;
+	private String styleName;
 
-    private String productName;
+	private String productName;
 
-    private String buyerName;
+	private String buyerName;
 
-    private String seasonName;
+	private String seasonName;
 
-    private String fitName;
+	private String fitName;
 
-    private String exFtyDate;
+	private String exFtyDate;
 
-    private BulkPartRequestDto part;
+	private BulkPartRequestDto part;
 
 }
