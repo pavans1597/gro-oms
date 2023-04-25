@@ -3,6 +3,8 @@ package com.groyyo.order.management.service.impl;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
@@ -468,7 +470,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 		try {
 			String factoryId = HeaderUtil.getFactoryIdHeaderValue();
 			Date startDate = DateUtil.convertToDate(startTime);
-			Date endDate = DateUtil.convertToDate(endTime);
+			Date endDate =DateUtil.convertToDate(LocalDateTime.of(endTime, LocalTime.MAX));;
 			List<PurchaseOrder> purchaseOrderEntities = purchaseOrderDbService.getAllPurchaseOrdersDateWise(status, factoryId, startDate, endDate);
 
 			if (CollectionUtils.isNotEmpty(purchaseOrderEntities)) {
