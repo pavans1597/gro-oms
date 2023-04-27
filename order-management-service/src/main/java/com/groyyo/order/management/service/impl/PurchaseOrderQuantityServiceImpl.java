@@ -97,6 +97,7 @@ public class PurchaseOrderQuantityServiceImpl implements PurchaseOrderQuantitySe
 	public List<PurchaseOrderQuantityResponseDto> addBulkPurchaseOrderQuantity(List<PurchaseOrderQuantityRequestDto> purchaseOrderQuantityRequestList, String purchaseOrderId, Double tolerance) {
 
 		log.info("Serving request to bulk add purchaseOrderQuantity with request object: {}", purchaseOrderQuantityRequestList);
+		
 		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
 
 		List<PurchaseOrderQuantity> purchaseOrderQuantityList = PurchaseOrderQuantityAdapter.buildPurchaseOrderQuantityListFromRequestList(purchaseOrderQuantityRequestList, purchaseOrderId,

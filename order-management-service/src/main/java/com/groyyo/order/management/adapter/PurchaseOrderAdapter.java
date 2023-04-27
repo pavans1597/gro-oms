@@ -1,5 +1,13 @@
 package com.groyyo.order.management.adapter;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
+import org.apache.commons.lang3.StringUtils;
+
 import com.groyyo.core.base.utils.DateUtil;
 import com.groyyo.core.dto.PurchaseOrder.PurchaseOrderResponseDto;
 import com.groyyo.order.management.dto.request.BulkOrderExcelRequestDto;
@@ -8,14 +16,8 @@ import com.groyyo.order.management.dto.request.BulkPurchaseOrderRequestDto;
 import com.groyyo.order.management.dto.request.PurchaseOrderRequestDto;
 import com.groyyo.order.management.dto.response.PurchaseOrderDetailResponseDto;
 import com.groyyo.order.management.entity.PurchaseOrder;
-import lombok.experimental.UtilityClass;
-import org.apache.commons.lang3.StringUtils;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
+import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class PurchaseOrderAdapter {
@@ -32,7 +34,7 @@ public class PurchaseOrderAdapter {
 				.fabricName(purchaseOrderRequestDto.getFabricName())
 				.buyerId(purchaseOrderRequestDto.getBuyerId())
 				.buyerName(purchaseOrderRequestDto.getBuyerName())
-				.tolerance(purchaseOrderRequestDto.getTolerance())
+				.tolerance(Objects.isNull(purchaseOrderRequestDto.getTolerance()) ? 0.0d : purchaseOrderRequestDto.getTolerance())
 				.receiveDate(DateUtil.convertToDate(currentDate.atStartOfDay()))
 				.exFtyDate(purchaseOrderRequestDto.getExFtyDate())
 				.seasonId(purchaseOrderRequestDto.getSeasonId())

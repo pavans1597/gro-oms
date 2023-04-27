@@ -32,7 +32,7 @@ public class PurchaseOrderRequestDto {
 	private String buyerName;
 
 	@Builder.Default
-	private Double tolerance = 0.0;
+	private Double tolerance = 0.0d;
 
 	private Date receiveDate;
 
