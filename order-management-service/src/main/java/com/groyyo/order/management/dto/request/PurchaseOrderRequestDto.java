@@ -6,6 +6,7 @@ import java.util.List;
 import com.groyyo.core.dto.PurchaseOrder.StyleDto;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -30,7 +31,8 @@ public class PurchaseOrderRequestDto {
 
 	private String buyerName;
 
-	private Double tolerance;
+	@Builder.Default
+	private Double tolerance = 0.0;
 
 	private Date receiveDate;
 
