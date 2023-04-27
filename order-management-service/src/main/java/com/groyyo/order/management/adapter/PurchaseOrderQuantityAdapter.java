@@ -1,15 +1,17 @@
 package com.groyyo.order.management.adapter;
 
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
+import org.apache.commons.lang3.StringUtils;
+
 import com.groyyo.core.dto.PurchaseOrder.PurchaseOrderQuantityResponseDto;
 import com.groyyo.order.management.dto.request.PurchaseOrderQuantityCreateDto;
 import com.groyyo.order.management.dto.request.PurchaseOrderQuantityRequestDto;
 import com.groyyo.order.management.entity.PurchaseOrderQuantity;
-import lombok.experimental.UtilityClass;
-import org.apache.commons.lang3.StringUtils;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
+import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class PurchaseOrderQuantityAdapter {
@@ -17,6 +19,9 @@ public class PurchaseOrderQuantityAdapter {
 	public PurchaseOrderQuantity buildPurchaseOrderQuantityFromRequest(PurchaseOrderQuantityRequestDto purchaseOrderQuantityRequest, String purchaseOrderId, Double tolerance, String factoryId) {
 
 		Long quantity = purchaseOrderQuantityRequest.getQuantity();
+
+		tolerance = Objects.isNull(tolerance) ? 0.0d : tolerance;
+
 		Long targetQuantity = Objects.nonNull(quantity) ? (long) (quantity + (quantity * tolerance) / 100) : 0L;
 
 		return PurchaseOrderQuantity
