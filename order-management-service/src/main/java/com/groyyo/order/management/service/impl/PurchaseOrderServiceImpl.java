@@ -489,15 +489,13 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 			if (Objects.nonNull(purchaseOrderFilterDto.getExFtyDate()))
 				groyyoSpecificationBuilder.with(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_EX_FTY_DATE, CriteriaOperation.DATE_EQ, purchaseOrderFilterDto.getExFtyDate());
 
-			LocalDateTime localDateTime = DateUtil.convertToLocalDate(purchaseOrderFilterDto.getReceiveDate()).atStartOfDay();
-			Date receiveStartDateTime = DateUtil.convertToDate(localDateTime);
-			Date receiveEndDateTime = DateUtil.convertToDate(localDateTime.plusDays(1));
-
-			if (Objects.nonNull(purchaseOrderFilterDto.getReceiveDate()))
+			if (Objects.nonNull(purchaseOrderFilterDto.getReceiveDate())) {
+				LocalDateTime localDateTime = DateUtil.convertToLocalDate(purchaseOrderFilterDto.getReceiveDate()).atStartOfDay();
+				Date receiveStartDateTime = DateUtil.convertToDate(localDateTime);
+				Date receiveEndDateTime = DateUtil.convertToDate(localDateTime.plusDays(1));
 				groyyoSpecificationBuilder.with(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_RECEIVE_DATE, CriteriaOperation.DATE_GTE, receiveStartDateTime);
-
-			if (Objects.nonNull(purchaseOrderFilterDto.getReceiveDate()))
 				groyyoSpecificationBuilder.with(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_RECEIVE_DATE, CriteriaOperation.DATE_LT, receiveEndDateTime);
+			}
 
 			if (StringUtils.isNotBlank(purchaseOrderFilterDto.getPurchaseOrderNumber()))
 				groyyoSpecificationBuilder.with(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_NUMBER, CriteriaOperation.ILIKE,
