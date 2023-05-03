@@ -1,14 +1,5 @@
 package com.groyyo.order.management.adapter;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
-
-import org.apache.commons.lang3.StringUtils;
-
-import com.groyyo.core.base.utils.DateUtil;
 import com.groyyo.core.dto.PurchaseOrder.PurchaseOrderResponseDto;
 import com.groyyo.order.management.dto.request.BulkOrderExcelRequestDto;
 import com.groyyo.order.management.dto.request.BulkPartRequestDto;
@@ -16,15 +7,20 @@ import com.groyyo.order.management.dto.request.BulkPurchaseOrderRequestDto;
 import com.groyyo.order.management.dto.request.PurchaseOrderRequestDto;
 import com.groyyo.order.management.dto.response.PurchaseOrderDetailResponseDto;
 import com.groyyo.order.management.entity.PurchaseOrder;
-
 import lombok.experimental.UtilityClass;
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @UtilityClass
 public class PurchaseOrderAdapter {
 
 	public PurchaseOrder buildPurchaseOrderFromRequest(PurchaseOrderRequestDto purchaseOrderRequestDto, String factoryId) {
-		LocalDate currentDate = LocalDate.now();
-		return PurchaseOrder
+ 		return PurchaseOrder
 				.builder()
 				.name(purchaseOrderRequestDto.getPurchaseOrderNumber())
 				.styleId(Objects.nonNull(purchaseOrderRequestDto.getStyleRequestDto()) ? purchaseOrderRequestDto.getStyleRequestDto().getUuid() : null)
@@ -35,7 +31,7 @@ public class PurchaseOrderAdapter {
 				.buyerId(purchaseOrderRequestDto.getBuyerId())
 				.buyerName(purchaseOrderRequestDto.getBuyerName())
 				.tolerance(Objects.isNull(purchaseOrderRequestDto.getTolerance()) ? 0.0d : purchaseOrderRequestDto.getTolerance())
-				.receiveDate(DateUtil.convertToDate(currentDate.atStartOfDay()))
+				.receiveDate(new Date())
 				.exFtyDate(purchaseOrderRequestDto.getExFtyDate())
 				.seasonId(purchaseOrderRequestDto.getSeasonId())
 				.seasonName(purchaseOrderRequestDto.getSeasonName())
