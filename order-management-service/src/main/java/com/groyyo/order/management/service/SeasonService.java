@@ -52,7 +52,7 @@ public interface SeasonService {
 	/**
 	 * @param seasonByNameMap
 	 */
-	void saveEntityFromCache(Map<String, SeasonResponseDto> seasonByNameMap);
+	void saveEntityFromCache(String factoryId, Map<String, SeasonResponseDto> seasonByNameMap);
 
 	Season findOrCreate(String name);
 

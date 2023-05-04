@@ -203,6 +203,8 @@ multitenancy:
     liquibase:
       changeLog: classpath:changelog/changelog-tenant.yaml
 
+issuerUri: https://auth-dev.groyyo.com/oauth2/jwks
+
 encryption:
   secret: verySecret
   salt: jozo

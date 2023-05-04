@@ -9,7 +9,7 @@ import com.groyyo.order.management.dto.request.CheckersCountResponseDto;
 import java.util.List;
 
 public interface UserService {
-     ResponseDto<List<UserResponseDto>> getUsersByLineType(String factoryId, LineType lineType, QcUserType qcUserType);
+     ResponseDto<List<UserResponseDto>> getUsersByLineType(String orgId, String factoryId, LineType lineType, QcUserType qcUserType);
 
-     CheckersCountResponseDto getUsersCountByLineType(String factoryId, LineType lineType, QcUserType qcUserType);
+     CheckersCountResponseDto getUsersCountByLineType(String orgId, String factoryId, LineType lineType, QcUserType qcUserType);
 }

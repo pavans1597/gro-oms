@@ -87,11 +87,11 @@
 			<artifactId>sql-postgres-jpa</artifactId>
 			<version>${global.version}</version>
 		</dependency>
-		<dependency>
+		<!--<dependency>
 			<groupId>com.groyyo.core</groupId>
 			<artifactId>security</artifactId>
 			<version>${global.version}</version>
-		</dependency>
+		</dependency>-->
 		<dependency>
 			<groupId>com.groyyo.core</groupId>
 			<artifactId>userEntity-client</artifactId>

@@ -1,6 +1,7 @@
 /**
  * 
- */
+ *//*
+
 package com.groyyo.order.management.config;
 
 import com.groyyo.core.multitenancy.multitenancy.interceptor.TenantInterceptor;
@@ -17,14 +18,13 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.groyyo.core.base.http.interceptor.HeaderInterceptor;
-import com.groyyo.core.security.SecurityModuleBuilder;
-import com.groyyo.core.security.interceptor.AuthInterceptor;
-import com.groyyo.core.security.interceptor.UIDInterceptor;
 
+*/
 /**
  * @author pavan
  *
- **/
+ **//*
+
 @Configuration
 public class WebMvcConfig implements WebMvcConfigurer {
 
@@ -110,4 +110,4 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
 		registry.addInterceptor(headerInterceptor());
 	}
-}
+}*/

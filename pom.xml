@@ -27,7 +27,7 @@
 		<module>../core-utils/kafka</module>
 		<module>../core-utils/azureblob</module>
 		<module>../core-utils/master-data-client</module>
-		<module>../core-utils/security</module>
+		<!--<module>../core-utils/security</module>-->
 		<module>../core-utils/user-client</module>
 		<module>../core-utils/file-management-client</module>
 	</modules>

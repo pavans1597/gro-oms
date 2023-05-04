@@ -183,9 +183,18 @@ public class SeasonServiceImpl implements SeasonService {
 	}
 
 	@Override
-	public void saveEntityFromCache(Map<String, SeasonResponseDto> seasonByNameMap) {
+	public void saveEntityFromCache(String factoryId, Map<String, SeasonResponseDto> seasonByNameMap) {
+		log.info("Populating season data for factory id: {}", factoryId);
 
-		List<String> factories = factoryHttpService.getFactoryIds();
+		seasonByNameMap.values().forEach(seasonResponseDto -> {
+
+			seasonResponseDto.setFactoryId(factoryId);
+
+			conditionalSaveSeason(seasonResponseDto);
+
+		});
+
+		/*List<String> factories = factoryHttpService.getFactoryIds();
 
 		if (CollectionUtils.isEmpty(factories)) {
 			log.error("No active factories found in the system to populate data for");
@@ -203,7 +212,7 @@ public class SeasonServiceImpl implements SeasonService {
 				conditionalSaveSeason(seasonResponseDto);
 
 			});
-		});
+		});*/
 
 	}
 

@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import com.groyyo.core.multitenancy.multitenancy.util.TenantContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -30,37 +31,21 @@ public class FactoryHttpServiceImpl implements FactoryHttpService {
 	private FactoryClientApi factoryClientApi;
 
 	@Override
-	public ResponseDto<List<FactoryResponseDto>> getAllFactories() {
-
-		ResponseDto<List<FactoryResponseDto>> factories = null;
+	public ResponseDto<FactoryResponseDto> getFactory() {
+		ResponseDto<FactoryResponseDto> factory = null;
 
 		try {
-
-			factories = factoryClientApi.getAllFactories();
-
+			factory = factoryClientApi.getFactory(TenantContext.getTenantId());
 		} catch (Exception e) {
-
 			log.error("Exception caught while getting factories data from user-service ", e);
 		}
 
-		return factories;
+		return factory;
 	}
 
 	@Override
-	public List<String> getFactoryIds() {
-
-		List<String> factoryIds = new ArrayList<String>();
-
-		ResponseDto<List<FactoryResponseDto>> factoryResponseDto = getAllFactories();
-
-		if (Objects.nonNull(factoryResponseDto) && factoryResponseDto.isStatus()) {
-
-			List<FactoryResponseDto> factoryResponseDtos = factoryResponseDto.getData();
-
-			factoryIds = factoryResponseDtos.stream().map(FactoryResponseDto::getId).collect(Collectors.toList());
-		}
-
-		return factoryIds;
+	public String getFactoryId() {
+		return getFactory().getId();
 	}
 
 }

@@ -48,7 +48,7 @@ public interface FitService {
 	/**
 	 * @param fitByNameMap
 	 */
-	void saveEntityFromCache(Map<String, FitResponseDto> fitByNameMap);
+	void saveEntityFromCache(String factoryId, Map<String, FitResponseDto> fitByNameMap);
 
 	Fit findOrCreate(String name);
 

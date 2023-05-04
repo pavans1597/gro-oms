@@ -21,7 +21,7 @@ public interface SizeService {
 
 	void consumeSize(SizeResponseDto sizeResponseDto);
 
-	void saveEntityFromCache(Map<String, SizeResponseDto> sizeByNameMap);
+	void saveEntityFromCache(String factoryId, Map<String, SizeResponseDto> sizeByNameMap);
 
 	Size findOrCreate(String name);
 

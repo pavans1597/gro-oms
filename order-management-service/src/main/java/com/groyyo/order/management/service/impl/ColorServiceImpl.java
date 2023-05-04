@@ -187,9 +187,18 @@ public class ColorServiceImpl implements ColorService {
 	}
 
 	@Override
-	public void saveEntityFromCache(Map<String, ColorResponseDto> colorByNameMap) {
+	public void saveEntityFromCache(String factoryId, Map<String, ColorResponseDto> colorByNameMap) {
+		log.info("Populating color data for factory id: {}", factoryId);
 
-		List<String> factories = factoryHttpService.getFactoryIds();
+		colorByNameMap.values().forEach(colorResponseDto -> {
+
+			colorResponseDto.setFactoryId(factoryId);
+
+			conditionalSaveColor(colorResponseDto);
+
+		});
+
+		/*List<String> factories = factoryHttpService.getFactoryIds();
 
 		if (CollectionUtils.isEmpty(factories)) {
 			log.error("No active factories found in the system to populate data for");
@@ -207,7 +216,7 @@ public class ColorServiceImpl implements ColorService {
 				conditionalSaveColor(colorResponseDto);
 
 			});
-		});
+		});*/
 
 	}
 

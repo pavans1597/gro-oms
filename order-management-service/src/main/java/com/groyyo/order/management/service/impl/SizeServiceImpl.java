@@ -181,9 +181,17 @@ public class SizeServiceImpl implements SizeService {
 	}
 
 	@Override
-	public void saveEntityFromCache(Map<String, SizeResponseDto> sizeByNameMap) {
+	public void saveEntityFromCache(String factoryId, Map<String, SizeResponseDto> sizeByNameMap) {
+		log.info("Populating size data for factory id: {}", factoryId);
 
-		List<String> factories = factoryHttpService.getFactoryIds();
+		sizeByNameMap.values().forEach(sizeResponseDto -> {
+
+			sizeResponseDto.setFactoryId(factoryId);
+
+			conditionalSaveSize(sizeResponseDto);
+
+		});
+		/*List<String> factories = factoryHttpService.getFactoryIds();
 
 		if (CollectionUtils.isEmpty(factories)) {
 			log.error("No active factories found in the system to populate data for");
@@ -201,7 +209,7 @@ public class SizeServiceImpl implements SizeService {
 				conditionalSaveSize(sizeResponseDto);
 
 			});
-		});
+		});*/
 
 	}
 
