@@ -55,10 +55,10 @@ jdbc:
     idle:
       time:
         excess:
-          connections: 20
+          connections: 2
       timing: 30
     pool:
-      size: '20'
+      size: '2'
   min:
     pool:
       size: '2'
@@ -203,7 +203,7 @@ multitenancy:
     liquibase:
       changeLog: classpath:changelog/changelog-tenant.yaml
 
-issuerUri: https://auth-dev.groyyo.com/oauth2/jwks
+issuerUri: https://authdev.groyyo.com/oauth2/jwks
 
 encryption:
   secret: verySecret

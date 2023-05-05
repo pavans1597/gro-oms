@@ -28,13 +28,13 @@ cache:
 ########## Services URL's ##############
 service:
    user:
-      url: https://groyyoconsoledev.groyyo.com/user-service/
+      url: https://intent-multi.groyyo.com/user-service/
    masterData:
-      url: https://groyyoconsoledev.groyyo.com/master-data-service
+      url: https://intent-multi.groyyo.com/master-data-service
    raven:
       url: https://api.ravenapp.dev/v1
    file_management:
-      url: https://groyyoconsoledev.groyyo.com/file-management-service
+      url: https://intent-multi.groyyo.com/file-management-service
 
 ############## Hibernate Configuration ##############
 hibernate:
@@ -55,10 +55,10 @@ jdbc:
       idle:
          time:
             excess:
-               connections: 20
+               connections: 2
          timing: 30
       pool:
-         size: '20'
+         size: '2'
    min:
       pool:
          size: '2'
@@ -198,7 +198,7 @@ multitenancy:
       liquibase:
          changeLog: classpath:changelog/changelog-tenant.yaml
 
-issuerUri: https://auth-dev.groyyo.com/oauth2/jwks
+issuerUri: https://authdev.groyyo.com/oauth2/jwks
 
 encryption:
    secret: verySecret
