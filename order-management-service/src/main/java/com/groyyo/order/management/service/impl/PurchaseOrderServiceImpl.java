@@ -423,13 +423,13 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 	}
 
 	@Override
-	public PurchaseOrderStatusCountDto getPurchaseOrderStatusCounts(Boolean status, LocalDate startTime, LocalDate endTime) {
+	public PurchaseOrderStatusCountDto getPurchaseOrderStatusCounts(Boolean status, LocalDate startTime, LocalDate endTime,PurchaseOrderStatus purchaseOrderStatus) {
 		PurchaseOrderStatusCountDto purchaseOrderStatusCounts = PurchaseOrderStatusCountDto.builder().build();
 		try {
 			String factoryId = HeaderUtil.getFactoryIdHeaderValue();
 			Date startDate = DateUtil.convertToDate(startTime);
 			Date endDate =DateUtil.convertToDate(LocalDateTime.of(endTime, LocalTime.MAX));;
-			List<PurchaseOrder> purchaseOrderEntities = purchaseOrderDbService.getAllPurchaseOrdersDateWise(status, factoryId, startDate, endDate);
+			List<PurchaseOrder> purchaseOrderEntities = purchaseOrderDbService.getAllPurchaseOrdersDateWise(status, factoryId, startDate, endDate,purchaseOrderStatus);
 
 			if (CollectionUtils.isNotEmpty(purchaseOrderEntities)) {
 
