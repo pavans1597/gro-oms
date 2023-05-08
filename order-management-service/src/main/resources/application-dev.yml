@@ -17,10 +17,10 @@ server:
     include-message: always
     
 ########## Auth Config ##############
-enable:
-  cors: 'true'
-  authorize: 'false'
-  authentication: 'false'
+#enable:
+#  cors: 'true'
+#  authorize: 'false'
+#  authentication: 'false'
 
 ########## Cache Config ##############
 cache:
@@ -187,6 +187,10 @@ multitenancy:
       url: jdbc:postgresql://groyyo-postgres-db-multi.postgres.database.azure.com:5432/master
       username: groyyopgadmin
       password: J-Y@WnAh8nJ#k2D%
+      hikari:
+        maximumPoolSize: 2
+        minimumIdle: 0
+        idleTimeout: 30000
     liquibase:
       enabled: false
   tenant:

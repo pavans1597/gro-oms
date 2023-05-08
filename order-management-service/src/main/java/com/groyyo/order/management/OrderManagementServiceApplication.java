@@ -13,9 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @ComponentScan(basePackages = {"com.groyyo"})
-//@SpringBootApplication(exclude = {LiquibaseAutoConfiguration.class})
 @SpringBootApplication(exclude = { DataSourceAutoConfiguration.class, LiquibaseAutoConfiguration.class })
-//@EnableTransactionManagement
 @EnableAsync
 @EnableTransactionManagement
 public class OrderManagementServiceApplication extends SpringBootServletInitializer {

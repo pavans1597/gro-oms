@@ -8,27 +8,35 @@ import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 @Component
+@Order(Ordered.HIGHEST_PRECEDENCE)
 public class CORSFilter implements Filter {
 
-	public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) throws IOException, ServletException {
+	public void doFilter(ServletRequest req, ServletResponse resp,
+						 FilterChain chain) throws IOException, ServletException {
 
 		log.info("Into the CORS Filter");
 
-		HttpServletResponse response = (HttpServletResponse) res;
+		HttpServletRequest request = (HttpServletRequest) req;
+		HttpServletResponse response = (HttpServletResponse) resp;
 
+		response.setHeader("Access-Control-Allow-Origin", request.getHeader("Origin"));
 		response.setHeader("Access-Control-Allow-Credentials", "true");
-		response.setHeader("Access-Control-Expose-Headers", "Set-Cookie, sameSite");
-		//response.setHeader("Access-Control-Allow-Origin", "http://localhost:3000, http://127.0.0.1:3000, https://groyyoconsoledev.groyyo.com");
+		response.setHeader("Access-Control-Allow-Methods", "PUT, POST, GET, OPTIONS, DELETE");
+		response.setHeader("Access-Control-Max-Age", "3600");
+		response.setHeader("Access-Control-Allow-Headers", "Content-Type, Accept, X-Requested-With, factoryId, Authorization");
 
-		chain.doFilter(req, res);
+		chain.doFilter(req, resp);
 	}
 
 	public void init(FilterConfig filterConfig) {
