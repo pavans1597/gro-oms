@@ -1,12 +1,15 @@
 package com.groyyo.order.management.config;
 
-import com.groyyo.order.management.filter.CORSFilter;
+//import com.groyyo.order.management.filter.CORSFilter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.access.channel.ChannelProcessingFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.List;
 
 @Configuration
 public class SecurityConfig {
@@ -16,6 +19,19 @@ public class SecurityConfig {
 
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    http.cors(c -> {
+      CorsConfiguration corsConfiguration = new CorsConfiguration();
+      corsConfiguration.setAllowedOrigins(List.of("*"));
+      corsConfiguration.setAllowedMethods(List.of("*"));
+      corsConfiguration.setAllowedHeaders(List.of("*"));
+      corsConfiguration.setAllowCredentials(false);
+
+      UrlBasedCorsConfigurationSource configurationSource = new UrlBasedCorsConfigurationSource();
+      configurationSource.registerCorsConfiguration("/**", corsConfiguration);
+
+      c.configurationSource(configurationSource);
+    });
+
     return http
             .oauth2ResourceServer(
                     j -> j.jwt().jwkSetUri(issuerUri)
@@ -38,7 +54,7 @@ public class SecurityConfig {
             .permitAll()
             .anyRequest().authenticated()
             .and()
-            .addFilterBefore(new CORSFilter(), ChannelProcessingFilter.class)
+            //.addFilterBefore(new CORSFilter(), ChannelProcessingFilter.class)
             .build();
   }
 }

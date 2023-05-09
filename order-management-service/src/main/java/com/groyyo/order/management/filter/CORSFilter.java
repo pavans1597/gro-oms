@@ -1,3 +1,4 @@
+/*
 package com.groyyo.order.management.filter;
 
 import java.io.IOException;
@@ -13,6 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import lombok.extern.log4j.Log4j2;
@@ -35,8 +37,6 @@ public class CORSFilter implements Filter {
 		response.setHeader("Access-Control-Allow-Methods", "*");
 		response.setHeader("Access-Control-Max-Age", "3600");
 		response.setHeader("Access-Control-Allow-Headers", "*");
-
-		chain.doFilter(req, resp);
 	}
 
 	public void init(FilterConfig filterConfig) {
@@ -46,3 +46,4 @@ public class CORSFilter implements Filter {
 	}
 
 }
+*/
