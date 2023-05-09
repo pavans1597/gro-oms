@@ -3,22 +3,6 @@
  */
 package com.groyyo.order.management.controller.internal;
 
-import java.time.LocalDate;
-import java.util.List;
-
-import javax.validation.Valid;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.groyyo.core.base.common.dto.ResponseDto;
 import com.groyyo.core.base.http.utils.HeaderUtil;
 import com.groyyo.core.dto.PurchaseOrder.PurchaseOrderStatus;
@@ -26,8 +10,14 @@ import com.groyyo.order.management.dto.request.PurchaseOrderListRequestDto;
 import com.groyyo.order.management.dto.response.PurchaseOrderDetailResponseDto;
 import com.groyyo.order.management.dto.response.PurchaseOrderStatusCountDto;
 import com.groyyo.order.management.service.PurchaseOrderService;
-
 import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
+import java.time.LocalDate;
+import java.util.List;
 
 /**
  * @author nipunaggarwal
@@ -64,11 +54,12 @@ public class InternalPurchaseOrderController {
 	@GetMapping("get/status/counts/date-wise")
 	public ResponseDto<PurchaseOrderStatusCountDto> getAllPurchaseOrderStatusCounts(@RequestParam(value = "status", required = false) Boolean status,
 			@RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-			@RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+			@RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+			@RequestParam(value = "poStatus", required = false) PurchaseOrderStatus purchaseOrderStatus) {
 
 		log.info("Request received to get purchase order status counts with status: {} and startDate: {} and endDate: {}", status, startDate, endDate);
 
-		PurchaseOrderStatusCountDto purchaseOrderStatusCounts = purchaseOrderService.getPurchaseOrderStatusCounts(status, startDate, endDate);
+		PurchaseOrderStatusCountDto purchaseOrderStatusCounts = purchaseOrderService.getPurchaseOrderStatusCounts(status, startDate, endDate,purchaseOrderStatus);
 
 		return ResponseDto.success("Found purchaseOrder status counts in the system", purchaseOrderStatusCounts);
 	}

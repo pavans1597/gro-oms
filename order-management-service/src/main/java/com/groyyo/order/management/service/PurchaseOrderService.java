@@ -1,8 +1,5 @@
 package com.groyyo.order.management.service;
 
-import java.time.LocalDate;
-import java.util.List;
-
 import com.groyyo.core.base.common.dto.PageResponse;
 import com.groyyo.core.dto.PurchaseOrder.PurchaseOrderResponseDto;
 import com.groyyo.core.dto.PurchaseOrder.PurchaseOrderStatus;
@@ -12,6 +9,9 @@ import com.groyyo.order.management.dto.request.PurchaseOrderRequestDto;
 import com.groyyo.order.management.dto.request.PurchaseOrderUpdateDto;
 import com.groyyo.order.management.dto.response.PurchaseOrderDetailResponseDto;
 import com.groyyo.order.management.dto.response.PurchaseOrderStatusCountDto;
+
+import java.time.LocalDate;
+import java.util.List;
 
 public interface PurchaseOrderService {
 
@@ -29,7 +29,7 @@ public interface PurchaseOrderService {
 
 	PurchaseOrderStatusCountDto getPurchaseOrderStatusCounts(Boolean status);
 
-	PurchaseOrderStatusCountDto getPurchaseOrderStatusCounts(Boolean status, LocalDate startDate,LocalDate endDate);
+	PurchaseOrderStatusCountDto getPurchaseOrderStatusCounts(Boolean status, LocalDate startDate,LocalDate endDate,PurchaseOrderStatus purchaseOrderStatus);
 
 
 	/**
