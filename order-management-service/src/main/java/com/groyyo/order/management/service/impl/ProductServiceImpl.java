@@ -79,8 +79,9 @@ public class ProductServiceImpl implements ProductService {
 
 		log.info("Serving request to add a product with request object:{}", productRequestDto);
 
-		runValidations(productRequestDto);
 		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+
+		runValidations(productRequestDto, factoryId);
 
 		Product product = ProductAdapter.buildProductFromRequest(productRequestDto, factoryId);
 
@@ -90,9 +91,6 @@ public class ProductServiceImpl implements ProductService {
 			log.error("Unable to add product for object: {}", productRequestDto);
 			return null;
 		}
-
-		// publishProduct(productResponseDto, KafkaConstants.KAFKA_PRODUCT_TYPE,
-		// KafkaConstants.KAFKA_PRODUCT_SUBTYPE_CREATE, kafkaMasterDataUpdatesTopic);
 
 		return ProductAdapter.buildResponseFromEntity(product);
 	}
@@ -109,14 +107,11 @@ public class ProductServiceImpl implements ProductService {
 			return null;
 		}
 
-		runValidations(productRequestDto);
+		runValidations(productRequestDto, null);
 
 		product = ProductAdapter.cloneProductWithRequest(productRequestDto, product);
 
 		productDbService.saveProduct(product);
-
-		// publishProduct(productResponseDto, KafkaConstants.KAFKA_PRODUCT_TYPE,
-		// KafkaConstants.KAFKA_PRODUCT_SUBTYPE_UPDATE, kafkaMasterDataUpdatesTopic);
 
 		return ProductAdapter.buildResponseFromEntity(product);
 	}
@@ -205,19 +200,19 @@ public class ProductServiceImpl implements ProductService {
 
 	}
 
-	private boolean isEntityExistsWithName(String name) {
+	private boolean isEntityExistsWithName(String name, String factoryId) {
 
-		return StringUtils.isNotBlank(name) && productDbService.isEntityExistsByName(name);
+		return StringUtils.isNotBlank(name) && StringUtils.isBlank(factoryId) ? productDbService.isEntityExistsByName(name) : Objects.nonNull(productDbService.findByNameAndFactoryId(name, factoryId));
 	}
 
-	private void runValidations(ProductRequestDto productRequestDto) {
+	private void runValidations(ProductRequestDto productRequestDto, String factoryId) {
 
-		validateName(productRequestDto);
+		validateName(productRequestDto, factoryId);
 	}
 
-	private void validateName(ProductRequestDto productRequestDto) {
+	private void validateName(ProductRequestDto productRequestDto, String factoryId) {
 
-		if (isEntityExistsWithName(productRequestDto.getName())) {
+		if (isEntityExistsWithName(productRequestDto.getName(), factoryId)) {
 			String errorMsg = "Product cannot be created/updated as record already exists with name: " + productRequestDto.getName();
 			throw new RecordExistsException(errorMsg);
 		}

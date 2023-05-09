@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import com.groyyo.order.management.adapter.BuyerAdapter;
-import com.groyyo.order.management.entity.Buyer;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,9 +15,11 @@ import com.groyyo.core.base.exception.RecordExistsException;
 import com.groyyo.core.base.http.utils.HeaderUtil;
 import com.groyyo.core.kafka.dto.KafkaDTO;
 import com.groyyo.core.kafka.producer.NotificationProducer;
+import com.groyyo.order.management.adapter.BuyerAdapter;
 import com.groyyo.order.management.db.service.BuyerDbService;
 import com.groyyo.order.management.dto.request.BuyerRequestDto;
 import com.groyyo.order.management.dto.response.BuyerResponseDto;
+import com.groyyo.order.management.entity.Buyer;
 import com.groyyo.order.management.service.BuyerService;
 
 import lombok.extern.log4j.Log4j2;
@@ -75,8 +75,10 @@ public class BuyerServiceImpl implements BuyerService {
 
 		log.info("Serving request to add a buyer with request object:{}", buyerRequestDto);
 
-		runValidations(buyerRequestDto);
 		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+
+		runValidations(buyerRequestDto, factoryId);
+
 		Buyer buyer = BuyerAdapter.buildBuyerFromRequest(buyerRequestDto, factoryId);
 
 		buyer = buyerDbService.saveBuyer(buyer);
@@ -85,9 +87,6 @@ public class BuyerServiceImpl implements BuyerService {
 			log.error("Unable to add buyer for object: {}", buyerRequestDto);
 			return null;
 		}
-
-		// publishBuyer(buyerResponseDto, KafkaConstants.KAFKA_SIZE_TYPE,
-		// KafkaConstants.KAFKA_SIZE_SUBTYPE_CREATE, kafkaMasterDataUpdatesTopic);
 
 		return BuyerAdapter.buildResponseFromEntity(buyer);
 	}
@@ -104,15 +103,13 @@ public class BuyerServiceImpl implements BuyerService {
 			return null;
 		}
 
-		runValidations(buyerRequestDto);
+		runValidations(buyerRequestDto, null);
 
 		buyer = BuyerAdapter.cloneBuyerWithRequest(buyerRequestDto, buyer);
 
 		buyerDbService.saveBuyer(buyer);
 
 		BuyerResponseDto buyerResponseDto = BuyerAdapter.buildResponseFromEntity(buyer);
-
-//        publishBuyer(buyerResponseDto, KafkaConstants.KAFKA_SIZE_TYPE, KafkaConstants.KAFKA_SIZE_SUBTYPE_UPDATE, kafkaMasterDataUpdatesTopic);
 
 		return buyerResponseDto;
 	}
@@ -155,20 +152,20 @@ public class BuyerServiceImpl implements BuyerService {
 		buyerDbService.saveBuyer(buyer);
 	}
 
-	private boolean isEntityExistsWithName(String name) {
+	private boolean isEntityExistsWithName(String name, String factoryId) {
 
-		return StringUtils.isNotBlank(name) && buyerDbService.isEntityExistsByName(name);
+		return StringUtils.isNotBlank(name) && StringUtils.isBlank(factoryId) ? buyerDbService.isEntityExistsByName(name) : Objects.nonNull(buyerDbService.findByNameAndFactoryId(name, factoryId));
 	}
 
-	private void runValidations(BuyerRequestDto buyerRequestDto) {
+	private void runValidations(BuyerRequestDto buyerRequestDto, String factoryId) {
 
-		validateName(buyerRequestDto);
+		validateName(buyerRequestDto, factoryId);
 	}
 
-	private void validateName(BuyerRequestDto buyerRequestDto) {
+	private void validateName(BuyerRequestDto buyerRequestDto, String factoryId) {
 
-		if (isEntityExistsWithName(buyerRequestDto.getName())) {
-			String errorMsg = "Buyer cannot be created/updated as record already exists with name: " + buyerRequestDto.getName();
+		if (isEntityExistsWithName(buyerRequestDto.getName(), factoryId)) {
+			String errorMsg = "Buyer cannot be created/updated as record already exists with name: " + buyerRequestDto.getName() + " for factory id: " + factoryId;
 			throw new RecordExistsException(errorMsg);
 		}
 	}

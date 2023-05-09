@@ -46,6 +46,7 @@ public class SizeServiceImpl implements SizeService {
 	public List<SizeResponseDto> getAllSizes(Boolean status) {
 
 		log.info("Serving request to get all sizes");
+		
 		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
 
 		List<Size> sizeEntities = Objects.isNull(status) ? sizeDbService.getAllSizes(factoryId)
@@ -79,8 +80,9 @@ public class SizeServiceImpl implements SizeService {
 
 		log.info("Serving request to add a size with request object:{}", sizeRequestDto);
 
-		runValidations(sizeRequestDto);
 		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+
+		runValidations(sizeRequestDto, factoryId);
 
 		Size size = SizeAdapter.buildSizeFromRequest(sizeRequestDto, factoryId);
 
@@ -90,9 +92,6 @@ public class SizeServiceImpl implements SizeService {
 			log.error("Unable to add size for object: {}", sizeRequestDto);
 			return null;
 		}
-
-		// publishSize(sizeResponseDto, KafkaConstants.KAFKA_SIZE_TYPE,
-		// KafkaConstants.KAFKA_SIZE_SUBTYPE_CREATE, kafkaMasterDataUpdatesTopic);
 
 		return SizeAdapter.buildResponseFromEntity(size);
 	}
@@ -109,14 +108,11 @@ public class SizeServiceImpl implements SizeService {
 			return null;
 		}
 
-		runValidations(sizeRequestDto);
+		runValidations(sizeRequestDto, null);
 
 		size = SizeAdapter.cloneSizeWithRequest(sizeRequestDto, size);
 
 		sizeDbService.saveSize(size);
-
-		// publishSize(sizeResponseDto, KafkaConstants.KAFKA_SIZE_TYPE,
-		// KafkaConstants.KAFKA_SIZE_SUBTYPE_UPDATE, kafkaMasterDataUpdatesTopic);
 
 		return SizeAdapter.buildResponseFromEntity(size);
 	}
@@ -168,6 +164,7 @@ public class SizeServiceImpl implements SizeService {
 
 	@Override
 	public void consumeSize(SizeResponseDto sizeResponseDto) {
+		
 		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
 
 		Size size = SizeAdapter.buildSizeFromResponse(sizeResponseDto, factoryId);
@@ -205,20 +202,20 @@ public class SizeServiceImpl implements SizeService {
 
 	}
 
-	private boolean isEntityExistsWithName(String name) {
+	private boolean isEntityExistsWithName(String name, String factoryId) {
 
-		return StringUtils.isNotBlank(name) && sizeDbService.isEntityExistsByName(name);
+		return StringUtils.isNotBlank(name) && StringUtils.isBlank(factoryId) ? sizeDbService.isEntityExistsByName(name) : Objects.nonNull(sizeDbService.findByNameAndFactoryId(name, factoryId));
 	}
 
-	private void runValidations(SizeRequestDto sizeRequestDto) {
+	private void runValidations(SizeRequestDto sizeRequestDto, String factoryId) {
 
-		validateName(sizeRequestDto);
+		validateName(sizeRequestDto, factoryId);
 	}
 
-	private void validateName(SizeRequestDto sizeRequestDto) {
+	private void validateName(SizeRequestDto sizeRequestDto, String factoryId) {
 
-		if (isEntityExistsWithName(sizeRequestDto.getName())) {
-			String errorMsg = "Size cannot be created/updated as record already exists with name: " + sizeRequestDto.getName();
+		if (isEntityExistsWithName(sizeRequestDto.getName(), factoryId)) {
+			String errorMsg = "Size cannot be created/updated as record already exists with name: " + sizeRequestDto.getName() + " for factory id: " + factoryId;
 			throw new RecordExistsException(errorMsg);
 		}
 	}
