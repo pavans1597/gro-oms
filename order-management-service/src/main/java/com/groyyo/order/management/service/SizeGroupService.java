@@ -25,7 +25,7 @@ public interface SizeGroupService {
 	/**
 	 * @param sizeGroupByNameMap
 	 */
-	void saveEntityFromCache(Map<String, SizeGroupResponseDto> sizeGroupByNameMap);
+	void saveEntityFromCache(String factoryId, Map<String, SizeGroupResponseDto> sizeGroupByNameMap);
 
 	SizeGroup findOrCreate(String name, List<Size> sizes);
 

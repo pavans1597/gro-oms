@@ -28,13 +28,13 @@ cache:
 ########## Services URL's ##############
 service:
    user:
-      url: https://groyyoconsoledev.groyyo.com/user-service/
+      url: https://intent-multi.groyyo.com/user-service/
    masterData:
-      url: https://groyyoconsoledev.groyyo.com/master-data-service
+      url: https://intent-multi.groyyo.com/master-data-service
    raven:
       url: https://api.ravenapp.dev/v1
    file_management:
-      url: https://groyyoconsoledev.groyyo.com/file-management-service
+      url: https://intent-multi.groyyo.com/file-management-service
 
 ############## Hibernate Configuration ##############
 hibernate:
@@ -55,10 +55,10 @@ jdbc:
       idle:
          time:
             excess:
-               connections: 20
+               connections: 2
          timing: 30
       pool:
-         size: '20'
+         size: '2'
    min:
       pool:
          size: '2'
@@ -90,6 +90,14 @@ jdbc:
 
 ################## Kafka Properties ####################
 spring:
+   jpa:
+      show-sql: true
+      properties:
+         hibernate:
+            dialect: org.hibernate.dialect.PostgreSQLDialect
+      hibernate:
+         ddl-auto: update
+      open-in-view: false
    kafka:
       consumer:
          fetch-max-wait: 100ms
@@ -159,3 +167,43 @@ packages:
    entityManager: com.groyyo.order.management.entity
 
 debug: false
+
+######################### multi-tenancy config #####################################
+multitenancy:
+   datasource-cache:
+      maximumSize: 100
+      expireAfterAccess: 10
+   master:
+      repository:
+         packages: com.groyyo.core.multitenancy.multitenancy.repository
+      entityManager:
+         packages: com.groyyo.core.multitenancy.multitenancy.domain.entity
+      datasource:
+         url: jdbc:postgresql://localhost:5432/master
+         username: postgres
+         password: secret
+      liquibase:
+         enabled: false
+   tenant:
+      repository:
+         packages: com.groyyo.order.management
+      entityManager:
+         packages: com.groyyo.order.management.entity
+      datasource:
+         url-prefix: jdbc:postgresql://localhost:5432/
+         hikari:
+            maximumPoolSize: 2
+            minimumIdle: 0
+            idleTimeout: 30000
+      liquibase:
+         changeLog: classpath:changelog/changelog-tenant.yaml
+
+issuerUri: https://authdev.groyyo.com/oauth2/jwks
+
+encryption:
+   secret: verySecret
+   salt: jozo
+
+azure:
+   storage:
+      ConnectionString: DefaultEndpointsProtocol=https;AccountName=groyyotenantstorage;AccountKey=Z0C14b9x66WuW5VcuAgt0vKMaC7bVlxqxQXcGaoZvyaCE+ZTKuqs39BWbjQhx9wASjUn86wRbIXP+AStnElvag==;EndpointSuffix=core.windows.net

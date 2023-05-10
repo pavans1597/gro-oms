@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
+import com.groyyo.core.multitenancy.multitenancy.util.TenantContext;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
@@ -175,7 +176,7 @@ public class CacheServiceImpl implements CacheService {
 			break;
 
 		case CacheConstants.COLOR:
-			colorService.saveEntityFromCache(masterDataLocalCache.getColorByNameMap());
+			colorService.saveEntityFromCache(TenantContext.getTenantId(), masterDataLocalCache.getColorByNameMap());
 			break;
 
 		case CacheConstants.DEFECT:
@@ -183,15 +184,15 @@ public class CacheServiceImpl implements CacheService {
 			break;
 
 		case CacheConstants.FIT:
-			fitService.saveEntityFromCache(masterDataLocalCache.getFitByNameMap());
+			fitService.saveEntityFromCache(TenantContext.getTenantId(), masterDataLocalCache.getFitByNameMap());
 			break;
 
 		case CacheConstants.PART:
-			partService.saveEntityFromCache(masterDataLocalCache.getPartByNameMap());
+			partService.saveEntityFromCache(TenantContext.getTenantId(), masterDataLocalCache.getPartByNameMap());
 			break;
 
 		case CacheConstants.PRODUCT:
-			productService.saveEntityFromCache(masterDataLocalCache.getProductByNameMap());
+			productService.saveEntityFromCache(TenantContext.getTenantId(), masterDataLocalCache.getProductByNameMap());
 			break;
 
 		case CacheConstants.PRODUCT_DEFECT:
@@ -199,15 +200,15 @@ public class CacheServiceImpl implements CacheService {
 			break;
 
 		case CacheConstants.SEASON:
-			seasonService.saveEntityFromCache(masterDataLocalCache.getSeasonByNameMap());
+			seasonService.saveEntityFromCache(TenantContext.getTenantId(), masterDataLocalCache.getSeasonByNameMap());
 			break;
 
 		case CacheConstants.SIZE:
-			sizeService.saveEntityFromCache(masterDataLocalCache.getSizeByNameMap());
+			sizeService.saveEntityFromCache(TenantContext.getTenantId(), masterDataLocalCache.getSizeByNameMap());
 			break;
 
 		case CacheConstants.SIZE_GROUP:
-			sizeGroupService.saveEntityFromCache(masterDataLocalCache.getSizeGroupByNameMap());
+			sizeGroupService.saveEntityFromCache(TenantContext.getTenantId(), masterDataLocalCache.getSizeGroupByNameMap());
 			break;
 
 		default:

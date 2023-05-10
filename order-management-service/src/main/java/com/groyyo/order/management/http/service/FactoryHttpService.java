@@ -17,11 +17,11 @@ public interface FactoryHttpService {
 	/**
 	 * @return
 	 */
-	ResponseDto<List<FactoryResponseDto>> getAllFactories();
+	ResponseDto<FactoryResponseDto> getFactory();
 
 	/**
 	 * @return
 	 */
-	List<String> getFactoryIds();
+	String getFactoryId();
 
 }

@@ -30,11 +30,11 @@ public class NotificationTriggerServiceImpl implements NotificationTriggerServic
     private UserManagementHttpService userManagementHttpService;
 
     @Override
-    public void notifyOrderCompletion(PurchaseOrder purchaseOrder) {
+    public void notifyOrderCompletion(String orgId, PurchaseOrder purchaseOrder) {
         String factoryId = HeaderUtil.getFactoryIdHeaderValue();
         //TODO : based on product manager requirement we decide which api to call
 
-        ResponseDto<List<UserResponseDto>> usersByRole = userManagementHttpService.getUsersByDepartmentAndRole(factoryId,"FINISHING", QcUserType.CHECKER);
+        ResponseDto<List<UserResponseDto>> usersByRole = userManagementHttpService.getUsersByDepartmentAndRole(orgId, factoryId,"FINISHING", QcUserType.CHECKER);
         List<String> userIds = usersByRole.getData().stream().map(UserResponseDto::getId).collect(Collectors.toList());
 
         PushNotificationDTO pushNotificationDTO = PushNotificationAdapter.buildPushNotificationDto(

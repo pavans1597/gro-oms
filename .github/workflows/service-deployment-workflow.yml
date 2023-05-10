@@ -89,6 +89,7 @@ jobs:
         with:
           repository: groyyo/core-utils
           token: ${{ secrets.GH_ACCESS_TOKEN }}
+          ref: feature/multi
           path: core-utils
 
       - name: Pull origin
@@ -126,7 +127,7 @@ jobs:
         run: |
           #Install yq
           sudo snap install yq
-          path="order-management-service/src/main/resources/application-prod.yml"
+          path="notification-service/src/main/resources/application-prod.yml"
 
           yq -i '.jdbc.slave.username = "${{secrets.PROD_DB_USERNAME}}"' ${path}
           yq -i '.jdbc.slave.password = "${{secrets.PROD_DB_PASSWORD}}"' ${path}
