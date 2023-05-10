@@ -188,9 +188,10 @@ multitenancy:
       username: groyyopgadmin
       password: J-Y@WnAh8nJ#k2D%
       hikari:
-        maximumPoolSize: 2
-        minimumIdle: 0
-        idleTimeout: 30000
+        connectionTimeout: 10000
+        minimumIdle: 2
+        idleTimeout: 10000
+        maxLifetime: 30000
     liquibase:
       enabled: false
   tenant:
@@ -201,9 +202,10 @@ multitenancy:
     datasource:
       url-prefix: jdbc:postgresql://groyyo-postgres-db-multi.postgres.database.azure.com:5432/
       hikari:
-        maximumPoolSize: 2
-        minimumIdle: 0
-        idleTimeout: 30000
+        connectionTimeout: 10000
+        minimumIdle: 2
+        idleTimeout: 10000
+        maxLifetime: 30000
     liquibase:
       changeLog: classpath:changelog/changelog-tenant.yaml
 
