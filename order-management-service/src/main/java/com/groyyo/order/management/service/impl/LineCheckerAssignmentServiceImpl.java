@@ -80,7 +80,9 @@ public class LineCheckerAssignmentServiceImpl implements LineCheckerAssignmentSe
 				 */
 				purchaseOrderService.changeStatusOfPurchaseOrder(purchaseOrderId, PurchaseOrderStatus.ONGOING, Boolean.TRUE);
 
-				publishQcTaskAssignment(purchaseOrderId);
+				List<UserLineDetails> savedUserLineDetailsAssignment = LineCheckerAssignmentAdapter.buildUserLineDetailsFromEntities(lineCheckerAssignments);
+
+				publishQcTaskAssignment(purchaseOrderId,savedUserLineDetailsAssignment);
 
 			}
 
@@ -117,6 +119,23 @@ public class LineCheckerAssignmentServiceImpl implements LineCheckerAssignmentSe
 		purchaseOrderPublisher.publishQcTaskAssignment(purchaseOrderResponseDto);
 	}
 
+	public void publishQcTaskAssignment(String purchaseOrderId,List<UserLineDetails> userLineDetailsAssignments) {
+		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+
+		PurchaseOrderResponseDto purchaseOrderResponseDto = purchaseOrderService.getPurchaseOrderById(purchaseOrderId, Boolean.FALSE);
+
+		List<PurchaseOrderQuantity> allPOQuantities = purchaseOrderQuantityDbService.getAllPurchaseOrderQuantitiesForPurchaseOrder(purchaseOrderId, factoryId);
+
+		List<ColourQuantityResponseDto> colourQuantityResponseDto = allPOQuantities.stream().map(this::buildColourQuantityResponse).collect(Collectors.toList());
+
+		purchaseOrderResponseDto.setColourQuantityResponseDtos(colourQuantityResponseDto);
+
+		purchaseOrderResponseDto.setNewUserLineDetails(userLineDetailsAssignments);
+
+		log.info("Going to publish purchase order dto: {}", purchaseOrderResponseDto);
+
+		purchaseOrderPublisher.publishQcTaskAssignment(purchaseOrderResponseDto);
+	}
 	private ColourQuantityResponseDto buildColourQuantityResponse(PurchaseOrderQuantity po) {
 		return ColourQuantityResponseDto
 				.builder()

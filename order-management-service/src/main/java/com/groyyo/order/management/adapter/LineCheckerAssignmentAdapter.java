@@ -22,6 +22,8 @@ public class LineCheckerAssignmentAdapter {
 				.lineId(lineCheckerAssignment.getLineId())
 				.lineName(lineCheckerAssignment.getLineName())
 				.lineType(lineCheckerAssignment.getLineType())
+				.colour(lineCheckerAssignment.getColourName())
+				.quantity(lineCheckerAssignment.getQuantity())
 				.build();
 	}
 

@@ -273,8 +273,8 @@ public class PurchaseOrderQuantityServiceImpl implements PurchaseOrderQuantitySe
 
 	@Override
 	public List<ColourQuantityResponseDto> getColoursByPoID(String purchaseOrderId, String factoryId, LineType lineType) {
-		List<ColourQuantityResponseDto> colourQuantityResponseDtos = new ArrayList<>();
 
+		HashMap<String,Long> colourQuantityMap = new HashMap<>();
 		// Fetch purchase order quantities and line checker assignments
 		List<PurchaseOrderQuantity> quantityResponseDtos = purchaseOrderQuantityDbService.getAllPurchaseOrderQuantitiesForPurchaseOrder(purchaseOrderId, factoryId);
 		List<LineCheckerAssignment> lineCheckerAssignments = lineCheckerAssignmentDbService.getLineCheckerAssignmentForPurchaseOrder(purchaseOrderId, factoryId);
@@ -297,15 +297,20 @@ public class PurchaseOrderQuantityServiceImpl implements PurchaseOrderQuantitySe
 			}
 
 			if (quantity > 0) {
-				ColourQuantityResponseDto responseDto = ColourQuantityResponseDto.builder()
-						.colourName(colourName)
-						.quantity(quantity)
-						.build();
-				colourQuantityResponseDtos.add(responseDto);
+				colourQuantityMap.put(colourName,colourQuantityMap.getOrDefault(colourName,0L)+quantity);
 			}
 		}
 
-		return colourQuantityResponseDtos;
+		List<ColourQuantityResponseDto> colourQuantityResponseDtoList = colourQuantityMap.entrySet()
+				.stream()
+				.map(entry -> ColourQuantityResponseDto.builder()
+						.colourName(entry.getKey())
+						.quantity(entry.getValue())
+						.build())
+				.collect(Collectors.toList());
+
+
+		return colourQuantityResponseDtoList;
 	}
 
 
