@@ -1,20 +1,9 @@
 package com.groyyo.order.management.service.impl;
 
-import java.util.ArrayList;
-import java.util.InputMismatchException;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Collectors;
-
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.groyyo.core.base.exception.NoRecordException;
 import com.groyyo.core.base.exception.PreconditionFailedException;
 import com.groyyo.core.base.http.utils.HeaderUtil;
+import com.groyyo.core.dto.PurchaseOrder.ColourQuantityResponseDto;
 import com.groyyo.core.dto.PurchaseOrder.PurchaseOrderResponseDto;
 import com.groyyo.core.dto.PurchaseOrder.PurchaseOrderStatus;
 import com.groyyo.core.dto.PurchaseOrder.UserLineDetails;
@@ -22,14 +11,22 @@ import com.groyyo.core.user.dto.response.LineUserResponseDto;
 import com.groyyo.order.management.adapter.LineCheckerAssignmentAdapter;
 import com.groyyo.order.management.db.service.LineCheckerAssignmentDbService;
 import com.groyyo.order.management.db.service.PurchaseOrderDbService;
+import com.groyyo.order.management.db.service.PurchaseOrderQuantityDbService;
 import com.groyyo.order.management.dto.request.LineCheckerAssignmentRequestDto;
 import com.groyyo.order.management.entity.LineCheckerAssignment;
 import com.groyyo.order.management.entity.PurchaseOrder;
+import com.groyyo.order.management.entity.PurchaseOrderQuantity;
 import com.groyyo.order.management.kafka.publisher.PurchaseOrderPublisher;
 import com.groyyo.order.management.service.LineCheckerAssignmentService;
 import com.groyyo.order.management.service.PurchaseOrderService;
-
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Log4j2
@@ -37,6 +34,8 @@ public class LineCheckerAssignmentServiceImpl implements LineCheckerAssignmentSe
 
 	@Autowired
 	private PurchaseOrderService purchaseOrderService;
+	@Autowired
+	private PurchaseOrderQuantityDbService purchaseOrderQuantityDbService;
 
 	@Autowired
 	private PurchaseOrderDbService purchaseOrderDbService;
@@ -103,12 +102,26 @@ public class LineCheckerAssignmentServiceImpl implements LineCheckerAssignmentSe
 
 	@Override
 	public void publishQcTaskAssignment(String purchaseOrderId) {
+		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
 
 		PurchaseOrderResponseDto purchaseOrderResponseDto = purchaseOrderService.getPurchaseOrderById(purchaseOrderId, Boolean.FALSE);
+
+		List<PurchaseOrderQuantity> allPOQuantities = purchaseOrderQuantityDbService.getAllPurchaseOrderQuantitiesForPurchaseOrder(purchaseOrderId, factoryId);
+
+		List<ColourQuantityResponseDto> colourQuantityResponseDto = allPOQuantities.stream().map(this::buildColourQuantityResponse).collect(Collectors.toList());
+
+		purchaseOrderResponseDto.setColourQuantityResponseDtos(colourQuantityResponseDto);
 
 		log.info("Going to publish purchase order dto: {}", purchaseOrderResponseDto);
 
 		purchaseOrderPublisher.publishQcTaskAssignment(purchaseOrderResponseDto);
+	}
+
+	private ColourQuantityResponseDto buildColourQuantityResponse(PurchaseOrderQuantity po) {
+		return ColourQuantityResponseDto
+				.builder()
+				.quantity(po.getQuantity())
+				.colourName(po.getColourName()).build();
 	}
 
 	@Override
