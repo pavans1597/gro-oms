@@ -274,42 +274,31 @@ public class PurchaseOrderQuantityServiceImpl implements PurchaseOrderQuantitySe
 	@Override
 	public List<ColourQuantityResponseDto> getColoursByPoID(String purchaseOrderId, String factoryId, LineType lineType) {
 
-		HashMap<String,Long> colourQuantityMap = new HashMap<>();
 		HashMap<String,Long> colourAssignedQuantityMap = new HashMap<>();
 
-		// Fetch purchase order quantities and line checker assignments
 		List<PurchaseOrderQuantity> quantityResponseDtos = purchaseOrderQuantityDbService.getAllPurchaseOrderQuantitiesForPurchaseOrder(purchaseOrderId, factoryId);
 		List<LineCheckerAssignment> lineCheckerAssignments = lineCheckerAssignmentDbService.getLineCheckerAssignmentForPurchaseOrder(purchaseOrderId, factoryId);
-		// Create a set of line checker assignment colour names for faster lookup
-		Set<String> assignedColours = lineCheckerAssignments.stream()
-				.map(LineCheckerAssignment::getColourName)
-				.collect(Collectors.toSet());
-		colourAssignedQuantityMap = (HashMap<String, Long>) lineCheckerAssignments.stream()
+
+		colourAssignedQuantityMap = (HashMap<String, Long>) lineCheckerAssignments.stream().filter(lca -> lca.getLineType().equals(lineType))
 				.collect(Collectors.groupingBy(LineCheckerAssignment::getColourName, Collectors.summingLong(LineCheckerAssignment::getQuantity)));
 
 
-		for (PurchaseOrderQuantity purchaseOrderQuantity : quantityResponseDtos) {
-			String colourName = purchaseOrderQuantity.getColourName();
-			Long quantity = purchaseOrderQuantity.getQuantity();
-
-			if (assignedColours.contains(colourName)) {
-				Long assignedQuantity = colourAssignedQuantityMap.getOrDefault(colourName,0l);
-				quantity -= assignedQuantity;
-			}
-
-			if (quantity > 0) {
-				colourQuantityMap.put(colourName,colourQuantityMap.getOrDefault(colourName,0L)+quantity);
-			}
-		}
-
-		List<ColourQuantityResponseDto> colourQuantityResponseDtoList = colourQuantityMap.entrySet()
+		HashMap<String, Long> finalColourAssignedQuantityMap = colourAssignedQuantityMap;
+//		finalColourAssignedQuantityMap.getOrDefault(quantity.getColourName(), 0L)
+		List<ColourQuantityResponseDto> colourQuantityResponseDtoList = quantityResponseDtos.stream()
+				.collect(Collectors.groupingBy(
+						PurchaseOrderQuantity::getColourName,
+						Collectors.summingLong(
+								quantity -> quantity.getQuantity()
+						)
+				))
+				.entrySet()
 				.stream()
 				.map(entry -> ColourQuantityResponseDto.builder()
 						.colourName(entry.getKey())
-						.quantity(entry.getValue())
-						.build())
+						.quantity( Math.max(entry.getValue() - finalColourAssignedQuantityMap.getOrDefault(entry.getKey(), 0L),0))
+						.build()).filter(cqrd -> cqrd.getQuantity() > 0 )
 				.collect(Collectors.toList());
-
 
 		return colourQuantityResponseDtoList;
 	}
