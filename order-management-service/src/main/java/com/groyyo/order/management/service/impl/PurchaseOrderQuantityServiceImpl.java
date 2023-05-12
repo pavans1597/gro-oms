@@ -5,6 +5,7 @@ import com.groyyo.core.base.exception.RecordExistsException;
 import com.groyyo.core.base.http.utils.HeaderUtil;
 import com.groyyo.core.dto.PurchaseOrder.ColourQuantityResponseDto;
 import com.groyyo.core.dto.PurchaseOrder.PurchaseOrderQuantityResponseDto;
+import com.groyyo.core.dto.userservice.LineType;
 import com.groyyo.core.sqlPostgresJpa.specification.utils.CriteriaOperation;
 import com.groyyo.core.sqlPostgresJpa.specification.utils.GroyyoSpecificationBuilder;
 import com.groyyo.order.management.adapter.PurchaseOrderQuantityAdapter;
@@ -271,7 +272,7 @@ public class PurchaseOrderQuantityServiceImpl implements PurchaseOrderQuantitySe
 	}
 
 	@Override
-	public List<ColourQuantityResponseDto> getColoursByPoID(String purchaseOrderId, String factoryId) {
+	public List<ColourQuantityResponseDto> getColoursByPoID(String purchaseOrderId, String factoryId, LineType lineType) {
 		List<ColourQuantityResponseDto> colourQuantityResponseDtos = new ArrayList<>();
 
 		// Fetch purchase order quantities and line checker assignments
@@ -289,7 +290,7 @@ public class PurchaseOrderQuantityServiceImpl implements PurchaseOrderQuantitySe
 
 			if (assignedColours.contains(colourName)) {
 				Long assignedQuantity = lineCheckerAssignments.stream()
-						.filter(assignment -> assignment.getColourName().equalsIgnoreCase(colourName))
+						.filter(assignment -> assignment.getColourName().equalsIgnoreCase(colourName) && assignment.getLineType().equals(lineType) )
 						.mapToLong(LineCheckerAssignment::getQuantity)
 						.sum();
 				quantity -= assignedQuantity;

@@ -2,6 +2,7 @@ package com.groyyo.order.management.service;
 
 import com.groyyo.core.dto.PurchaseOrder.ColourQuantityResponseDto;
 import com.groyyo.core.dto.PurchaseOrder.PurchaseOrderQuantityResponseDto;
+import com.groyyo.core.dto.userservice.LineType;
 import com.groyyo.order.management.dto.filter.PurchaseOrderFilterDto;
 import com.groyyo.order.management.dto.request.PurchaseOrderQuantityCreateDto;
 import com.groyyo.order.management.dto.request.PurchaseOrderQuantityRequestDto;
@@ -60,5 +61,5 @@ public interface PurchaseOrderQuantityService {
 	 */
 	void getPurchaseOrderIdsForQuantitiesAndSearch(PurchaseOrderFilterDto purchaseOrderFilterDto);
 
-	List<ColourQuantityResponseDto> getColoursByPoID(String purchaseOrderId, String factoryId);
+	List<ColourQuantityResponseDto> getColoursByPoID(String purchaseOrderId, String factoryId, LineType lineType);
 }

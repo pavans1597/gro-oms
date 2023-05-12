@@ -1,20 +1,5 @@
 package com.groyyo.order.management.controller;
 
-import java.util.List;
-import java.util.Objects;
-
-import javax.validation.Valid;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.groyyo.core.base.common.dto.PageResponse;
 import com.groyyo.core.base.common.dto.ResponseDto;
 import com.groyyo.core.base.http.utils.HeaderUtil;
@@ -29,8 +14,13 @@ import com.groyyo.order.management.dto.response.PurchaseOrderStatusCountDto;
 import com.groyyo.order.management.entity.LineCheckerAssignment;
 import com.groyyo.order.management.service.LineCheckerAssignmentService;
 import com.groyyo.order.management.service.PurchaseOrderService;
-
 import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
+import java.util.List;
+import java.util.Objects;
 
 @Log4j2
 @RestController
@@ -125,9 +115,11 @@ public class PurchaseOrderController {
 
 		log.info("Request received to update assign Checkers: {}", checkerAssignDto);
 
-		String factoryIdHeaderValue = HeaderUtil.getFactoryIdHeaderValue();
+		String factoryIdHeaderValue = HeaderUtil.getFactoryIdHeaderValue() ;
 
-		List<LineCheckerAssignment> lineCheckerAssignments = lineCheckerAssignmentService.lineCheckerAssignment(checkerAssignDto, factoryIdHeaderValue);
+		 List<LineCheckerAssignment> lineCheckerAssignments = (Objects.nonNull(factoryIdHeaderValue))?
+				 lineCheckerAssignmentService.lineCheckerAssignment(checkerAssignDto, factoryIdHeaderValue):
+				 null;
 
 		return Objects.isNull(lineCheckerAssignments) ? ResponseDto.failure("Unable to assign Checkers to purchaseOrder !!")
 				: ResponseDto.success(" Checkers Assigned Successfully !!", lineCheckerAssignments);
