@@ -3,6 +3,8 @@ package com.groyyo.order.management.controller;
 import java.util.List;
 import java.util.Objects;
 
+import com.groyyo.core.base.http.utils.HeaderUtil;
+import com.groyyo.order.management.dto.response.ColourQuantityResponseDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,38 +25,47 @@ import lombok.extern.log4j.Log4j2;
 @RequestMapping("/purchase/order/quantity")
 public class PurchaseOrderQuantityController {
 
-	@Autowired
-	private PurchaseOrderQuantityService purchaseOrderQuantityService;
+    @Autowired
+    private PurchaseOrderQuantityService purchaseOrderQuantityService;
 
-	@GetMapping("get/by/po/{purchaseOrderId}")
-	public ResponseDto<List<PurchaseOrderQuantityResponseDto>> getAllPurchaseOrderQuantitiesForPurchaseOrder(@PathVariable String purchaseOrderId) {
+    @GetMapping("get/by/po/{purchaseOrderId}")
+    public ResponseDto<List<PurchaseOrderQuantityResponseDto>> getAllPurchaseOrderQuantitiesForPurchaseOrder(@PathVariable String purchaseOrderId) {
 
-		log.info("Request received to get all purchaseOrderQuantities");
+        log.info("Request received to get all purchaseOrderQuantities");
 
-		List<PurchaseOrderQuantityResponseDto> purchaseOrderQuantityResponseDtos = purchaseOrderQuantityService.getAllPurchaseOrderQuantitiesForPurchaseOrder(purchaseOrderId);
+        List<PurchaseOrderQuantityResponseDto> purchaseOrderQuantityResponseDtos = purchaseOrderQuantityService.getAllPurchaseOrderQuantitiesForPurchaseOrder(purchaseOrderId);
 
-		return ResponseDto.success("Found " + purchaseOrderQuantityResponseDtos.size() + " purchaseOrderQuantities in the system", purchaseOrderQuantityResponseDtos);
-	}
+        return ResponseDto.success("Found " + purchaseOrderQuantityResponseDtos.size() + " purchaseOrderQuantities in the system", purchaseOrderQuantityResponseDtos);
+    }
 
-	@GetMapping("get/{id}")
-	public ResponseDto<PurchaseOrderQuantityResponseDto> getPurchaseOrderQuantity(@PathVariable String id) {
+    @GetMapping("get/colour/{purchaseOrderId}")
+    public ResponseDto<List<ColourQuantityResponseDto>> getColoursByPoID(@PathVariable String purchaseOrderId) {
+        log.info("Request received to get all colours and its quantity by PurchaseOrderId :{}", purchaseOrderId);
+        String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+        List<ColourQuantityResponseDto> response = purchaseOrderQuantityService.getColoursByPoID(purchaseOrderId, factoryId);
+        return ResponseDto.success("Found " + response.size() + " colours in the system", response);
+    }
 
-		log.info("Request received to get purchaseOrderQuantity with id: {}", id);
 
-		PurchaseOrderQuantityResponseDto purchaseOrderQuantityResponseDto = purchaseOrderQuantityService.getPurchaseOrderQuantityById(id);
+    @GetMapping("get/{id}")
+    public ResponseDto<PurchaseOrderQuantityResponseDto> getPurchaseOrderQuantity(@PathVariable String id) {
 
-		return Objects.isNull(purchaseOrderQuantityResponseDto) ? ResponseDto.failure("Found no purchaseOrderQuantity with id: " + id)
-				: ResponseDto.success("Found purchaseOrderQuantity with id: " + id, purchaseOrderQuantityResponseDto);
-	}
+        log.info("Request received to get purchaseOrderQuantity with id: {}", id);
 
-	@PostMapping("update")
-	public ResponseDto<PurchaseOrderQuantityResponseDto> updatePurchaseOrderQuantity(@RequestBody PurchaseOrderQuantityCreateDto purchaseOrderQuantityCreateDto) {
+        PurchaseOrderQuantityResponseDto purchaseOrderQuantityResponseDto = purchaseOrderQuantityService.getPurchaseOrderQuantityById(id);
 
-		log.info("Request received to update purchaseOrderQuantity: {}", purchaseOrderQuantityCreateDto);
+        return Objects.isNull(purchaseOrderQuantityResponseDto) ? ResponseDto.failure("Found no purchaseOrderQuantity with id: " + id)
+                : ResponseDto.success("Found purchaseOrderQuantity with id: " + id, purchaseOrderQuantityResponseDto);
+    }
 
-		PurchaseOrderQuantityResponseDto purchaseOrderQuantityResponseDto = purchaseOrderQuantityService.updatePurchaseOrderQuantity(purchaseOrderQuantityCreateDto);
+    @PostMapping("update")
+    public ResponseDto<PurchaseOrderQuantityResponseDto> updatePurchaseOrderQuantity(@RequestBody PurchaseOrderQuantityCreateDto purchaseOrderQuantityCreateDto) {
 
-		return Objects.isNull(purchaseOrderQuantityResponseDto) ? ResponseDto.failure("Unable to update purchaseOrderQuantity !!")
-				: ResponseDto.success("PurchaseOrderQuantity updated successfully !!", purchaseOrderQuantityResponseDto);
-	}
+        log.info("Request received to update purchaseOrderQuantity: {}", purchaseOrderQuantityCreateDto);
+
+        PurchaseOrderQuantityResponseDto purchaseOrderQuantityResponseDto = purchaseOrderQuantityService.updatePurchaseOrderQuantity(purchaseOrderQuantityCreateDto);
+
+        return Objects.isNull(purchaseOrderQuantityResponseDto) ? ResponseDto.failure("Unable to update purchaseOrderQuantity !!")
+                : ResponseDto.success("PurchaseOrderQuantity updated successfully !!", purchaseOrderQuantityResponseDto);
+    }
 }

@@ -8,6 +8,9 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.groyyo.order.management.db.service.LineCheckerAssignmentDbService;
+import com.groyyo.order.management.dto.response.ColourQuantityResponseDto;
+import com.groyyo.order.management.entity.LineCheckerAssignment;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -41,6 +44,9 @@ public class PurchaseOrderQuantityServiceImpl implements PurchaseOrderQuantitySe
 
 	@Autowired
 	private PurchaseOrderQuantityDbService purchaseOrderQuantityDbService;
+
+	@Autowired
+	private LineCheckerAssignmentDbService lineCheckerAssignmentDbService;
 
 	@Override
 	public List<PurchaseOrderQuantityResponseDto> getAllPurchaseOrderQuantitiesForPurchaseOrder(String purchaseOrderId) {
@@ -270,6 +276,44 @@ public class PurchaseOrderQuantityServiceImpl implements PurchaseOrderQuantitySe
 				purchaseOrderFilterDto.setUuids(purchaseOrderIds);
 		}
 	}
+
+	@Override
+	public List<ColourQuantityResponseDto> getColoursByPoID(String purchaseOrderId, String factoryId) {
+		List<ColourQuantityResponseDto> colourQuantityResponseDtos = new ArrayList<>();
+
+		// Fetch purchase order quantities and line checker assignments
+		List<PurchaseOrderQuantity> quantityResponseDtos = purchaseOrderQuantityDbService.getAllPurchaseOrderQuantitiesForPurchaseOrder(purchaseOrderId, factoryId);
+		List<LineCheckerAssignment> lineCheckerAssignments = lineCheckerAssignmentDbService.getLineCheckerAssignmentForPurchaseOrder(purchaseOrderId, factoryId);
+
+		// Create a set of line checker assignment colour names for faster lookup
+		Set<String> assignedColours = lineCheckerAssignments.stream()
+				.map(LineCheckerAssignment::getColourName)
+				.collect(Collectors.toSet());
+
+		for (PurchaseOrderQuantity purchaseOrderQuantity : quantityResponseDtos) {
+			String colourName = purchaseOrderQuantity.getColourName();
+			Long quantity = purchaseOrderQuantity.getQuantity();
+
+			if (assignedColours.contains(colourName)) {
+				Long assignedQuantity = lineCheckerAssignments.stream()
+						.filter(assignment -> assignment.getColourName().equalsIgnoreCase(colourName))
+						.mapToLong(LineCheckerAssignment::getQuantity)
+						.sum();
+				quantity -= assignedQuantity;
+			}
+
+			if (quantity > 0) {
+				ColourQuantityResponseDto responseDto = ColourQuantityResponseDto.builder()
+						.colourName(colourName)
+						.quantity(quantity)
+						.build();
+				colourQuantityResponseDtos.add(responseDto);
+			}
+		}
+
+		return colourQuantityResponseDtos;
+	}
+
 
 	private Object getObjectForILikeSearchCriteria(String fieldValue) {
 

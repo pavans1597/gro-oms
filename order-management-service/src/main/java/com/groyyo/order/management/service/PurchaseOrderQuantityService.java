@@ -3,6 +3,7 @@ package com.groyyo.order.management.service;
 import java.util.List;
 import java.util.Map;
 
+import com.groyyo.order.management.dto.response.ColourQuantityResponseDto;
 import org.apache.commons.lang3.tuple.Pair;
 
 import com.groyyo.core.dto.PurchaseOrder.PurchaseOrderQuantityResponseDto;
@@ -60,4 +61,5 @@ public interface PurchaseOrderQuantityService {
 	 */
 	void getPurchaseOrderIdsForQuantitiesAndSearch(PurchaseOrderFilterDto purchaseOrderFilterDto);
 
+	List<ColourQuantityResponseDto> getColoursByPoID(String purchaseOrderId, String factoryId);
 }
