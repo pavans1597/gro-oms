@@ -275,24 +275,25 @@ public class PurchaseOrderQuantityServiceImpl implements PurchaseOrderQuantitySe
 	public List<ColourQuantityResponseDto> getColoursByPoID(String purchaseOrderId, String factoryId, LineType lineType) {
 
 		HashMap<String,Long> colourQuantityMap = new HashMap<>();
+		HashMap<String,Long> colourAssignedQuantityMap = new HashMap<>();
+
 		// Fetch purchase order quantities and line checker assignments
 		List<PurchaseOrderQuantity> quantityResponseDtos = purchaseOrderQuantityDbService.getAllPurchaseOrderQuantitiesForPurchaseOrder(purchaseOrderId, factoryId);
 		List<LineCheckerAssignment> lineCheckerAssignments = lineCheckerAssignmentDbService.getLineCheckerAssignmentForPurchaseOrder(purchaseOrderId, factoryId);
-
 		// Create a set of line checker assignment colour names for faster lookup
 		Set<String> assignedColours = lineCheckerAssignments.stream()
 				.map(LineCheckerAssignment::getColourName)
 				.collect(Collectors.toSet());
+		colourAssignedQuantityMap = (HashMap<String, Long>) lineCheckerAssignments.stream()
+				.collect(Collectors.groupingBy(LineCheckerAssignment::getColourName, Collectors.summingLong(LineCheckerAssignment::getQuantity)));
+
 
 		for (PurchaseOrderQuantity purchaseOrderQuantity : quantityResponseDtos) {
 			String colourName = purchaseOrderQuantity.getColourName();
 			Long quantity = purchaseOrderQuantity.getQuantity();
 
 			if (assignedColours.contains(colourName)) {
-				Long assignedQuantity = lineCheckerAssignments.stream()
-						.filter(assignment -> assignment.getColourName().equalsIgnoreCase(colourName) && assignment.getLineType().equals(lineType) )
-						.mapToLong(LineCheckerAssignment::getQuantity)
-						.sum();
+				Long assignedQuantity = colourAssignedQuantityMap.getOrDefault(colourName,0l);
 				quantity -= assignedQuantity;
 			}
 
