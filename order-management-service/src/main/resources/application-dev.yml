@@ -192,7 +192,8 @@ multitenancy:
         leak-detection-threshold: 3000
         cachePrepStmts: true
         minimumIdle: 0
-        maximumPoolSize: 5
+        keepaliveTime: 90000
+        maximumPoolSize: 1
         idleTimeout: 30000
         maxLifetime: 2000000
     liquibase:
@@ -209,7 +210,8 @@ multitenancy:
         leak-detection-threshold: 3000
         cachePrepStmts: true
         minimumIdle: 0
-        maximumPoolSize: 5
+        keepaliveTime: 90000
+        maximumPoolSize: 1
         idleTimeout: 30000
         maxLifetime: 2000000
     liquibase:
@@ -225,3 +227,14 @@ azure:
   storage:
     ConnectionString: DefaultEndpointsProtocol=https;AccountName=groyyotenantstorage;AccountKey=Z0C14b9x66WuW5VcuAgt0vKMaC7bVlxqxQXcGaoZvyaCE+ZTKuqs39BWbjQhx9wASjUn86wRbIXP+AStnElvag==;EndpointSuffix=core.windows.net
 
+logging:
+  file:
+    name: /tmp/order-management-service.log
+  level:
+    root: INFO
+    com.zaxxer.hikari: DEBUG
+    org.springframework.web: INFO
+    org.springframework.security: INFO
+    org.springframework.security.oauth2: INFO
+  pattern:
+    file: '%d{yyyy-MM-dd HH:mm:ss} - %msg traceID=%X{trace_id} %n'
