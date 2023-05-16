@@ -82,7 +82,7 @@ public class LineCheckerAssignmentServiceImpl implements LineCheckerAssignmentSe
 
 				List<UserLineDetails> savedUserLineDetailsAssignment = LineCheckerAssignmentAdapter.buildUserLineDetailsFromEntities(lineCheckerAssignments);
 
-				publishQcTaskAssignment(purchaseOrderId,savedUserLineDetailsAssignment);
+				publishQcTaskAssignment(purchaseOrderId,savedUserLineDetailsAssignment,lineCheckerAssignmentRequestDto.isColourEnabled());
 
 			}
 
@@ -119,18 +119,19 @@ public class LineCheckerAssignmentServiceImpl implements LineCheckerAssignmentSe
 		purchaseOrderPublisher.publishQcTaskAssignment(purchaseOrderResponseDto);
 	}
 
-	public void publishQcTaskAssignment(String purchaseOrderId,List<UserLineDetails> userLineDetailsAssignments) {
+	public void publishQcTaskAssignment(String purchaseOrderId,List<UserLineDetails> userLineDetailsAssignments,boolean isColourEnabled) {
 		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
 
 		PurchaseOrderResponseDto purchaseOrderResponseDto = purchaseOrderService.getPurchaseOrderById(purchaseOrderId, Boolean.FALSE);
+		if(isColourEnabled){
+			List<PurchaseOrderQuantity> allPOQuantities = purchaseOrderQuantityDbService.getAllPurchaseOrderQuantitiesForPurchaseOrder(purchaseOrderId, factoryId);
 
-		List<PurchaseOrderQuantity> allPOQuantities = purchaseOrderQuantityDbService.getAllPurchaseOrderQuantitiesForPurchaseOrder(purchaseOrderId, factoryId);
+			List<ColourQuantityResponseDto> colourQuantityResponseDto = allPOQuantities.stream().map(this::buildColourQuantityResponse).collect(Collectors.toList());
 
-		List<ColourQuantityResponseDto> colourQuantityResponseDto = allPOQuantities.stream().map(this::buildColourQuantityResponse).collect(Collectors.toList());
+			purchaseOrderResponseDto.setColourQuantityResponseDtos(colourQuantityResponseDto);
 
-		purchaseOrderResponseDto.setColourQuantityResponseDtos(colourQuantityResponseDto);
-
-		purchaseOrderResponseDto.setNewUserLineDetails(userLineDetailsAssignments);
+			purchaseOrderResponseDto.setNewUserLineDetails(userLineDetailsAssignments);
+		}
 
 		log.info("Going to publish purchase order dto: {}", purchaseOrderResponseDto);
 
