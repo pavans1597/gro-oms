@@ -181,7 +181,7 @@ public class StyleServiceImpl implements StyleService {
 	private boolean isEntityExistsWithStyleNumber(String styleNumber, String factoryId) {
 
 		return StringUtils.isNotBlank(styleNumber) && StringUtils.isBlank(factoryId) ? styleDbService.isEntityExistsByStyleNumber(styleNumber)
-				: Objects.nonNull(styleDbService.isEntityExistsByStyleNumberAndFactoryId(styleNumber, factoryId));
+				: styleDbService.isEntityExistsByStyleNumberAndFactoryId(styleNumber, factoryId);
 	}
 
 	private void runValidations(StyleDto styleRequestDto, String factoryId) {
