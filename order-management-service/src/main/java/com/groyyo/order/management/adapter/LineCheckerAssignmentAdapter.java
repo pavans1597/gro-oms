@@ -22,6 +22,8 @@ public class LineCheckerAssignmentAdapter {
 				.lineId(lineCheckerAssignment.getLineId())
 				.lineName(lineCheckerAssignment.getLineName())
 				.lineType(lineCheckerAssignment.getLineType())
+				.colour(lineCheckerAssignment.getColourName())
+				.quantity(lineCheckerAssignment.getQuantity())
 				.build();
 	}
 
@@ -34,6 +36,8 @@ public class LineCheckerAssignmentAdapter {
 				.lineId(userLineDetails.getLineId())
 				.lineName(userLineDetails.getLineName())
 				.lineType(userLineDetails.getLineType())
+				.quantity(userLineDetails.getQuantity())
+				.colourName(userLineDetails.getColour())
 				.purchaseOrderId(purchaseOrderId)
 				.salesOrderId(salesOrderId)
 				.factoryId(factoryId)

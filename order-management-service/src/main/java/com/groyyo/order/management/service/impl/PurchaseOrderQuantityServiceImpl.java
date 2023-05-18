@@ -1,13 +1,25 @@
 package com.groyyo.order.management.service.impl;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
-
+import com.groyyo.core.base.exception.NoRecordException;
+import com.groyyo.core.base.exception.RecordExistsException;
+import com.groyyo.core.base.http.utils.HeaderUtil;
+import com.groyyo.core.dto.PurchaseOrder.ColourQuantityResponseDto;
+import com.groyyo.core.dto.PurchaseOrder.PurchaseOrderQuantityResponseDto;
+import com.groyyo.core.dto.userservice.LineType;
+import com.groyyo.core.sqlPostgresJpa.specification.utils.CriteriaOperation;
+import com.groyyo.core.sqlPostgresJpa.specification.utils.GroyyoSpecificationBuilder;
+import com.groyyo.order.management.adapter.PurchaseOrderQuantityAdapter;
+import com.groyyo.order.management.constants.FilterConstants;
+import com.groyyo.order.management.constants.SymbolConstants;
+import com.groyyo.order.management.db.service.LineCheckerAssignmentDbService;
+import com.groyyo.order.management.db.service.PurchaseOrderQuantityDbService;
+import com.groyyo.order.management.dto.filter.PurchaseOrderFilterDto;
+import com.groyyo.order.management.dto.request.PurchaseOrderQuantityCreateDto;
+import com.groyyo.order.management.dto.request.PurchaseOrderQuantityRequestDto;
+import com.groyyo.order.management.entity.LineCheckerAssignment;
+import com.groyyo.order.management.entity.PurchaseOrderQuantity;
+import com.groyyo.order.management.service.PurchaseOrderQuantityService;
+import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -16,23 +28,8 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.groyyo.core.base.exception.NoRecordException;
-import com.groyyo.core.base.exception.RecordExistsException;
-import com.groyyo.core.base.http.utils.HeaderUtil;
-import com.groyyo.core.dto.PurchaseOrder.PurchaseOrderQuantityResponseDto;
-import com.groyyo.core.sqlPostgresJpa.specification.utils.CriteriaOperation;
-import com.groyyo.core.sqlPostgresJpa.specification.utils.GroyyoSpecificationBuilder;
-import com.groyyo.order.management.adapter.PurchaseOrderQuantityAdapter;
-import com.groyyo.order.management.constants.FilterConstants;
-import com.groyyo.order.management.constants.SymbolConstants;
-import com.groyyo.order.management.db.service.PurchaseOrderQuantityDbService;
-import com.groyyo.order.management.dto.filter.PurchaseOrderFilterDto;
-import com.groyyo.order.management.dto.request.PurchaseOrderQuantityCreateDto;
-import com.groyyo.order.management.dto.request.PurchaseOrderQuantityRequestDto;
-import com.groyyo.order.management.entity.PurchaseOrderQuantity;
-import com.groyyo.order.management.service.PurchaseOrderQuantityService;
-
-import lombok.extern.log4j.Log4j2;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Log4j2
 @Service
@@ -41,6 +38,9 @@ public class PurchaseOrderQuantityServiceImpl implements PurchaseOrderQuantitySe
 
 	@Autowired
 	private PurchaseOrderQuantityDbService purchaseOrderQuantityDbService;
+
+	@Autowired
+	private LineCheckerAssignmentDbService lineCheckerAssignmentDbService;
 
 	@Override
 	public List<PurchaseOrderQuantityResponseDto> getAllPurchaseOrderQuantitiesForPurchaseOrder(String purchaseOrderId) {
@@ -270,6 +270,39 @@ public class PurchaseOrderQuantityServiceImpl implements PurchaseOrderQuantitySe
 				purchaseOrderFilterDto.setUuids(purchaseOrderIds);
 		}
 	}
+
+	@Override
+	public List<ColourQuantityResponseDto> getColoursByPoID(String purchaseOrderId, String factoryId, LineType lineType) {
+
+		HashMap<String,Long> colourAssignedQuantityMap = new HashMap<>();
+
+		List<PurchaseOrderQuantity> quantityResponseDtos = purchaseOrderQuantityDbService.getAllPurchaseOrderQuantitiesForPurchaseOrder(purchaseOrderId, factoryId);
+		List<LineCheckerAssignment> lineCheckerAssignments = lineCheckerAssignmentDbService.getLineCheckerAssignmentForPurchaseOrder(purchaseOrderId, factoryId);
+
+		colourAssignedQuantityMap = (HashMap<String, Long>) lineCheckerAssignments.stream().filter(lca -> lca.getLineType().equals(lineType))
+				.collect(Collectors.groupingBy(LineCheckerAssignment::getColourName, Collectors.summingLong(LineCheckerAssignment::getQuantity)));
+
+
+		HashMap<String, Long> finalColourAssignedQuantityMap = colourAssignedQuantityMap;
+//		finalColourAssignedQuantityMap.getOrDefault(quantity.getColourName(), 0L)
+		List<ColourQuantityResponseDto> colourQuantityResponseDtoList = quantityResponseDtos.stream()
+				.collect(Collectors.groupingBy(
+						PurchaseOrderQuantity::getColourName,
+						Collectors.summingLong(
+								quantity -> quantity.getQuantity()
+						)
+				))
+				.entrySet()
+				.stream()
+				.map(entry -> ColourQuantityResponseDto.builder()
+						.colourName(entry.getKey())
+						.quantity( Math.max(entry.getValue() - finalColourAssignedQuantityMap.getOrDefault(entry.getKey(), 0L),0))
+						.build()).filter(cqrd -> cqrd.getQuantity() > 0 )
+				.collect(Collectors.toList());
+
+		return colourQuantityResponseDtoList;
+	}
+
 
 	private Object getObjectForILikeSearchCriteria(String fieldValue) {
 

@@ -1,169 +1,246 @@
 package com.groyyo.order.management.service.impl;
 
-import java.util.ArrayList;
-import java.util.InputMismatchException;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Collectors;
-
+import com.groyyo.core.base.exception.NoRecordException;
+import com.groyyo.core.base.exception.PreconditionFailedException;
+import com.groyyo.core.base.http.utils.HeaderUtil;
+import com.groyyo.core.dto.PurchaseOrder.ColourQuantityResponseDto;
+import com.groyyo.core.dto.PurchaseOrder.PurchaseOrderResponseDto;
+import com.groyyo.core.dto.PurchaseOrder.PurchaseOrderStatus;
+import com.groyyo.core.dto.PurchaseOrder.UserLineDetails;
+import com.groyyo.core.dto.userservice.LineType;
+import com.groyyo.core.user.dto.response.LineUserResponseDto;
+import com.groyyo.order.management.adapter.LineCheckerAssignmentAdapter;
+import com.groyyo.order.management.db.service.LineCheckerAssignmentDbService;
+import com.groyyo.order.management.db.service.PurchaseOrderDbService;
+import com.groyyo.order.management.db.service.PurchaseOrderQuantityDbService;
+import com.groyyo.order.management.dto.request.LineCheckerAssignmentRequestDto;
+import com.groyyo.order.management.dto.response.LineAndColourResponse;
+import com.groyyo.order.management.dto.response.PurchaseOrderAndLineColourResponse;
+import com.groyyo.order.management.entity.LineCheckerAssignment;
+import com.groyyo.order.management.entity.PurchaseOrder;
+import com.groyyo.order.management.entity.PurchaseOrderQuantity;
+import com.groyyo.order.management.kafka.publisher.PurchaseOrderPublisher;
+import com.groyyo.order.management.service.LineCheckerAssignmentService;
+import com.groyyo.order.management.service.PurchaseOrderService;
+import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.groyyo.core.base.exception.NoRecordException;
-import com.groyyo.core.base.exception.PreconditionFailedException;
-import com.groyyo.core.base.http.utils.HeaderUtil;
-import com.groyyo.core.dto.PurchaseOrder.PurchaseOrderResponseDto;
-import com.groyyo.core.dto.PurchaseOrder.PurchaseOrderStatus;
-import com.groyyo.core.dto.PurchaseOrder.UserLineDetails;
-import com.groyyo.core.user.dto.response.LineUserResponseDto;
-import com.groyyo.order.management.adapter.LineCheckerAssignmentAdapter;
-import com.groyyo.order.management.db.service.LineCheckerAssignmentDbService;
-import com.groyyo.order.management.db.service.PurchaseOrderDbService;
-import com.groyyo.order.management.dto.request.LineCheckerAssignmentRequestDto;
-import com.groyyo.order.management.entity.LineCheckerAssignment;
-import com.groyyo.order.management.entity.PurchaseOrder;
-import com.groyyo.order.management.kafka.publisher.PurchaseOrderPublisher;
-import com.groyyo.order.management.service.LineCheckerAssignmentService;
-import com.groyyo.order.management.service.PurchaseOrderService;
-
-import lombok.extern.log4j.Log4j2;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Log4j2
 public class LineCheckerAssignmentServiceImpl implements LineCheckerAssignmentService {
 
-	@Autowired
-	private PurchaseOrderService purchaseOrderService;
+    @Autowired
+    private PurchaseOrderService purchaseOrderService;
+    @Autowired
+    private PurchaseOrderQuantityDbService purchaseOrderQuantityDbService;
 
-	@Autowired
-	private PurchaseOrderDbService purchaseOrderDbService;
+    @Autowired
+    private PurchaseOrderDbService purchaseOrderDbService;
 
-	@Autowired
-	private LineCheckerAssignmentDbService lineCheckerAssignmentDbService;
+    @Autowired
+    private LineCheckerAssignmentDbService lineCheckerAssignmentDbService;
 
-	@Autowired
-	private PurchaseOrderPublisher purchaseOrderPublisher;
+    @Autowired
+    private PurchaseOrderPublisher purchaseOrderPublisher;
 
-	@Override
-	public List<LineCheckerAssignment> lineCheckerAssignment(LineCheckerAssignmentRequestDto lineCheckerAssignmentRequestDto, String factoryId) {
+    @Override
+    public List<LineCheckerAssignment> lineCheckerAssignment(LineCheckerAssignmentRequestDto lineCheckerAssignmentRequestDto, String factoryId) {
 
-		List<LineCheckerAssignment> lineCheckerAssignments = new ArrayList<>();
+        List<LineCheckerAssignment> lineCheckerAssignments = new ArrayList<>();
 
-		try {
+        try {
 
-			String purchaseOrderId = lineCheckerAssignmentRequestDto.getPurchaseOrderId();
+            String purchaseOrderId = lineCheckerAssignmentRequestDto.getPurchaseOrderId();
 
-			PurchaseOrderResponseDto purchaseOrderResponseDto = purchaseOrderService.getPurchaseOrderById(purchaseOrderId, Boolean.FALSE);
+            PurchaseOrderResponseDto purchaseOrderResponseDto = purchaseOrderService.getPurchaseOrderById(purchaseOrderId, Boolean.FALSE);
 
-			String salesOrderId = lineCheckerAssignmentRequestDto.getSalesOrderId();
+            String salesOrderId = lineCheckerAssignmentRequestDto.getSalesOrderId();
 
-			List<UserLineDetails> assignments = lineCheckerAssignmentRequestDto.getAssignment();
+            List<UserLineDetails> assignments = lineCheckerAssignmentRequestDto.getAssignment();
 
-			for (UserLineDetails userLineDetails : assignments) {
+            for (UserLineDetails userLineDetails : assignments) {
 
-				if (isValidRequestForUserLineDetails(userLineDetails)) {
+                if (isValidRequestForUserLineDetails(userLineDetails)) {
 
-					LineCheckerAssignment lineCheckerAssignment = LineCheckerAssignmentAdapter.buildLineCheckerAssignmentFromRequest(userLineDetails, purchaseOrderId, salesOrderId, factoryId);
-					lineCheckerAssignments.add(lineCheckerAssignment);
-				}
-			}
+                    LineCheckerAssignment lineCheckerAssignment = LineCheckerAssignmentAdapter.buildLineCheckerAssignmentFromRequest(userLineDetails, purchaseOrderId, salesOrderId, factoryId);
+                    lineCheckerAssignments.add(lineCheckerAssignment);
+                }
+            }
 
-			if (Objects.nonNull(purchaseOrderResponseDto) && CollectionUtils.isNotEmpty(lineCheckerAssignments)) {
+            if (Objects.nonNull(purchaseOrderResponseDto) && CollectionUtils.isNotEmpty(lineCheckerAssignments)) {
 
-				lineCheckerAssignments = lineCheckerAssignmentDbService.saveAllLineCheckerAssignemnt(lineCheckerAssignments);
+                lineCheckerAssignments = lineCheckerAssignmentDbService.saveAllLineCheckerAssignemnt(lineCheckerAssignments);
 
-				/*
-				 * Keeping forceUpdate true for now. Once the system will be stabilized, we will
-				 * change it to false
-				 */
-				purchaseOrderService.changeStatusOfPurchaseOrder(purchaseOrderId, PurchaseOrderStatus.ONGOING, Boolean.TRUE);
+                /*
+                 * Keeping forceUpdate true for now. Once the system will be stabilized, we will
+                 * change it to false
+                 */
+                purchaseOrderService.changeStatusOfPurchaseOrder(purchaseOrderId, PurchaseOrderStatus.ONGOING, Boolean.TRUE);
 
-				publishQcTaskAssignment(purchaseOrderId);
+                List<UserLineDetails> savedUserLineDetailsAssignment = LineCheckerAssignmentAdapter.buildUserLineDetailsFromEntities(lineCheckerAssignments);
 
-			}
+                publishQcTaskAssignment(purchaseOrderId, savedUserLineDetailsAssignment, lineCheckerAssignmentRequestDto.isColourEnabled());
 
-			return lineCheckerAssignments;
+            }
 
-		} catch (Exception e) {
+            return lineCheckerAssignments;
 
-			log.error("Exception occured while Line Assignment  ", e);
-		}
+        } catch (Exception e) {
 
-		return lineCheckerAssignments;
-	}
+            log.error("Exception occured while Line Assignment  ", e);
+        }
 
-	private boolean isValidRequestForUserLineDetails(UserLineDetails userLineDetails) {
+        return lineCheckerAssignments;
+    }
 
-		return StringUtils.isNoneBlank(userLineDetails.getLineId(), userLineDetails.getLineName(), userLineDetails.getUserId(), userLineDetails.getUserName())
-				&& Objects.nonNull(userLineDetails.getLineType());
-	}
+    private boolean isValidRequestForUserLineDetails(UserLineDetails userLineDetails) {
 
-	@Override
-	public void publishQcTaskAssignment(String purchaseOrderId) {
+        return StringUtils.isNoneBlank(userLineDetails.getLineId(), userLineDetails.getLineName(), userLineDetails.getUserId(), userLineDetails.getUserName())
+                && Objects.nonNull(userLineDetails.getLineType());
+    }
 
-		PurchaseOrderResponseDto purchaseOrderResponseDto = purchaseOrderService.getPurchaseOrderById(purchaseOrderId, Boolean.FALSE);
+    @Override
+    public void publishQcTaskAssignment(String purchaseOrderId) {
+        String factoryId = HeaderUtil.getFactoryIdHeaderValue();
 
-		log.info("Going to publish purchase order dto: {}", purchaseOrderResponseDto);
+        PurchaseOrderResponseDto purchaseOrderResponseDto = purchaseOrderService.getPurchaseOrderById(purchaseOrderId, Boolean.FALSE);
 
-		purchaseOrderPublisher.publishQcTaskAssignment(purchaseOrderResponseDto);
-	}
+        List<PurchaseOrderQuantity> allPOQuantities = purchaseOrderQuantityDbService.getAllPurchaseOrderQuantitiesForPurchaseOrder(purchaseOrderId, factoryId);
 
-	@Override
-	public List<LineCheckerAssignment> disableLineAssignmentsOnOrderCompletion(String purchaseOrderId) {
+        List<ColourQuantityResponseDto> colourQuantityResponseDto = allPOQuantities.stream().map(this::buildColourQuantityResponse).collect(Collectors.toList());
 
-		String errorMsg = "";
+        purchaseOrderResponseDto.setColourQuantityResponseDtos(colourQuantityResponseDto);
 
-		PurchaseOrder purchaseOrder = purchaseOrderDbService.getPurchaseOrderById(purchaseOrderId);
+        log.info("Going to publish purchase order dto: {}", purchaseOrderResponseDto);
 
-		if (Objects.isNull(purchaseOrder)) {
-			errorMsg = "PurchaseOrder with id: " + purchaseOrderId + " not found in the system ";
-			throw new NoRecordException(errorMsg);
-		}
+        purchaseOrderPublisher.publishQcTaskAssignment(purchaseOrderResponseDto);
+    }
 
-		PurchaseOrderStatus purchaseOrderStatus = purchaseOrder.getPurchaseOrderStatus();
+    @Override
+    public PurchaseOrderAndLineColourResponse getLinesAndColourByPoId(String purchaseOrderId) {
+        String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+        List<LineCheckerAssignment> lineCheckerAssignments = lineCheckerAssignmentDbService.getLineCheckerAssignmentForPurchaseOrder(purchaseOrderId, factoryId);
+        Map<LineType, Set<String>> lineTypeToLineAssigned = new HashMap<>();
+        Map<String, Set<String>> lineIdToColours = new HashMap<>();
+        List<LineAndColourResponse> lineAndColourResponses = new ArrayList<>();
 
-		if (Objects.nonNull(purchaseOrderStatus) && PurchaseOrderStatus.COMPLETED != purchaseOrderStatus) {
-			errorMsg = "PurchaseOrder with id: " + purchaseOrderId + " is not completed yet. Please mark it completed first to disable assignments ";
-			throw new PreconditionFailedException(errorMsg);
-		}
+        for (LineCheckerAssignment lineCheckerAssignment : lineCheckerAssignments) {
+            LineType lineType = lineCheckerAssignment.getLineType();
+            String lineId = lineCheckerAssignment.getLineId();
+            String colourName = lineCheckerAssignment.getColourName();
 
-		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+            lineTypeToLineAssigned.computeIfAbsent(lineType, k -> new HashSet<>()).add(lineId);
 
-		List<LineCheckerAssignment> lineCheckerAssignments = lineCheckerAssignmentDbService.getLineCheckerAssignmentForPurchaseOrderAndFactoryIdAndStatus(purchaseOrderId, factoryId, Boolean.TRUE);
+            if (StringUtils.isNotBlank(colourName)) {
+                lineIdToColours.computeIfAbsent(lineId, k -> new HashSet<>()).add(colourName);
+            }
+        }
 
-		if (CollectionUtils.isEmpty(lineCheckerAssignments)) {
-			errorMsg = "No Line Checker Assignments found for purchase order id: " + purchaseOrderId + " and factory id: " + factoryId;
-			throw new NoRecordException(errorMsg);
-		}
+        for (LineType lineType : lineTypeToLineAssigned.keySet()) {
+            Set<String> lineIds = lineTypeToLineAssigned.get(lineType);
+            for (String lineId : lineIds) {
+                Set<String> colours = lineIdToColours.get(lineId);
+                LineAndColourResponse lineAndColourResponse = LineAndColourResponse.builder()
+                        .LineId(lineId)
+                        .lineType(lineType)
+                        .coloursAssigned(colours != null ? colours : Collections.emptySet())
+                        .build();
+                lineAndColourResponses.add(lineAndColourResponse);
+            }
+        }
 
-		return lineCheckerAssignmentDbService.activateDeactivateLineCheckerAssignments(lineCheckerAssignments, Boolean.FALSE);
-	}
+        return PurchaseOrderAndLineColourResponse.builder()
+                .purchaseOrderId(purchaseOrderId)
+                .lineAndColourResponses(lineAndColourResponses)
+                .build();
+    }
 
-	@Override
-	public List<LineUserResponseDto> getUsers(String factoryId, List<String> userIds) {
-		log.info("Serving Request received to fetch users for factoryId: {} and userIds: {}", factoryId, userIds);
-		if (CollectionUtils.isEmpty(userIds)) {
-			throw new InputMismatchException("userIds can't empty");
-		}
-		List<LineCheckerAssignment> lineCheckerAssignments = lineCheckerAssignmentDbService.getLineCheckerAssignment(factoryId, userIds);
-		if (CollectionUtils.isEmpty(lineCheckerAssignments)) {
-			log.info("No users are found with factoryId:{} and userIds:{}", factoryId, userIds);
-			return new ArrayList<>();
-		}
-		Map<String, String> purchaseOrderIdToName = init(lineCheckerAssignments);
-		return LineCheckerAssignmentAdapter.buildResponseDtoList(lineCheckerAssignments, purchaseOrderIdToName);
-	}
 
-	private Map<String, String> init(List<LineCheckerAssignment> lineCheckerAssignments) {
-		List<String> poIds = lineCheckerAssignments.stream()
-				.map(LineCheckerAssignment::getPurchaseOrderId)
-				.collect(Collectors.toList());
-		List<PurchaseOrder> purchaseOrders = purchaseOrderDbService.findByUuidInAndStatus(poIds, true);
-		return purchaseOrders.stream()
-				.filter(purchaseOrder -> StringUtils.isNotBlank(purchaseOrder.getName()))
-				.collect(Collectors.toMap(PurchaseOrder::getUuid, PurchaseOrder::getName));
-	}
+    public void publishQcTaskAssignment(String purchaseOrderId, List<UserLineDetails> userLineDetailsAssignments, boolean isColourEnabled) {
+        String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+
+        PurchaseOrderResponseDto purchaseOrderResponseDto = purchaseOrderService.getPurchaseOrderById(purchaseOrderId, Boolean.FALSE);
+        if (isColourEnabled) {
+            List<PurchaseOrderQuantity> allPOQuantities = purchaseOrderQuantityDbService.getAllPurchaseOrderQuantitiesForPurchaseOrder(purchaseOrderId, factoryId);
+
+            List<ColourQuantityResponseDto> colourQuantityResponseDto = allPOQuantities.stream().map(this::buildColourQuantityResponse).collect(Collectors.toList());
+
+            purchaseOrderResponseDto.setColourQuantityResponseDtos(colourQuantityResponseDto);
+
+            purchaseOrderResponseDto.setNewUserLineDetails(userLineDetailsAssignments);
+        }
+
+        log.info("Going to publish purchase order dto: {}", purchaseOrderResponseDto);
+
+        purchaseOrderPublisher.publishQcTaskAssignment(purchaseOrderResponseDto);
+    }
+
+    private ColourQuantityResponseDto buildColourQuantityResponse(PurchaseOrderQuantity po) {
+        return ColourQuantityResponseDto
+                .builder()
+                .quantity(po.getQuantity())
+                .colourName(po.getColourName()).build();
+    }
+
+    @Override
+    public List<LineCheckerAssignment> disableLineAssignmentsOnOrderCompletion(String purchaseOrderId) {
+
+        String errorMsg = "";
+
+        PurchaseOrder purchaseOrder = purchaseOrderDbService.getPurchaseOrderById(purchaseOrderId);
+
+        if (Objects.isNull(purchaseOrder)) {
+            errorMsg = "PurchaseOrder with id: " + purchaseOrderId + " not found in the system ";
+            throw new NoRecordException(errorMsg);
+        }
+
+        PurchaseOrderStatus purchaseOrderStatus = purchaseOrder.getPurchaseOrderStatus();
+
+        if (Objects.nonNull(purchaseOrderStatus) && PurchaseOrderStatus.COMPLETED != purchaseOrderStatus) {
+            errorMsg = "PurchaseOrder with id: " + purchaseOrderId + " is not completed yet. Please mark it completed first to disable assignments ";
+            throw new PreconditionFailedException(errorMsg);
+        }
+
+        String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+
+        List<LineCheckerAssignment> lineCheckerAssignments = lineCheckerAssignmentDbService.getLineCheckerAssignmentForPurchaseOrderAndFactoryIdAndStatus(purchaseOrderId, factoryId, Boolean.TRUE);
+
+        if (CollectionUtils.isEmpty(lineCheckerAssignments)) {
+            errorMsg = "No Line Checker Assignments found for purchase order id: " + purchaseOrderId + " and factory id: " + factoryId;
+            throw new NoRecordException(errorMsg);
+        }
+
+        return lineCheckerAssignmentDbService.activateDeactivateLineCheckerAssignments(lineCheckerAssignments, Boolean.FALSE);
+    }
+
+    @Override
+    public List<LineUserResponseDto> getUsers(String factoryId, List<String> userIds) {
+        log.info("Serving Request received to fetch users for factoryId: {} and userIds: {}", factoryId, userIds);
+        if (CollectionUtils.isEmpty(userIds)) {
+            throw new InputMismatchException("userIds can't empty");
+        }
+        List<LineCheckerAssignment> lineCheckerAssignments = lineCheckerAssignmentDbService.getLineCheckerAssignment(factoryId, userIds);
+        if (CollectionUtils.isEmpty(lineCheckerAssignments)) {
+            log.info("No users are found with factoryId:{} and userIds:{}", factoryId, userIds);
+            return new ArrayList<>();
+        }
+        Map<String, String> purchaseOrderIdToName = init(lineCheckerAssignments);
+        return LineCheckerAssignmentAdapter.buildResponseDtoList(lineCheckerAssignments, purchaseOrderIdToName);
+    }
+
+    private Map<String, String> init(List<LineCheckerAssignment> lineCheckerAssignments) {
+        List<String> poIds = lineCheckerAssignments.stream()
+                .map(LineCheckerAssignment::getPurchaseOrderId)
+                .collect(Collectors.toList());
+        List<PurchaseOrder> purchaseOrders = purchaseOrderDbService.findByUuidInAndStatus(poIds, true);
+        return purchaseOrders.stream()
+                .filter(purchaseOrder -> StringUtils.isNotBlank(purchaseOrder.getName()))
+                .collect(Collectors.toMap(PurchaseOrder::getUuid, PurchaseOrder::getName));
+    }
 }
