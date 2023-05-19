@@ -20,5 +20,6 @@ public class LineAndColourResponse {
 
     private String LineId;
     private LineType lineType;
+    private String lineName;
     private Set<String> coloursAssigned;
 }
