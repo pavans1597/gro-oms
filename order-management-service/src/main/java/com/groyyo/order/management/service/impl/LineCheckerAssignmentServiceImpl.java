@@ -129,8 +129,12 @@ public class LineCheckerAssignmentServiceImpl implements LineCheckerAssignmentSe
         List<LineCheckerAssignment> lineCheckerAssignments = lineCheckerAssignmentDbService.getLineCheckerAssignmentForPurchaseOrder(purchaseOrderId, factoryId);
         Map<LineType, Set<String>> lineTypeToLineAssigned = new HashMap<>();
         Map<String, Set<String>> lineIdToColours = new HashMap<>();
-        Map<String, LineCheckerAssignment> lineIdToLineCheckerAssignment = lineCheckerAssignments.stream()
-                .collect(Collectors.toMap(LineCheckerAssignment::getLineId, Function.identity()));
+        Map<String, LineCheckerAssignment> lineIdToLineCheckerAssignment = new HashMap<>();
+        for(LineCheckerAssignment lineCheckerAssignment:lineCheckerAssignments){
+            if(lineIdToLineCheckerAssignment.get(lineCheckerAssignment.getLineId())==null){
+                lineIdToLineCheckerAssignment.put(lineCheckerAssignment.getLineId(),lineCheckerAssignment);
+            }
+        }
         List<LineAndColourResponse> lineAndColourResponses = new ArrayList<>();
 
         for (LineCheckerAssignment lineCheckerAssignment : lineCheckerAssignments) {
