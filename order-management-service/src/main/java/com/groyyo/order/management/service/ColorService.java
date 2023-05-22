@@ -32,5 +32,5 @@ public interface ColorService {
 	/**
 	 * @param colorByNameMap
 	 */
-	void saveEntityFromCache(Map<String, ColorResponseDto> colorByNameMap);
+	void saveEntityFromCache(String factoryId, Map<String, ColorResponseDto> colorByNameMap);
 }

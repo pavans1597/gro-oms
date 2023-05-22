@@ -24,7 +24,7 @@ public interface ProductService {
 	/**
 	 * @param productByNameMap
 	 */
-	void saveEntityFromCache(Map<String, ProductResponseDto> productByNameMap);
+	void saveEntityFromCache(String factoryId, Map<String, ProductResponseDto> productByNameMap);
 
 	Product findOrCreate(String name);
 

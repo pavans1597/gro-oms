@@ -2,4 +2,5 @@ FROM amazoncorretto:11
 WORKDIR /app
 COPY /order-management-service/target/order-management-service.jar /app/
 COPY /order-management-service/src/main/resources/application-dev.yml /app/
+COPY /order-management-service/src/main/resources/changelog /app/changelog
 ENTRYPOINT ["java", "-jar", "-Dspring.profiles.active=dev", "/app/order-management-service.jar"]

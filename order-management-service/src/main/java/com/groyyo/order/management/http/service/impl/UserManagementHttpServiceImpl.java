@@ -4,6 +4,7 @@
 package com.groyyo.order.management.http.service.impl;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,11 +31,11 @@ public class UserManagementHttpServiceImpl implements UserManagementHttpService 
 	private UserClientApi userClientApi;
 
 	@Override
-	public ResponseDto<List<UserResponseDto>> getUsersByLineType(String factoryId, LineType lineType, QcUserType qcUserType) {
+	public ResponseDto<List<UserResponseDto>> getUsersByLineType(String orgId, String factoryId, LineType lineType, QcUserType qcUserType) {
 
 		try {
 
-			return userClientApi.getUsers(factoryId, lineType, qcUserType);
+			return userClientApi.getUsers(orgId, factoryId, lineType, qcUserType);
 
 		} catch (Exception e) {
 
@@ -62,7 +63,7 @@ public class UserManagementHttpServiceImpl implements UserManagementHttpService 
 	}
 
 	@Override
-	public ResponseDto<List<LineResponseDto>> getAllLines(String factoryId) {
+	public ResponseDto<Map<LineType, List<LineResponseDto>>> getAllLines(String factoryId) {
 		try {
 			return userClientApi.getLines(factoryId);
 		} catch (Exception e) {
@@ -72,10 +73,10 @@ public class UserManagementHttpServiceImpl implements UserManagementHttpService 
 	}
 
 	@Override
-	public ResponseDto<List<UserResponseDto>> getUsersByDepartmentAndRole(String factoryId, String departmentName, QcUserType qcUserType) {
+	public ResponseDto<List<UserResponseDto>> getUsersByDepartmentAndRole(String orgId, String factoryId, String departmentName, QcUserType qcUserType) {
 		try {
 
-			return userClientApi.getUsersByRoleAndDept(factoryId, departmentName, qcUserType);
+			return userClientApi.getUsersByRoleAndDept(orgId, factoryId, departmentName, qcUserType);
 
 		} catch (Exception e) {
 

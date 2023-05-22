@@ -53,7 +53,7 @@ public class FitServiceImpl implements FitService {
 
 		if (CollectionUtils.isEmpty(fitEntities)) {
 			log.error("No Fits found in the system");
-			return new ArrayList<FitResponseDto>();
+			return new ArrayList<>();
 		}
 
 		return FitAdapter.buildResponsesFromEntities(fitEntities);
@@ -154,9 +154,17 @@ public class FitServiceImpl implements FitService {
 	}
 
 	@Override
-	public void saveEntityFromCache(Map<String, FitResponseDto> fitByNameMap) {
+	public void saveEntityFromCache(String factoryId, Map<String, FitResponseDto> fitByNameMap) {
+		log.info("Populating Fit data for factory id: {}", factoryId);
 
-		List<String> factories = factoryHttpService.getFactoryIds();
+		fitByNameMap.values().forEach(fitResponseDto -> {
+
+			fitResponseDto.setFactoryId(factoryId);
+
+			conditionalSaveFit(fitResponseDto);
+
+		});
+		/*List<String> factories = factoryHttpService.getFactoryIds();
 
 		if (CollectionUtils.isEmpty(factories)) {
 			log.error("No active factories found in the system to populate data for");
@@ -174,7 +182,7 @@ public class FitServiceImpl implements FitService {
 				conditionalSaveFit(fitResponseDto);
 
 			});
-		});
+		});*/
 
 	}
 

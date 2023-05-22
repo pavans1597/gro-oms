@@ -48,7 +48,7 @@ public interface PartService {
 	/**
 	 * @param partByNameMap
 	 */
-	void saveEntityFromCache(Map<String, PartResponseDto> partByNameMap);
+	void saveEntityFromCache(String factoryId, Map<String, PartResponseDto> partByNameMap);
 
 	Part findOrCreate(String name);
 

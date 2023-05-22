@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import com.groyyo.core.multitenancy.multitenancy.util.TenantContext;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -176,9 +177,18 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	@Override
-	public void saveEntityFromCache(Map<String, ProductResponseDto> productByNameMap) {
+	public void saveEntityFromCache(String factoryId, Map<String, ProductResponseDto> productByNameMap) {
+		log.info("Populating product data for factory id: {}", factoryId);
 
-		List<String> factories = factoryHttpService.getFactoryIds();
+		productByNameMap.values().forEach(productResponseDto -> {
+
+			productResponseDto.setFactoryId(factoryId);
+
+			conditionalSaveProduct(productResponseDto);
+
+		});
+
+		/*List<String> factories = factoryHttpService.getFactory(factoryId);
 
 		if (CollectionUtils.isEmpty(factories)) {
 			log.error("No active factories found in the system to populate data for");
@@ -196,7 +206,7 @@ public class ProductServiceImpl implements ProductService {
 				conditionalSaveProduct(productResponseDto);
 
 			});
-		});
+		});*/
 
 	}
 

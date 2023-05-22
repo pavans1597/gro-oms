@@ -1,10 +1,10 @@
 package com.groyyo.order.management.controller;
 
 import com.groyyo.core.base.common.dto.ResponseDto;
-import com.groyyo.core.base.http.utils.HeaderUtil;
 import com.groyyo.core.dto.userservice.LineResponseDto;
 import com.groyyo.core.dto.userservice.LineType;
 import com.groyyo.order.management.dto.response.PurchaseOrderAndLineColourResponse;
+import com.groyyo.core.multitenancy.multitenancy.util.TenantContext;
 import com.groyyo.order.management.http.service.UserManagementHttpService;
 import com.groyyo.order.management.service.LineCheckerAssignmentService;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 @RestController
@@ -30,12 +31,12 @@ public class LineController {
     private LineCheckerAssignmentService lineCheckerAssignmentService;
 
     @GetMapping("fetch/all")
-    public ResponseDto<List<LineResponseDto>> getAllLines() {
-        String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+    public ResponseDto<Map<LineType, List<LineResponseDto>>>  getAllLines() {
+        String factoryId = TenantContext.getTenantId();
 
         log.info("Request received to get getAll Lines by FactoryId : {} ", factoryId);
 
-        ResponseDto<List<LineResponseDto>> listResponseDto = userManagementHttpService.getAllLines(factoryId);
+        ResponseDto<Map<LineType, List<LineResponseDto>>>  listResponseDto = userManagementHttpService.getAllLines(factoryId);
 
         return (Objects.isNull(listResponseDto) || listResponseDto.getData().isEmpty()) ? ResponseDto.failure(" Lines not found ")
                 : ResponseDto.success(" Lines retrieved successfully ", listResponseDto.getData());
@@ -45,7 +46,7 @@ public class LineController {
 
     @GetMapping("fetch/type")
     public ResponseDto<List<LineResponseDto>> getLinesByType(@RequestParam("lineType")LineType lineType) {
-        String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+        String factoryId = TenantContext.getTenantId();
 
         log.info("Request received to get getAll Lines by FactoryId : {} ", factoryId);
 
