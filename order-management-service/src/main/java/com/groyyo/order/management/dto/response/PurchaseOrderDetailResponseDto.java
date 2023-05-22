@@ -22,4 +22,6 @@ public class PurchaseOrderDetailResponseDto {
     private String poName;
     private PurchaseOrderStatus purchaseOrderStatus;
     private Date exFtyDate;
+    private boolean assignWithColours;
+
 }

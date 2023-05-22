@@ -134,6 +134,7 @@ public class PurchaseOrderAdapter {
 		return PurchaseOrderDetailResponseDto.builder().poId(order.getUuid()).poName(order.getName())
 				.purchaseOrderStatus(order.getPurchaseOrderStatus())
 				.exFtyDate(order.getExFtyDate())
+				.assignWithColours(order.isAssignedWithColours())
 				.build();
 	}
 }

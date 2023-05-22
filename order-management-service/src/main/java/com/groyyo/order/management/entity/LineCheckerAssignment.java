@@ -1,19 +1,14 @@
 package com.groyyo.order.management.entity;
 
+import com.groyyo.core.dto.userservice.LineType;
+import com.groyyo.core.sqlPostgresJpa.entity.AbstractJpaEntity;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-
-import com.groyyo.core.dto.userservice.LineType;
-import com.groyyo.core.sqlPostgresJpa.entity.AbstractJpaEntity;
-
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
-import lombok.experimental.SuperBuilder;
 
 @Getter
 @Setter
@@ -53,6 +48,6 @@ public class LineCheckerAssignment extends AbstractJpaEntity {
 	@Column(name = "colour_name", columnDefinition = "varchar(100)", nullable = true)
 	private String colourName;
 
-	@Column(name = "quantity", columnDefinition = "BIGINT", nullable = true)
-	private Long quantity;
+	@Column(name = "quantity", columnDefinition = "BIGINT default 0", nullable = false)
+	private long quantity = 0;
 }
