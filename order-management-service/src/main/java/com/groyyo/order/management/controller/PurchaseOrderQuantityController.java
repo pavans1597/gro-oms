@@ -37,7 +37,7 @@ public class PurchaseOrderQuantityController {
         log.info("Request received to get all colours and its quantity by PurchaseOrderId :{}", purchaseOrderId);
         String factoryId = HeaderUtil.getFactoryIdHeaderValue();
         List<ColourQuantityResponseDto> response = purchaseOrderQuantityService.getColoursByPoID(purchaseOrderId, factoryId,lineType);
-        return ResponseDto.success("Found " + response.size() + " colours in the system", response);
+        return ResponseDto.success(" Pending colours " + response.size() + " quantity available to assign checkers in the system", response);
     }
 
 
