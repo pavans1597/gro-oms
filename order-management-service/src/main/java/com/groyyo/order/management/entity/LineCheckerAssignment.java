@@ -49,7 +49,6 @@ public class LineCheckerAssignment extends AbstractJpaEntity {
 
 	@Column(columnDefinition = "varchar(40)")
 	private String salesOrderId;
-
 	@Column(name = "colour_name", columnDefinition = "varchar(100)", nullable = true)
 	private String colourName;
 
