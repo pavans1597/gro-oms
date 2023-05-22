@@ -451,19 +451,29 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 		List<PurchaseOrder> purchaseOrderEntities = Objects.isNull(status) ? purchaseOrderDbService.getAllPurchaseOrders(factoryId)
 				: purchaseOrderDbService.getAllPurchaseOrdersForStatus(status, factoryId);
 
+		Map<PurchaseOrderStatus, Long> countMap = buildBareCountMap();
+
 		if (CollectionUtils.isNotEmpty(purchaseOrderEntities)) {
 
-			Map<PurchaseOrderStatus, Long> countMap = buildBareCountMap();
+			Map<PurchaseOrderStatus, Long> dbCountMap = purchaseOrderEntities.stream().collect(Collectors.groupingBy(PurchaseOrder::getPurchaseOrderStatus, Collectors.counting()));
 
-			countMap = purchaseOrderEntities.stream().collect(Collectors.groupingBy(PurchaseOrder::getPurchaseOrderStatus, Collectors.counting()));
+			log.info("Found purchase order status wise counts map: {} for factory id: {}", dbCountMap, factoryId);
 
-			log.info("Found purchase order status wise counts map: {} for factory id: {}", countMap, factoryId);
-
-			purchaseOrderStatusCounts.setPurchaseOrderStatusCount(countMap);
+			compareKeysAndPopulateCountMaps(countMap, dbCountMap);
 
 		}
 
+		purchaseOrderStatusCounts.setPurchaseOrderStatusCount(countMap);
+
 		return purchaseOrderStatusCounts;
+	}
+
+	private void compareKeysAndPopulateCountMaps(Map<PurchaseOrderStatus, Long> countMap, Map<PurchaseOrderStatus, Long> dbCountMap) {
+
+		for (Map.Entry<PurchaseOrderStatus, Long> entry : dbCountMap.entrySet()) {
+
+			countMap.put(entry.getKey(), entry.getValue());
+		}
 	}
 
 	private Map<PurchaseOrderStatus, Long> buildBareCountMap() {
@@ -471,6 +481,9 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 		Map<PurchaseOrderStatus, Long> countMap = new HashMap<PurchaseOrderStatus, Long>();
 
 		countMap.put(PurchaseOrderStatus.DRAFT, 0L);
+		countMap.put(PurchaseOrderStatus.YET_TO_START, 0L);
+		countMap.put(PurchaseOrderStatus.ONGOING, 0L);
+		countMap.put(PurchaseOrderStatus.COMPLETED, 0L);
 
 		return countMap;
 	}
