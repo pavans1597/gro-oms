@@ -288,16 +288,19 @@ public class PurchaseOrderQuantityServiceImpl implements PurchaseOrderQuantitySe
 		List<ColourQuantityResponseDto> colourQuantityResponseDtoList = quantityResponseDtos.stream()
 				.collect(Collectors.groupingBy(
 						PurchaseOrderQuantity::getColourName,
-						Collectors.summingLong(
-								quantity -> quantity.getQuantity()
-						)
+						Collectors.summingLong(quantity -> quantity.getQuantity())
 				))
 				.entrySet()
 				.stream()
-				.map(entry -> ColourQuantityResponseDto.builder()
-						.colourName(entry.getKey())
-						.quantity( Math.max(entry.getValue() - finalColourAssignedQuantityMap.getOrDefault(entry.getKey(), 0L),0))
-						.build()).filter(cqrd -> cqrd.getQuantity() > 0 )
+				.map(entry -> {
+					long quantity = Math.max(entry.getValue() - finalColourAssignedQuantityMap.getOrDefault(entry.getKey(), 0L), 0);
+					boolean available = quantity > 0;
+					return ColourQuantityResponseDto.builder()
+							.colourName(entry.getKey())
+							.quantity(quantity)
+							.available(available)
+							.build();
+				})
 				.collect(Collectors.toList());
 
 		return colourQuantityResponseDtoList;
