@@ -480,10 +480,10 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
 		Map<PurchaseOrderStatus, Long> countMap = new HashMap<PurchaseOrderStatus, Long>();
 
-		countMap.put(PurchaseOrderStatus.DRAFT, 0L);
-		countMap.put(PurchaseOrderStatus.YET_TO_START, 0L);
-		countMap.put(PurchaseOrderStatus.ONGOING, 0L);
-		countMap.put(PurchaseOrderStatus.COMPLETED, 0L);
+		for (PurchaseOrderStatus purchaseOrderStatus : PurchaseOrderStatus.getAllPurchaseOrderStatuses()) {
+
+			countMap.put(purchaseOrderStatus, 0L);
+		}
 
 		return countMap;
 	}
