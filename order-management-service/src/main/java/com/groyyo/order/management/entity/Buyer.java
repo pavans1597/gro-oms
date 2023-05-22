@@ -21,7 +21,7 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @ToString(callSuper = true)
 @Entity(name = "buyer")
-@Table(name = "buyer", uniqueConstraints = { @UniqueConstraint(name = "UK_buyer_name", columnNames = { "name" }) })
+@Table(name = "buyer", uniqueConstraints = { @UniqueConstraint(name = "UK_buyer_name_factory_id", columnNames = { "name", "factoryId" }) })
 public class Buyer extends AbstractJpaEntity {
 
 	private static final long serialVersionUID = 1L;
