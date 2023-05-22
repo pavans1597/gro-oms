@@ -279,7 +279,7 @@ public class PurchaseOrderQuantityServiceImpl implements PurchaseOrderQuantitySe
 		List<PurchaseOrderQuantity> quantityResponseDtos = purchaseOrderQuantityDbService.getAllPurchaseOrderQuantitiesForPurchaseOrder(purchaseOrderId, factoryId);
 		List<LineCheckerAssignment> lineCheckerAssignments = lineCheckerAssignmentDbService.getLineCheckerAssignmentForPurchaseOrder(purchaseOrderId, factoryId);
 
-		colourAssignedQuantityMap = (HashMap<String, Long>) lineCheckerAssignments.stream().filter(lca -> lca.getLineType().equals(lineType))
+		colourAssignedQuantityMap = (HashMap<String, Long>) lineCheckerAssignments.stream().filter(lca -> lca.getLineType().equals(lineType)).filter(lca->StringUtils.isNotBlank(lca.getColourName()))
 				.collect(Collectors.groupingBy(LineCheckerAssignment::getColourName, Collectors.summingLong(LineCheckerAssignment::getQuantity)));
 
 

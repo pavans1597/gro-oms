@@ -29,6 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -128,6 +129,12 @@ public class LineCheckerAssignmentServiceImpl implements LineCheckerAssignmentSe
         List<LineCheckerAssignment> lineCheckerAssignments = lineCheckerAssignmentDbService.getLineCheckerAssignmentForPurchaseOrder(purchaseOrderId, factoryId);
         Map<LineType, Set<String>> lineTypeToLineAssigned = new HashMap<>();
         Map<String, Set<String>> lineIdToColours = new HashMap<>();
+        Map<String, LineCheckerAssignment> lineIdToLineCheckerAssignment = new HashMap<>();
+        for(LineCheckerAssignment lineCheckerAssignment:lineCheckerAssignments){
+            if(lineIdToLineCheckerAssignment.get(lineCheckerAssignment.getLineId())==null){
+                lineIdToLineCheckerAssignment.put(lineCheckerAssignment.getLineId(),lineCheckerAssignment);
+            }
+        }
         List<LineAndColourResponse> lineAndColourResponses = new ArrayList<>();
 
         for (LineCheckerAssignment lineCheckerAssignment : lineCheckerAssignments) {
@@ -146,9 +153,12 @@ public class LineCheckerAssignmentServiceImpl implements LineCheckerAssignmentSe
             Set<String> lineIds = lineTypeToLineAssigned.get(lineType);
             for (String lineId : lineIds) {
                 Set<String> colours = lineIdToColours.get(lineId);
+                LineCheckerAssignment lineCheckerAssignment=lineIdToLineCheckerAssignment.get(lineId);
+                String lineName=lineCheckerAssignment!=null?lineCheckerAssignment.getLineName():null;
                 LineAndColourResponse lineAndColourResponse = LineAndColourResponse.builder()
                         .LineId(lineId)
                         .lineType(lineType)
+                        .lineName(lineName)
                         .coloursAssigned(colours != null ? colours : Collections.emptySet())
                         .build();
                 lineAndColourResponses.add(lineAndColourResponse);
