@@ -15,7 +15,7 @@ import java.util.Date;
 @AllArgsConstructor
 @ToString(callSuper = true)
 @Entity(name = "purchase_order")
-@Table(name = "purchase_order", uniqueConstraints = { @UniqueConstraint(name = "UK_purchase_order_name", columnNames = { "name" }) })
+@Table(name = "purchase_order", uniqueConstraints = {  @UniqueConstraint(name = "UK_purchase_order_name", columnNames = { "name" }) })
 public class PurchaseOrder extends AbstractJpaEntity {
 
 	private static final long serialVersionUID = 1L;
