@@ -60,6 +60,12 @@ public class StyleDbServiceImpl extends AbstractJpaServiceImpl<Style, Long, Styl
 	}
 
 	@Override
+	public boolean isEntityExistsByStyleNumberAndFactoryId(String styleNumber, String factoryId) {
+
+		return Objects.nonNull(styleRepository.findByStyleNumberAndFactoryId(styleNumber, factoryId));
+	}
+
+	@Override
 	public Style findOrCreate(Style style) {
 		Style entity = styleRepository.findByStyleNumberAndFactoryId(style.getStyleNumber(), style.getFactoryId());
 		if (Objects.isNull(entity)) {

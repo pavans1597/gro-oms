@@ -1,14 +1,13 @@
 package com.groyyo.order.management.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.groyyo.core.dto.PurchaseOrder.PurchaseOrderStatus;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
-import java.util.Date;
+import java.util.List;
 
 @Getter
 @Setter
@@ -16,12 +15,8 @@ import java.util.Date;
 @NoArgsConstructor
 @ToString(callSuper = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class PurchaseOrderDetailResponseDto {
+public class PurchaseOrderAndLineColourResponse {
 
-    private String poId;
-    private String poName;
-    private PurchaseOrderStatus purchaseOrderStatus;
-    private Date exFtyDate;
-    private boolean assignWithColours;
-
+    private String purchaseOrderId;
+    private List<LineAndColourResponse> lineAndColourResponses;
 }
