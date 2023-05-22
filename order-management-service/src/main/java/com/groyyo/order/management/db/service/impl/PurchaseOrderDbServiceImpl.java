@@ -3,22 +3,24 @@ package com.groyyo.order.management.db.service.impl;
 import com.groyyo.core.dto.PurchaseOrder.PurchaseOrderStatus;
 import com.groyyo.core.sqlPostgresJpa.service.impl.AbstractJpaServiceImpl;
 import com.groyyo.order.management.db.service.PurchaseOrderDbService;
+import com.groyyo.order.management.entity.LineCheckerAssignment;
 import com.groyyo.order.management.entity.PurchaseOrder;
 import com.groyyo.order.management.repository.PurchaseOrderRepository;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class PurchaseOrderDbServiceImpl extends AbstractJpaServiceImpl<PurchaseOrder, Long, PurchaseOrderRepository> implements PurchaseOrderDbService {
 
     @Autowired
     private PurchaseOrderRepository purchaseOrderRepository;
+
+    @Autowired
+    private LineCheckerAssignmentDbServiceImpl lineCheckerAssignmentDbServiceImpl;
 
     @Override
     protected PurchaseOrderRepository getJpaRepository() {
@@ -69,6 +71,26 @@ public class PurchaseOrderDbServiceImpl extends AbstractJpaServiceImpl<PurchaseO
     @Override
     public List<PurchaseOrder> findByFactoryIdAndPurchaseOrderStatus(String factoryId, List<PurchaseOrderStatus> status) {
         List<PurchaseOrder> purchaseOrderList = purchaseOrderRepository.findByFactoryIdAndPurchaseOrderStatusIn(factoryId, status);
+        purchaseOrderList.stream().filter(po -> po.getPurchaseOrderStatus().equals(PurchaseOrderStatus.YET_TO_START)).forEach(pol -> pol.setAssignedWithColours(Boolean.TRUE));
+        List<LineCheckerAssignment> assignmentsForStatus = lineCheckerAssignmentDbServiceImpl.getAllLineCheckerAssignmentsForStatus(Boolean.TRUE, factoryId);
+        Map<String, String> assignments = assignmentsForStatus.stream()
+                .filter(Objects::nonNull)
+                .collect(Collectors.toMap(
+                        LineCheckerAssignment::getPurchaseOrderId,
+                        assignment -> StringUtils.defaultIfBlank(assignment.getColourName(), ""),
+                        StringUtils::defaultIfBlank
+                ));
+
+        List<PurchaseOrder> pos = purchaseOrderList.stream().
+                filter(po -> po.getPurchaseOrderStatus()
+                        .equals(PurchaseOrderStatus.ONGOING)).collect(Collectors.toList());
+
+        for(PurchaseOrder po : pos){
+            String colour = assignments.get(po.getUuid());
+            po.setAssignedWithColours(StringUtils.isNotBlank(colour));
+        }
+        purchaseOrderList.addAll(pos);
+
         if (purchaseOrderList == null) {
             return new ArrayList<>();
         }

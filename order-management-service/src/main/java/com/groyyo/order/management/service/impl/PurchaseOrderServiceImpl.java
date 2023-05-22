@@ -1,30 +1,24 @@
 package com.groyyo.order.management.service.impl;
 
-import com.groyyo.core.base.common.dto.PageResponse;
-import com.groyyo.core.base.exception.NoRecordException;
-import com.groyyo.core.base.exception.RecordExistsException;
-import com.groyyo.core.base.http.utils.HeaderUtil;
-import com.groyyo.core.base.utils.DateUtil;
-import com.groyyo.core.dto.PurchaseOrder.*;
-import com.groyyo.core.dto.userservice.LineType;
-import com.groyyo.core.sqlPostgresJpa.specification.utils.CriteriaOperation;
-import com.groyyo.core.sqlPostgresJpa.specification.utils.GroyyoSpecificationBuilder;
-import com.groyyo.core.sqlPostgresJpa.specification.utils.PaginationUtility;
-import com.groyyo.order.management.adapter.LineCheckerAssignmentAdapter;
-import com.groyyo.order.management.adapter.PurchaseOrderAdapter;
-import com.groyyo.order.management.constants.FilterConstants;
-import com.groyyo.order.management.constants.SymbolConstants;
-import com.groyyo.order.management.db.service.LineCheckerAssignmentDbService;
-import com.groyyo.order.management.db.service.PurchaseOrderDbService;
-import com.groyyo.order.management.dto.filter.PurchaseOrderFilterDto;
-import com.groyyo.order.management.dto.request.*;
-import com.groyyo.order.management.dto.response.PurchaseOrderDetailResponseDto;
-import com.groyyo.order.management.dto.response.PurchaseOrderStatusCountDto;
-import com.groyyo.order.management.entity.*;
-import com.groyyo.order.management.service.*;
-import com.groyyo.order.management.util.BuilderUtils;
-import com.groyyo.order.management.util.MapperUtils;
-import lombok.extern.log4j.Log4j2;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.InputMismatchException;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Random;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
+
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -36,14 +30,62 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
+import com.groyyo.core.base.common.dto.PageResponse;
+import com.groyyo.core.base.exception.NoRecordException;
+import com.groyyo.core.base.exception.RecordExistsException;
+import com.groyyo.core.base.http.utils.HeaderUtil;
+import com.groyyo.core.base.utils.DateUtil;
+import com.groyyo.core.dto.PurchaseOrder.PurchaseOrderQuantityResponseDto;
+import com.groyyo.core.dto.PurchaseOrder.PurchaseOrderResponseDto;
+import com.groyyo.core.dto.PurchaseOrder.PurchaseOrderStatus;
+import com.groyyo.core.dto.PurchaseOrder.StyleDto;
+import com.groyyo.core.dto.PurchaseOrder.UserLineDetails;
+import com.groyyo.core.dto.userservice.LineType;
+import com.groyyo.core.sqlPostgresJpa.specification.utils.CriteriaOperation;
+import com.groyyo.core.sqlPostgresJpa.specification.utils.GroyyoSpecificationBuilder;
+import com.groyyo.core.sqlPostgresJpa.specification.utils.PaginationUtility;
+import com.groyyo.order.management.adapter.LineCheckerAssignmentAdapter;
+import com.groyyo.order.management.adapter.PurchaseOrderAdapter;
+import com.groyyo.order.management.constants.FilterConstants;
+import com.groyyo.order.management.constants.SymbolConstants;
+import com.groyyo.order.management.db.service.LineCheckerAssignmentDbService;
+import com.groyyo.order.management.db.service.PurchaseOrderDbService;
+import com.groyyo.order.management.dto.filter.PurchaseOrderFilterDto;
+import com.groyyo.order.management.dto.request.BulkColorRequestDto;
+import com.groyyo.order.management.dto.request.BulkOrderExcelRequestDto;
+import com.groyyo.order.management.dto.request.BulkPurchaseOrderRequestDto;
+import com.groyyo.order.management.dto.request.PurchaseOrderRequestDto;
+import com.groyyo.order.management.dto.request.PurchaseOrderUpdateDto;
+import com.groyyo.order.management.dto.response.PurchaseOrderDetailResponseDto;
+import com.groyyo.order.management.dto.response.PurchaseOrderStatusCountDto;
+import com.groyyo.order.management.entity.Buyer;
+import com.groyyo.order.management.entity.Color;
+import com.groyyo.order.management.entity.Fit;
+import com.groyyo.order.management.entity.LineCheckerAssignment;
+import com.groyyo.order.management.entity.Part;
+import com.groyyo.order.management.entity.Product;
+import com.groyyo.order.management.entity.PurchaseOrder;
+import com.groyyo.order.management.entity.PurchaseOrderQuantity;
+import com.groyyo.order.management.entity.Season;
+import com.groyyo.order.management.entity.Size;
+import com.groyyo.order.management.entity.SizeGroup;
+import com.groyyo.order.management.entity.Style;
+import com.groyyo.order.management.service.BuyerService;
+import com.groyyo.order.management.service.ColorService;
+import com.groyyo.order.management.service.FitService;
+import com.groyyo.order.management.service.LineCheckerAssignmentService;
+import com.groyyo.order.management.service.PartService;
+import com.groyyo.order.management.service.ProductService;
+import com.groyyo.order.management.service.PurchaseOrderQuantityService;
+import com.groyyo.order.management.service.PurchaseOrderService;
+import com.groyyo.order.management.service.SeasonService;
+import com.groyyo.order.management.service.SizeGroupService;
+import com.groyyo.order.management.service.SizeService;
+import com.groyyo.order.management.service.StyleService;
+import com.groyyo.order.management.util.BuilderUtils;
+import com.groyyo.order.management.util.MapperUtils;
+
+import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 @Service
@@ -409,27 +451,52 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 		List<PurchaseOrder> purchaseOrderEntities = Objects.isNull(status) ? purchaseOrderDbService.getAllPurchaseOrders(factoryId)
 				: purchaseOrderDbService.getAllPurchaseOrdersForStatus(status, factoryId);
 
+		Map<PurchaseOrderStatus, Long> countMap = buildBareCountMap();
+
 		if (CollectionUtils.isNotEmpty(purchaseOrderEntities)) {
 
-			Map<PurchaseOrderStatus, Long> countMap = purchaseOrderEntities.stream().collect(Collectors.groupingBy(PurchaseOrder::getPurchaseOrderStatus, Collectors.counting()));
+			Map<PurchaseOrderStatus, Long> dbCountMap = purchaseOrderEntities.stream().collect(Collectors.groupingBy(PurchaseOrder::getPurchaseOrderStatus, Collectors.counting()));
 
-			log.info("Found purchase order status wise counts map: {} for factory id: {}", countMap, factoryId);
+			log.info("Found purchase order status wise counts map: {} for factory id: {}", dbCountMap, factoryId);
 
-			purchaseOrderStatusCounts.setPurchaseOrderStatusCount(countMap);
+			compareKeysAndPopulateCountMaps(countMap, dbCountMap);
 
 		}
+
+		purchaseOrderStatusCounts.setPurchaseOrderStatusCount(countMap);
 
 		return purchaseOrderStatusCounts;
 	}
 
+	private void compareKeysAndPopulateCountMaps(Map<PurchaseOrderStatus, Long> countMap, Map<PurchaseOrderStatus, Long> dbCountMap) {
+
+		for (Map.Entry<PurchaseOrderStatus, Long> entry : dbCountMap.entrySet()) {
+
+			countMap.put(entry.getKey(), entry.getValue());
+		}
+	}
+
+	private Map<PurchaseOrderStatus, Long> buildBareCountMap() {
+
+		Map<PurchaseOrderStatus, Long> countMap = new HashMap<PurchaseOrderStatus, Long>();
+
+		for (PurchaseOrderStatus purchaseOrderStatus : PurchaseOrderStatus.getAllPurchaseOrderStatuses()) {
+
+			countMap.put(purchaseOrderStatus, 0L);
+		}
+
+		return countMap;
+	}
+
 	@Override
-	public PurchaseOrderStatusCountDto getPurchaseOrderStatusCounts(Boolean status, LocalDate startTime, LocalDate endTime,PurchaseOrderStatus purchaseOrderStatus) {
+	public PurchaseOrderStatusCountDto getPurchaseOrderStatusCounts(Boolean status, LocalDate startTime, LocalDate endTime, PurchaseOrderStatus purchaseOrderStatus) {
 		PurchaseOrderStatusCountDto purchaseOrderStatusCounts = PurchaseOrderStatusCountDto.builder().build();
 		try {
 			String factoryId = HeaderUtil.getFactoryIdHeaderValue();
 			Date startDate = DateUtil.convertToDate(startTime);
-			Date endDate =DateUtil.convertToDate(LocalDateTime.of(endTime, LocalTime.MAX));;
-			List<PurchaseOrder> purchaseOrderEntities = purchaseOrderDbService.getAllPurchaseOrdersDateWise(status, factoryId, startDate, endDate,purchaseOrderStatus);
+			Date endDate = DateUtil.convertToDate(LocalDateTime.of(endTime, LocalTime.MAX));
+			;
+			List<PurchaseOrder> purchaseOrderEntities = purchaseOrderDbService.getAllPurchaseOrdersDateWise(status, factoryId, startDate, endDate, purchaseOrderStatus);
 
 			if (CollectionUtils.isNotEmpty(purchaseOrderEntities)) {
 
