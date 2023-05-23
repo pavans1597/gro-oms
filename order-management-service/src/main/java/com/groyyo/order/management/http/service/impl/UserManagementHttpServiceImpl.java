@@ -3,6 +3,7 @@
  */
 package com.groyyo.order.management.http.service.impl;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -32,19 +33,13 @@ public class UserManagementHttpServiceImpl implements UserManagementHttpService 
 
 	@Override
 	public ResponseDto<List<UserResponseDto>> getUsersByLineType(String orgId, String factoryId, LineType lineType, QcUserType qcUserType) {
-
 		try {
-
 			return userClientApi.getUsers(orgId, factoryId, lineType, qcUserType);
-
 		} catch (Exception e) {
-
 			log.error("Exception occured while calling getUsersByLineType service ", e);
-
 		}
 
-		return null;
-
+		return ResponseDto.success(Collections.emptyList());
 	}
 
 	@Override
@@ -59,7 +54,8 @@ public class UserManagementHttpServiceImpl implements UserManagementHttpService 
 		} catch (Exception e) {
 			log.error("exception occured while calling getLineUsers service ");
 		}
-		return null;
+
+		return ResponseDto.success(Collections.emptyList());
 	}
 
 	@Override
@@ -69,22 +65,18 @@ public class UserManagementHttpServiceImpl implements UserManagementHttpService 
 		} catch (Exception e) {
 			log.error("exception occured while calling getAllLines service ");
 		}
-		return null;
+
+		return ResponseDto.success(Collections.emptyMap());
 	}
 
 	@Override
 	public ResponseDto<List<UserResponseDto>> getUsersByDepartmentAndRole(String orgId, String factoryId, String departmentName, QcUserType qcUserType) {
 		try {
-
 			return userClientApi.getUsersByRoleAndDept(orgId, factoryId, departmentName, qcUserType);
-
 		} catch (Exception e) {
-
-			log.error("exception occured while calling getUsersByLineType service ");
-
+			log.error("exception occurred while calling getUsersByLineType service ");
 		}
 
-		return null;
+		return ResponseDto.success(Collections.emptyList());
 	}
-
 }
