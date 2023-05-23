@@ -210,9 +210,18 @@ public class SizeGroupServiceImpl implements SizeGroupService {
 	}
 
 	@Override
-	public void saveEntityFromCache(Map<String, SizeGroupResponseDto> sizeGroupByNameMap) {
+	public void saveEntityFromCache(String factoryId, Map<String, SizeGroupResponseDto> sizeGroupByNameMap) {
+		log.info("Populating sizeGroup data for factory id: {}", factoryId);
 
-		List<String> factories = factoryHttpService.getFactoryIds();
+		sizeGroupByNameMap.values().forEach(sizeGroupResponseDto -> {
+
+			sizeGroupResponseDto.setFactoryId(factoryId);
+
+			conditionalSaveSizeGroup(sizeGroupResponseDto);
+
+		});
+
+		/*List<String> factories = factoryHttpService.getFactoryIds();
 
 		if (CollectionUtils.isEmpty(factories)) {
 			log.error("No active factories found in the system to populate data for");
@@ -230,7 +239,7 @@ public class SizeGroupServiceImpl implements SizeGroupService {
 				conditionalSaveSizeGroup(sizeGroupResponseDto);
 
 			});
-		});
+		});*/
 	}
 
 	private boolean areSizeIdsValid(SizeGroupRequestDto sizeGroupRequestDto) {

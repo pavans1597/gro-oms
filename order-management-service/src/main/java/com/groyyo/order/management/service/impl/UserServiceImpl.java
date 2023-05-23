@@ -25,7 +25,7 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private LineCheckerAssignmentDbService lineCheckerAssignmentDbService;
     @Override
-    public ResponseDto<List<UserResponseDto>> getUsersByLineType(String factoryId, LineType lineType, QcUserType qcUserType) {
+    public ResponseDto<List<UserResponseDto>> getUsersByLineType(String orgId, String factoryId, LineType lineType, QcUserType qcUserType) {
         try {
             String departmentName = null ;
             switch (lineType){
@@ -36,7 +36,7 @@ public class UserServiceImpl implements UserService {
                     departmentName = productionLineDepartment ;
                     break;
             }
-            return userManagementHttpService.getUsersByDepartmentAndRole(factoryId, departmentName, qcUserType);
+            return userManagementHttpService.getUsersByDepartmentAndRole(orgId, factoryId, departmentName, qcUserType);
         } catch (Exception e) {
             log.error("error occured : ", e);
         }
@@ -44,10 +44,10 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public CheckersCountResponseDto getUsersCountByLineType(String factoryId, LineType lineType, QcUserType qcUserType) {
+    public CheckersCountResponseDto getUsersCountByLineType(String orgId, String factoryId, LineType lineType, QcUserType qcUserType) {
 
         //Re Factory call a single user api to get users by department
-        long currentUsersCount = userManagementHttpService.getUsersByLineType(factoryId, lineType,qcUserType).getData().size();
+        long currentUsersCount = userManagementHttpService.getUsersByLineType(orgId, factoryId, lineType,qcUserType).getData().size();
 
         long assignedUserCount = lineCheckerAssignmentDbService.countLineCheckerByFactoryId(factoryId,lineType, true);
 

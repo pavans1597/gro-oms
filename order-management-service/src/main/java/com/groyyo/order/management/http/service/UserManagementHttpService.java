@@ -7,18 +7,19 @@ import com.groyyo.core.dto.userservice.UserResponseDto;
 import com.groyyo.core.enums.QcUserType;
 
 import java.util.List;
+import java.util.Map;
 
 public interface UserManagementHttpService {
 
 
-    ResponseDto<List<UserResponseDto>> getUsersByLineType(String factoryId, LineType lineType, QcUserType qcUserType);
+    ResponseDto<List<UserResponseDto>> getUsersByLineType(String orgId, String factoryId, LineType lineType, QcUserType qcUserType);
 
     int getUserCountByTypeAndLine(String qcUserType, String lineType);
 
     ResponseDto<List<LineResponseDto>> getLinesByType(String factoryIdHeaderValue, LineType lineType);
 
-    ResponseDto<List<LineResponseDto>> getAllLines(String factoryId);
+    ResponseDto<Map<LineType, List<LineResponseDto>>> getAllLines(String factoryId);
 
 
-    ResponseDto<List<UserResponseDto>> getUsersByDepartmentAndRole(String factoryId, String departmentName, QcUserType qcUserType);
+    ResponseDto<List<UserResponseDto>> getUsersByDepartmentAndRole(String orgId, String factoryId, String departmentName, QcUserType qcUserType);
 }

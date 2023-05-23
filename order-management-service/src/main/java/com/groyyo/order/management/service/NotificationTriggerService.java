@@ -4,5 +4,5 @@ import com.groyyo.order.management.entity.PurchaseOrder;
 
 public interface NotificationTriggerService {
 
-    void notifyOrderCompletion(PurchaseOrder purchaseOrder);
+    void notifyOrderCompletion(String orgId, PurchaseOrder purchaseOrder);
 }

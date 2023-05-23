@@ -180,9 +180,18 @@ public class PartServiceImpl implements PartService {
 	}
 
 	@Override
-	public void saveEntityFromCache(Map<String, PartResponseDto> partByNameMap) {
+	public void saveEntityFromCache(String factoryId, Map<String, PartResponseDto> partByNameMap) {
+		log.info("Populating part data for factory id: {}", factoryId);
 
-		List<String> factories = factoryHttpService.getFactoryIds();
+		partByNameMap.values().forEach(partResponseDto -> {
+
+			partResponseDto.setFactoryId(factoryId);
+
+			conditionalSavePart(partResponseDto);
+
+		});
+
+		/*List<String> factories = factoryHttpService.getFactoryIds();
 
 		if (CollectionUtils.isEmpty(factories)) {
 			log.error("No active factories found in the system to populate data for");
@@ -200,7 +209,7 @@ public class PartServiceImpl implements PartService {
 				conditionalSavePart(partResponseDto);
 
 			});
-		});
+		});*/
 
 	}
 
