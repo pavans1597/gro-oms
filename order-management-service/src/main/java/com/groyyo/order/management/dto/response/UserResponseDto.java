@@ -14,6 +14,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class UserResponseDto extends BaseResponseDto {
+    private String id;
     private String lastName;
     private String emailId;
     private String phone;
