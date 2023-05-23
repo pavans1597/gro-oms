@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import com.groyyo.core.base.exception.GroyyoException;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -229,8 +230,13 @@ public class SeasonServiceImpl implements SeasonService {
 
 	@Override
 	public Season findOrCreate(String name) {
-		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
-		Season season = SeasonAdapter.buildSeasonFromName(name, factoryId);
-		return seasonDbService.findOrCreate(season);
+		try {
+			String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+			Season season = SeasonAdapter.buildSeasonFromName(name, factoryId);
+			return seasonDbService.findOrCreate(season);
+		} catch (Exception e) {
+			throw new GroyyoException("Something went wrong!");
+		}
+
 	}
 }

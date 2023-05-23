@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import com.groyyo.core.base.exception.GroyyoException;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -245,8 +246,12 @@ public class ColorServiceImpl implements ColorService {
 
 	@Override
 	public Color findOrCreate(String name, String hexCode) {
-		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
-		Color color = ColorAdapter.buildColorFromName(name, hexCode, factoryId);
-		return colorDbService.findOrCreate(color);
+		try {
+			String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+			Color color = ColorAdapter.buildColorFromName(name, hexCode, factoryId);
+			return colorDbService.findOrCreate(color);
+		} catch (Exception e) {
+			throw new GroyyoException("Something went wrong!");
+		}
 	}
 }

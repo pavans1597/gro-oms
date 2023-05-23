@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import com.groyyo.core.base.exception.GroyyoException;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -224,9 +225,13 @@ public class PartServiceImpl implements PartService {
 
 	@Override
 	public Part findOrCreate(String name) {
-		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
-		Part part = PartAdapter.buildPartFromName(name, factoryId);
-		return partDbService.findOrCreate(part);
+		try {
+			String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+			Part part = PartAdapter.buildPartFromName(name, factoryId);
+			return partDbService.findOrCreate(part);
+		} catch (Exception e) {
+			throw new GroyyoException("Something went wrong!");
+		}
 	}
 
 }

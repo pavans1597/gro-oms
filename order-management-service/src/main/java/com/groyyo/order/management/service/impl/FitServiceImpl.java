@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import com.groyyo.core.base.exception.GroyyoException;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -219,8 +220,12 @@ public class FitServiceImpl implements FitService {
 
 	@Override
 	public Fit findOrCreate(String name) {
-		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
-		Fit fit = FitAdapter.buildFitFromName(name, factoryId);
-		return fitDbService.findOrCreate(fit);
+		try {
+			String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+			Fit fit = FitAdapter.buildFitFromName(name, factoryId);
+			return fitDbService.findOrCreate(fit);
+		} catch (Exception e) {
+			throw new GroyyoException("Something went wrong!");
+		}
 	}
 }
