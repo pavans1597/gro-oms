@@ -6,14 +6,15 @@ package com.groyyo.order.management.http.service.impl;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
+import com.groyyo.order.management.dto.response.UserResponseDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.groyyo.core.base.common.dto.ResponseDto;
 import com.groyyo.core.dto.userservice.LineResponseDto;
 import com.groyyo.core.dto.userservice.LineType;
-import com.groyyo.core.dto.userservice.UserResponseDto;
 import com.groyyo.core.enums.QcUserType;
 import com.groyyo.core.user.client.api.UserClientApi;
 import com.groyyo.order.management.http.service.UserManagementHttpService;
@@ -34,7 +35,22 @@ public class UserManagementHttpServiceImpl implements UserManagementHttpService 
 	@Override
 	public ResponseDto<List<UserResponseDto>> getUsersByLineType(String orgId, String factoryId, LineType lineType, QcUserType qcUserType) {
 		try {
-			return userClientApi.getUsers(orgId, factoryId, lineType, qcUserType);
+			ResponseDto<List<com.groyyo.core.dto.userservice.UserResponseDto>> response = userClientApi.getUsers(orgId, factoryId, lineType, qcUserType);
+
+			if(response != null) {
+				List<com.groyyo.core.dto.userservice.UserResponseDto> users = response.getData();
+
+				return ResponseDto.success( users.stream().map(userOfLine ->
+					UserResponseDto.builder()
+							.lastName(userOfLine.getFirstName())
+							.emailId(userOfLine.getEmail())
+							.phone(userOfLine.getPhone())
+							.factoryId(factoryId)
+							.userType(userOfLine.getUserType())
+							.build()
+
+				).collect(Collectors.toList()));
+			}
 		} catch (Exception e) {
 			log.error("Exception occured while calling getUsersByLineType service ", e);
 		}
@@ -72,7 +88,22 @@ public class UserManagementHttpServiceImpl implements UserManagementHttpService 
 	@Override
 	public ResponseDto<List<UserResponseDto>> getUsersByDepartmentAndRole(String orgId, String factoryId, String departmentName, QcUserType qcUserType) {
 		try {
-			return userClientApi.getUsersByRoleAndDept(orgId, factoryId, departmentName, qcUserType);
+			ResponseDto<List<com.groyyo.core.dto.userservice.UserResponseDto>> response =  userClientApi.getUsersByRoleAndDept(orgId, factoryId, departmentName, qcUserType);
+
+			if(response != null) {
+				List<com.groyyo.core.dto.userservice.UserResponseDto> users = response.getData();
+
+				return ResponseDto.success( users.stream().map(userOfLine ->
+						UserResponseDto.builder()
+								.lastName(userOfLine.getFirstName())
+								.emailId(userOfLine.getEmail())
+								.phone(userOfLine.getPhone())
+								.factoryId(factoryId)
+								.userType(userOfLine.getUserType())
+								.build()
+
+				).collect(Collectors.toList()));
+			}
 		} catch (Exception e) {
 			log.error("exception occurred while calling getUsersByLineType service ");
 		}

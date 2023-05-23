@@ -2,10 +2,10 @@ package com.groyyo.order.management.service.impl;
 
 import com.groyyo.core.base.common.dto.ResponseDto;
 import com.groyyo.core.dto.userservice.LineType;
-import com.groyyo.core.dto.userservice.UserResponseDto;
 import com.groyyo.core.enums.QcUserType;
 import com.groyyo.order.management.db.service.LineCheckerAssignmentDbService;
 import com.groyyo.order.management.dto.request.CheckersCountResponseDto;
+import com.groyyo.order.management.dto.response.UserResponseDto;
 import com.groyyo.order.management.http.service.UserManagementHttpService;
 import com.groyyo.order.management.service.UserService;
 import lombok.extern.log4j.Log4j2;
