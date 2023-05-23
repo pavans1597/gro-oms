@@ -81,15 +81,12 @@ public class PurchaseOrderDbServiceImpl extends AbstractJpaServiceImpl<PurchaseO
                         StringUtils::defaultIfBlank
                 ));
 
-        List<PurchaseOrder> pos = purchaseOrderList.stream().
-                filter(po -> po.getPurchaseOrderStatus()
-                        .equals(PurchaseOrderStatus.ONGOING)).collect(Collectors.toList());
-
-        for(PurchaseOrder po : pos){
-            String colour = assignments.get(po.getUuid());
-            po.setAssignedWithColours(StringUtils.isNotBlank(colour));
-        }
-        purchaseOrderList.addAll(pos);
+         purchaseOrderList.forEach(poObj -> {
+             if(poObj.getPurchaseOrderStatus().equals(PurchaseOrderStatus.ONGOING)){
+                 String colour = assignments.get(poObj.getUuid());
+                 poObj.setAssignedWithColours(StringUtils.isNotBlank(colour));
+             }
+        } );
 
         if (purchaseOrderList == null) {
             return new ArrayList<>();
