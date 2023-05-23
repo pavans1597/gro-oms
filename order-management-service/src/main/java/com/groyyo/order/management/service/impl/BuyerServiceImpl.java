@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import com.groyyo.core.base.exception.GroyyoException;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -172,8 +173,12 @@ public class BuyerServiceImpl implements BuyerService {
 
 	@Override
 	public Buyer findOrCreate(String name) {
-		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
-		Buyer buyer = BuyerAdapter.buildBuyerFromName(name, factoryId);
-		return buyerDbService.findOrCreate(buyer);
+		try {
+			String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+			Buyer buyer = BuyerAdapter.buildBuyerFromName(name, factoryId);
+			return buyerDbService.findOrCreate(buyer);
+		} catch (Exception e) {
+			throw new GroyyoException("Something went wrong!");
+		}
 	}
 }

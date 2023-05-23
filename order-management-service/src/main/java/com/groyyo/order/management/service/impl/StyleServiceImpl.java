@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-
+import com.groyyo.core.base.exception.GroyyoException;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -199,8 +199,12 @@ public class StyleServiceImpl implements StyleService {
 
 	@Override
 	public Style findOrCreate(String name, String styleNumber, Product product) {
-		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
-		Style style = StyleAdapter.buildStyleFromName(name, styleNumber, product, factoryId);
-		return styleDbService.findOrCreate(style);
+		try {
+			String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+			Style style = StyleAdapter.buildStyleFromName(name, styleNumber, product, factoryId);
+			return styleDbService.findOrCreate(style);
+		} catch (Exception e) {
+			throw new GroyyoException("Something went wrong!");
+		}
 	}
 }

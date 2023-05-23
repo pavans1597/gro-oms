@@ -1,5 +1,6 @@
 package com.groyyo.order.management.db.service.impl;
 
+import com.groyyo.core.base.exception.GroyyoException;
 import com.groyyo.core.dto.PurchaseOrder.PurchaseOrderStatus;
 import com.groyyo.core.sqlPostgresJpa.service.impl.AbstractJpaServiceImpl;
 import com.groyyo.order.management.db.service.PurchaseOrderDbService;
@@ -44,7 +45,11 @@ public class PurchaseOrderDbServiceImpl extends AbstractJpaServiceImpl<PurchaseO
 
     @Override
     public PurchaseOrder savePurchaseOrder(PurchaseOrder purchaseOrder) {
-        return purchaseOrderRepository.saveAndFlush(purchaseOrder);
+        try {
+            return purchaseOrderRepository.saveAndFlush(purchaseOrder);
+        } catch (Exception e) {
+            throw new GroyyoException("Something went wrong!");
+        }
     }
 
     @Override
@@ -85,7 +90,7 @@ public class PurchaseOrderDbServiceImpl extends AbstractJpaServiceImpl<PurchaseO
                 filter(po -> po.getPurchaseOrderStatus()
                         .equals(PurchaseOrderStatus.ONGOING)).collect(Collectors.toList());
 
-        for(PurchaseOrder po : pos){
+        for (PurchaseOrder po : pos) {
             String colour = assignments.get(po.getUuid());
             po.setAssignedWithColours(StringUtils.isNotBlank(colour));
         }

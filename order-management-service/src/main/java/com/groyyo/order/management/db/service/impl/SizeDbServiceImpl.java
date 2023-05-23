@@ -3,6 +3,7 @@ package com.groyyo.order.management.db.service.impl;
 import java.util.List;
 import java.util.Objects;
 
+import com.groyyo.core.base.exception.GroyyoException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -57,12 +58,16 @@ public class SizeDbServiceImpl extends AbstractJpaServiceImpl<Size, Long, SizeRe
 
 	@Override
 	public Size findOrCreate(Size size) {
-		Size entity = sizeRepository.findByNameAndFactoryId(size.getName(), size.getFactoryId());
-		if (Objects.isNull(entity)) {
-			entity = size;
-			save(entity);
+		try {
+			Size entity = sizeRepository.findByNameAndFactoryId(size.getName(), size.getFactoryId());
+			if (Objects.isNull(entity)) {
+				entity = size;
+				save(entity);
+			}
+			return entity;
+		} catch (Exception e) {
+			throw new GroyyoException("Something went wrong!");
 		}
-		return entity;
 	}
 
 	@Override

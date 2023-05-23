@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import com.groyyo.core.base.exception.GroyyoException;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -290,8 +291,12 @@ public class SizeGroupServiceImpl implements SizeGroupService {
 
 	@Override
 	public SizeGroup findOrCreate(String name, List<Size> sizes) {
-		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
-		SizeGroup sizeGroup = SizeGroupAdapter.buildSizeGroup(name, sizes.stream().map(AbstractJpaEntity::getUuid).collect(Collectors.toList()), factoryId);
-		return sizeGroupDbService.findOrCreate(sizeGroup);
+		try {
+			String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+			SizeGroup sizeGroup = SizeGroupAdapter.buildSizeGroup(name, sizes.stream().map(AbstractJpaEntity::getUuid).collect(Collectors.toList()), factoryId);
+			return sizeGroupDbService.findOrCreate(sizeGroup);
+		} catch (Exception e) {
+			throw new GroyyoException("Something went wrong!");
+		}
 	}
 }

@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import com.groyyo.core.base.exception.GroyyoException;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -220,8 +221,12 @@ public class ProductServiceImpl implements ProductService {
 
 	@Override
 	public Product findOrCreate(String name) {
-		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
-		Product product = ProductAdapter.buildProductFromName(name, factoryId);
-		return productDbService.findOrCreate(product);
+		try {
+			String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+			Product product = ProductAdapter.buildProductFromName(name, factoryId);
+			return productDbService.findOrCreate(product);
+		} catch (Exception e) {
+			throw new GroyyoException("Something went wrong!");
+		}
 	}
 }
