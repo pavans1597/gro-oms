@@ -76,6 +76,8 @@ public class UserManagementHttpServiceImpl implements UserManagementHttpService 
 				return ResponseDto.success(
 						lines.stream().map(line ->
 										LineResponseDto.builder()
+												.name(line.getLineName())
+												.id(line.getLineId())
 												.lineTypeName(line.getLineName())
 												.lineType(line.getLineType())
 												.factoryId(factoryId)
