@@ -5,6 +5,7 @@ import com.groyyo.core.base.common.dto.ResponseDto;
 import com.groyyo.core.base.http.utils.HeaderUtil;
 import com.groyyo.core.dto.PurchaseOrder.PurchaseOrderResponseDto;
 import com.groyyo.core.dto.PurchaseOrder.PurchaseOrderStatus;
+import com.groyyo.core.multitenancy.multitenancy.util.TenantContext;
 import com.groyyo.order.management.dto.filter.PurchaseOrderFilterDto;
 import com.groyyo.order.management.dto.request.BulkOrderExcelRequestDto;
 import com.groyyo.order.management.dto.request.LineCheckerAssignmentRequestDto;
@@ -115,7 +116,7 @@ public class PurchaseOrderController {
 
 		log.info("Request received to update assign Checkers: {}", checkerAssignDto);
 
-		String factoryIdHeaderValue = HeaderUtil.getFactoryIdHeaderValue() ;
+		String factoryIdHeaderValue = TenantContext.getTenantId();;
 
 		 List<LineCheckerAssignment> lineCheckerAssignments = (Objects.nonNull(factoryIdHeaderValue))?
 				 lineCheckerAssignmentService.lineCheckerAssignment(checkerAssignDto, factoryIdHeaderValue):
