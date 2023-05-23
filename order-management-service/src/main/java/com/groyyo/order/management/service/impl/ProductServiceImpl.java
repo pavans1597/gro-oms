@@ -47,7 +47,7 @@ public class ProductServiceImpl implements ProductService {
 	public List<ProductResponseDto> getAllProducts(Boolean status) {
 
 		log.info("Serving request to get all products");
-		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+		String factoryId = TenantContext.getTenantId();
 
 		List<Product> productEntities = Objects.isNull(status) ? productDbService.getAllProducts(factoryId)
 				: productDbService.getAllProductsForStatus(status, factoryId);
@@ -80,7 +80,7 @@ public class ProductServiceImpl implements ProductService {
 
 		log.info("Serving request to add a product with request object:{}", productRequestDto);
 
-		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+		String factoryId = TenantContext.getTenantId();
 
 		runValidations(productRequestDto, factoryId);
 
@@ -164,7 +164,7 @@ public class ProductServiceImpl implements ProductService {
 
 	@Override
 	public void consumeProduct(ProductResponseDto productResponseDto) {
-		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+		String factoryId = TenantContext.getTenantId();
 
 		Product product = ProductAdapter.buildProductFromResponse(productResponseDto, factoryId);
 
@@ -230,7 +230,7 @@ public class ProductServiceImpl implements ProductService {
 
 	@Override
 	public Product findOrCreate(String name) {
-		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+		String factoryId = TenantContext.getTenantId();
 		Product product = ProductAdapter.buildProductFromName(name, factoryId);
 		return productDbService.findOrCreate(product);
 	}

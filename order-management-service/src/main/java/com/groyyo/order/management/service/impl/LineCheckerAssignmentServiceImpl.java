@@ -8,6 +8,7 @@ import com.groyyo.core.dto.PurchaseOrder.PurchaseOrderResponseDto;
 import com.groyyo.core.dto.PurchaseOrder.PurchaseOrderStatus;
 import com.groyyo.core.dto.PurchaseOrder.UserLineDetails;
 import com.groyyo.core.dto.userservice.LineType;
+import com.groyyo.core.multitenancy.multitenancy.util.TenantContext;
 import com.groyyo.core.user.dto.response.LineUserResponseDto;
 import com.groyyo.order.management.adapter.LineCheckerAssignmentAdapter;
 import com.groyyo.order.management.db.service.LineCheckerAssignmentDbService;
@@ -108,7 +109,7 @@ public class LineCheckerAssignmentServiceImpl implements LineCheckerAssignmentSe
 
     @Override
     public void publishQcTaskAssignment(String purchaseOrderId) {
-        String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+        String factoryId = TenantContext.getTenantId();
 
         PurchaseOrderResponseDto purchaseOrderResponseDto = purchaseOrderService.getPurchaseOrderById(purchaseOrderId, Boolean.FALSE);
 
@@ -125,7 +126,7 @@ public class LineCheckerAssignmentServiceImpl implements LineCheckerAssignmentSe
 
     @Override
     public PurchaseOrderAndLineColourResponse getLinesAndColourByPoId(String purchaseOrderId) {
-        String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+        String factoryId = TenantContext.getTenantId();
         List<LineCheckerAssignment> lineCheckerAssignments = lineCheckerAssignmentDbService.getLineCheckerAssignmentForPurchaseOrder(purchaseOrderId, factoryId);
         Map<LineType, Set<String>> lineTypeToLineAssigned = new HashMap<>();
         Map<String, Set<String>> lineIdToColours = new HashMap<>();
@@ -173,7 +174,7 @@ public class LineCheckerAssignmentServiceImpl implements LineCheckerAssignmentSe
 
 
     public void publishQcTaskAssignment(String purchaseOrderId, List<UserLineDetails> userLineDetailsAssignments, boolean isColourEnabled) {
-        String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+        String factoryId = TenantContext.getTenantId();
 
         PurchaseOrderResponseDto purchaseOrderResponseDto = purchaseOrderService.getPurchaseOrderById(purchaseOrderId, Boolean.FALSE);
         if (isColourEnabled) {
@@ -217,7 +218,7 @@ public class LineCheckerAssignmentServiceImpl implements LineCheckerAssignmentSe
             throw new PreconditionFailedException(errorMsg);
         }
 
-        String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+        String factoryId = TenantContext.getTenantId();
 
         List<LineCheckerAssignment> lineCheckerAssignments = lineCheckerAssignmentDbService.getLineCheckerAssignmentForPurchaseOrderAndFactoryIdAndStatus(purchaseOrderId, factoryId, Boolean.TRUE);
 

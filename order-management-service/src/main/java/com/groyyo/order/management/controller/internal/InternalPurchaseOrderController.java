@@ -6,6 +6,7 @@ package com.groyyo.order.management.controller.internal;
 import com.groyyo.core.base.common.dto.ResponseDto;
 import com.groyyo.core.base.http.utils.HeaderUtil;
 import com.groyyo.core.dto.PurchaseOrder.PurchaseOrderStatus;
+import com.groyyo.core.multitenancy.multitenancy.util.TenantContext;
 import com.groyyo.order.management.dto.request.PurchaseOrderListRequestDto;
 import com.groyyo.order.management.dto.response.PurchaseOrderDetailResponseDto;
 import com.groyyo.order.management.dto.response.PurchaseOrderStatusCountDto;
@@ -77,7 +78,7 @@ public class InternalPurchaseOrderController {
 	@PostMapping("get/purchaseOrders")
 	public ResponseDto<List<PurchaseOrderDetailResponseDto>> getPurchaseOrdersStatusWise(@RequestBody List<PurchaseOrderStatus> requestDto) {
 		log.info("Request received to publish Purchase orders based on status", requestDto);
-		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+		String factoryId = TenantContext.getTenantId();
 		List<PurchaseOrderDetailResponseDto> purchaseOrderStatusWiseResponse = purchaseOrderService.getPurchaseOrdersStatusWise(requestDto, factoryId);
 		return ResponseDto.success("PurchaseOrders retrieved successfully " + purchaseOrderStatusWiseResponse.size(), purchaseOrderStatusWiseResponse);
 	}

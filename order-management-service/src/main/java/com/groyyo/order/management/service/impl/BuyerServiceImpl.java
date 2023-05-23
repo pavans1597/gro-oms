@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import com.groyyo.core.multitenancy.multitenancy.util.TenantContext;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,7 +43,7 @@ public class BuyerServiceImpl implements BuyerService {
 
 		log.info("Serving request to get all buyers");
 
-		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+		String factoryId = TenantContext.getTenantId();
 
 		List<Buyer> buyerEntities = Objects.isNull(status) ? buyerDbService.getAllBuyers(factoryId)
 				: buyerDbService.getAllBuyersForStatus(status, factoryId);
@@ -75,7 +76,7 @@ public class BuyerServiceImpl implements BuyerService {
 
 		log.info("Serving request to add a buyer with request object:{}", buyerRequestDto);
 
-		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+		String factoryId = TenantContext.getTenantId();
 
 		runValidations(buyerRequestDto, factoryId);
 
@@ -140,7 +141,7 @@ public class BuyerServiceImpl implements BuyerService {
 
 	@Override
 	public void consumeBuyer(BuyerResponseDto buyerResponseDto) {
-		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+		String factoryId = TenantContext.getTenantId();
 
 		Buyer buyer = BuyerAdapter.buildBuyerFromResponse(buyerResponseDto, factoryId);
 
@@ -172,7 +173,7 @@ public class BuyerServiceImpl implements BuyerService {
 
 	@Override
 	public Buyer findOrCreate(String name) {
-		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+		String factoryId = TenantContext.getTenantId();
 		Buyer buyer = BuyerAdapter.buildBuyerFromName(name, factoryId);
 		return buyerDbService.findOrCreate(buyer);
 	}

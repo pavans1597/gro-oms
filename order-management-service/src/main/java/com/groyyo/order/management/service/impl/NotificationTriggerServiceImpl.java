@@ -5,6 +5,7 @@ import com.groyyo.core.base.constants.InterceptorConstants;
 import com.groyyo.core.base.http.utils.HeaderUtil;
 import com.groyyo.core.dto.userservice.UserResponseDto;
 import com.groyyo.core.enums.QcUserType;
+import com.groyyo.core.multitenancy.multitenancy.util.TenantContext;
 import com.groyyo.core.notification.enums.Event;
 import com.groyyo.core.notification.enums.EventType;
 import com.groyyo.core.notification.enums.NotificationSubType;
@@ -31,7 +32,7 @@ public class NotificationTriggerServiceImpl implements NotificationTriggerServic
 
     @Override
     public void notifyOrderCompletion(String orgId, PurchaseOrder purchaseOrder) {
-        String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+        String factoryId = TenantContext.getTenantId();
         //TODO : based on product manager requirement we decide which api to call
 
         ResponseDto<List<UserResponseDto>> usersByRole = userManagementHttpService.getUsersByDepartmentAndRole(orgId, factoryId,"FINISHING", QcUserType.CHECKER);

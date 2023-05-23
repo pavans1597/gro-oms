@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import com.groyyo.core.multitenancy.multitenancy.util.TenantContext;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,7 +47,7 @@ public class ColorServiceImpl implements ColorService {
 	public List<ColorResponseDto> getAllColors(Boolean status) {
 
 		log.info("Serving request to get all colors");
-		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+		String factoryId = TenantContext.getTenantId();
 
 		List<Color> colorEntities = Objects.isNull(status) ? colorDbService.getAllColors(factoryId)
 				: colorDbService.getAllColorsForStatus(status, factoryId);
@@ -81,7 +82,7 @@ public class ColorServiceImpl implements ColorService {
 
 		runValidations(colorRequestDto);
 
-		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+		String factoryId = TenantContext.getTenantId();
 
 		Color color = ColorAdapter.buildColorFromRequest(colorRequestDto, factoryId);
 
@@ -171,7 +172,7 @@ public class ColorServiceImpl implements ColorService {
 				log.error("Unable to build color request from response object: {}", colorResponseDto);
 				return;
 			}
-			String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+			String factoryId = TenantContext.getTenantId();
 
 			Color color = ColorAdapter.buildColorFromRequest(colorRequestDto, factoryId);
 
@@ -254,7 +255,7 @@ public class ColorServiceImpl implements ColorService {
 
 	@Override
 	public Color findOrCreate(String name, String hexCode) {
-		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+		String factoryId = TenantContext.getTenantId();
 		Color color = ColorAdapter.buildColorFromName(name, hexCode, factoryId);
 		return colorDbService.findOrCreate(color);
 	}

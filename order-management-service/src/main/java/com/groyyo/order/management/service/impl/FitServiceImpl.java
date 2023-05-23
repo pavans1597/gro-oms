@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import com.groyyo.core.multitenancy.multitenancy.util.TenantContext;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,7 +47,7 @@ public class FitServiceImpl implements FitService {
 	public List<FitResponseDto> getAllFits(Boolean status) {
 
 		log.info("Serving request to get all fits");
-		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+		String factoryId = TenantContext.getTenantId();
 
 		List<Fit> fitEntities = Objects.isNull(status) ? fitDbService.getAllFits(factoryId)
 				: fitDbService.getAllFitsForStatus(status, factoryId);
@@ -80,7 +81,7 @@ public class FitServiceImpl implements FitService {
 		log.info("Serving request to add a fit with request object:{}", fitRequestDto);
 
 		runValidations(fitRequestDto);
-		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+		String factoryId = TenantContext.getTenantId();
 
 		Fit fit = FitAdapter.buildFitFromRequest(fitRequestDto, factoryId);
 
@@ -195,7 +196,7 @@ public class FitServiceImpl implements FitService {
 
 	@Override
 	public void consumeFit(FitResponseDto fitResponseDto) {
-		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+		String factoryId = TenantContext.getTenantId();
 
 		Fit fit = FitAdapter.buildFitFromResponse(fitResponseDto, factoryId);
 
@@ -227,7 +228,7 @@ public class FitServiceImpl implements FitService {
 
 	@Override
 	public Fit findOrCreate(String name) {
-		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+		String factoryId = TenantContext.getTenantId();
 		Fit fit = FitAdapter.buildFitFromName(name, factoryId);
 		return fitDbService.findOrCreate(fit);
 	}

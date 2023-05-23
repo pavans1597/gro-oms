@@ -29,7 +29,7 @@ public class UserController {
     public ResponseDto<List<UserResponseDto>> getUsers(JwtAuthenticationToken authentication,
                                                        @PathVariable("qcUserType") QcUserType qcUserType ,
                                                        @RequestParam LineType lineType) {
-        String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+        String factoryId = TenantContext.getTenantId();
 
         log.info("Request received to get getUsers by FactoryId : {}", factoryId);
 

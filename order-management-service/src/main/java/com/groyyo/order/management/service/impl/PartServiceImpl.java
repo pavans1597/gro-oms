@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import com.groyyo.core.multitenancy.multitenancy.util.TenantContext;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,7 +47,7 @@ public class PartServiceImpl implements PartService {
 	public List<PartResponseDto> getAllParts(Boolean status) {
 
 		log.info("Serving request to get all parts");
-		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+		String factoryId = TenantContext.getTenantId();
 
 		List<Part> partEntities = Objects.isNull(status) ? partDbService.getAllParts(factoryId)
 				: partDbService.getAllPartsForStatus(status, factoryId);
@@ -80,7 +81,7 @@ public class PartServiceImpl implements PartService {
 		log.info("Serving request to add a part with request object:{}", partRequestDto);
 
 		runValidations(partRequestDto);
-		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+		String factoryId = TenantContext.getTenantId();
 
 		Part part = PartAdapter.buildPartFromRequest(partRequestDto, factoryId);
 
@@ -167,7 +168,7 @@ public class PartServiceImpl implements PartService {
 
 	@Override
 	public void consumePart(PartResponseDto partResponseDto) {
-		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+		String factoryId = TenantContext.getTenantId();
 
 		Part part = PartAdapter.buildPartFromResponse(partResponseDto, factoryId);
 
@@ -233,7 +234,7 @@ public class PartServiceImpl implements PartService {
 
 	@Override
 	public Part findOrCreate(String name) {
-		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+		String factoryId = TenantContext.getTenantId();
 		Part part = PartAdapter.buildPartFromName(name, factoryId);
 		return partDbService.findOrCreate(part);
 	}
