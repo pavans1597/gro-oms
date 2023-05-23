@@ -19,6 +19,7 @@ import java.util.Random;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
+import com.groyyo.core.multitenancy.multitenancy.util.TenantContext;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -33,7 +34,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.groyyo.core.base.common.dto.PageResponse;
 import com.groyyo.core.base.exception.NoRecordException;
 import com.groyyo.core.base.exception.RecordExistsException;
-import com.groyyo.core.base.http.utils.HeaderUtil;
 import com.groyyo.core.base.utils.DateUtil;
 import com.groyyo.core.dto.PurchaseOrder.PurchaseOrderQuantityResponseDto;
 import com.groyyo.core.dto.PurchaseOrder.PurchaseOrderResponseDto;
@@ -137,7 +137,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
 		log.info("Serving request to get all purchaseOrders");
 
-		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+		String factoryId = TenantContext.getTenantId();
 
 		List<PurchaseOrder> purchaseOrderEntities = Objects.isNull(status) ? purchaseOrderDbService.getAllPurchaseOrders(factoryId)
 				: purchaseOrderDbService.getAllPurchaseOrdersForStatus(status, factoryId);
@@ -172,7 +172,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
 		PurchaseOrder purchaseOrder = PurchaseOrder.builder().build();
 
-		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+		String factoryId = TenantContext.getTenantId();
 
 		addRunTimeStyle(purchaseOrderRequestDto, factoryId);
 
@@ -446,7 +446,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
 		PurchaseOrderStatusCountDto purchaseOrderStatusCounts = PurchaseOrderStatusCountDto.builder().build();
 
-		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+		String factoryId = TenantContext.getTenantId();;
 
 		List<PurchaseOrder> purchaseOrderEntities = Objects.isNull(status) ? purchaseOrderDbService.getAllPurchaseOrders(factoryId)
 				: purchaseOrderDbService.getAllPurchaseOrdersForStatus(status, factoryId);
@@ -492,7 +492,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 	public PurchaseOrderStatusCountDto getPurchaseOrderStatusCounts(Boolean status, LocalDate startTime, LocalDate endTime, PurchaseOrderStatus purchaseOrderStatus) {
 		PurchaseOrderStatusCountDto purchaseOrderStatusCounts = PurchaseOrderStatusCountDto.builder().build();
 		try {
-			String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+			String factoryId = TenantContext.getTenantId();
 			Date startDate = DateUtil.convertToDate(startTime);
 			Date endDate = DateUtil.convertToDate(LocalDateTime.of(endTime, LocalTime.MAX));
 			;
@@ -522,7 +522,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 		if (Objects.nonNull(purchaseOrderStatus))
 			groyyoSpecificationBuilder.with(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_STATUS, CriteriaOperation.ENUM_EQ, purchaseOrderStatus);
 
-		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+		String factoryId = TenantContext.getTenantId();;
 
 		if (StringUtils.isNotBlank(factoryId))
 			groyyoSpecificationBuilder.with(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_FACTORY_ID, CriteriaOperation.EQ, factoryId);
@@ -660,7 +660,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 	}
 
 	private boolean isEntityExistsWithNameAndFactoryId(String name) {
-		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+		String factoryId = TenantContext.getTenantId();;
 		return StringUtils.isNotBlank(name) && purchaseOrderDbService.isEntityExistsByNameAndFactoryId(name, factoryId);
 	}
 
@@ -678,7 +678,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 	}
 
 	private List<PurchaseOrderResponseDto> addBulkPurchaseOrder(List<BulkPurchaseOrderRequestDto> purchaseOrderRequestsDto) {
-		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+		String factoryId = TenantContext.getTenantId();;
 		List<PurchaseOrderResponseDto> purchaseOrderResponses = new ArrayList<>();
 		purchaseOrderRequestsDto.forEach(purchaseOrderRequestDto -> {
 			List<PurchaseOrderQuantity> purchaseOrderQuantities = new ArrayList<>();
