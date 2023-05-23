@@ -1,8 +1,8 @@
 package com.groyyo.order.management.controller;
 
 import com.groyyo.core.base.common.dto.ResponseDto;
-import com.groyyo.core.dto.userservice.LineResponseDto;
 import com.groyyo.core.dto.userservice.LineType;
+import com.groyyo.order.management.dto.response.LineResponseDto;
 import com.groyyo.order.management.dto.response.PurchaseOrderAndLineColourResponse;
 import com.groyyo.core.multitenancy.multitenancy.util.TenantContext;
 import com.groyyo.order.management.http.service.UserManagementHttpService;

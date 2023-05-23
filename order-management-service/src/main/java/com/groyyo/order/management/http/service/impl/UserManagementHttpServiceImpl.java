@@ -4,16 +4,17 @@
 package com.groyyo.order.management.http.service.impl;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.groyyo.order.management.dto.response.LineResponseDto;
 import com.groyyo.order.management.dto.response.UserResponseDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.groyyo.core.base.common.dto.ResponseDto;
-import com.groyyo.core.dto.userservice.LineResponseDto;
 import com.groyyo.core.dto.userservice.LineType;
 import com.groyyo.core.enums.QcUserType;
 import com.groyyo.core.user.client.api.UserClientApi;
@@ -66,7 +67,24 @@ public class UserManagementHttpServiceImpl implements UserManagementHttpService 
 	@Override
 	public ResponseDto<List<LineResponseDto>> getLinesByType(String factoryId, LineType lineType) {
 		try {
-			return userClientApi.getLinesByType(factoryId, lineType);
+			ResponseDto<List<com.groyyo.core.dto.userservice.LineResponseDto>> response =
+					userClientApi.getLinesByType(factoryId, lineType);
+
+			if(response != null) {
+				List<com.groyyo.core.dto.userservice.LineResponseDto> lines = response.getData();
+
+				return ResponseDto.success(
+						lines.stream().map(line ->
+										LineResponseDto.builder()
+												.lineTypeName(line.getLineName())
+												.lineType(line.getLineType())
+												.factoryId(factoryId)
+												.status(line.isStatus())
+												.build()
+								).collect(Collectors.toList())
+				);
+			}
+
 		} catch (Exception e) {
 			log.error("exception occured while calling getLineUsers service ");
 		}
@@ -77,7 +95,29 @@ public class UserManagementHttpServiceImpl implements UserManagementHttpService 
 	@Override
 	public ResponseDto<Map<LineType, List<LineResponseDto>>> getAllLines(String factoryId) {
 		try {
-			return userClientApi.getLines(factoryId);
+			ResponseDto<Map<LineType, List<com.groyyo.core.dto.userservice.LineResponseDto>>> response =
+					userClientApi.getLines(factoryId);
+
+			if(response != null) {
+				Map<LineType, List<com.groyyo.core.dto.userservice.LineResponseDto>> lineMap = response.getData();
+
+				Map<LineType, List<LineResponseDto>> lines = new HashMap<>();
+
+				lineMap.forEach((lineType, lineList) -> {
+					List<LineResponseDto> lineData = lineList.stream().map(line ->
+						LineResponseDto.builder()
+								.lineTypeName(line.getLineName())
+								.lineType(line.getLineType())
+								.factoryId(factoryId)
+								.status(line.isStatus())
+								.build()
+					).collect(Collectors.toList());
+
+					lines.put(lineType, lineData);
+				});
+
+				return ResponseDto.success(lines);
+			}
 		} catch (Exception e) {
 			log.error("exception occured while calling getAllLines service ");
 		}

@@ -1,9 +1,9 @@
 package com.groyyo.order.management.http.service;
 
 import com.groyyo.core.base.common.dto.ResponseDto;
-import com.groyyo.core.dto.userservice.LineResponseDto;
 import com.groyyo.core.dto.userservice.LineType;
 import com.groyyo.core.enums.QcUserType;
+import com.groyyo.order.management.dto.response.LineResponseDto;
 import com.groyyo.order.management.dto.response.UserResponseDto;
 
 import java.util.List;
