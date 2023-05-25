@@ -185,7 +185,11 @@ public class LineCheckerAssignmentServiceImpl implements LineCheckerAssignmentSe
 			}
 		}
 
-		sortLineAndColorResponseOnLineName(lineAndColourResponses);
+		log.info("lineAndColourResponses before sorting: {}", lineAndColourResponses);
+
+		lineAndColourResponses = sortLineAndColorResponseOnLineName(lineAndColourResponses);
+
+		log.info("lineAndColourResponses after sorting: {}", lineAndColourResponses);
 
 		return PurchaseOrderAndLineColourResponse.builder()
 				.purchaseOrderId(purchaseOrderId)
@@ -193,9 +197,11 @@ public class LineCheckerAssignmentServiceImpl implements LineCheckerAssignmentSe
 				.build();
 	}
 
-	private void sortLineAndColorResponseOnLineName(List<LineAndColourResponse> lineAndColourResponses) {
+	private List<LineAndColourResponse> sortLineAndColorResponseOnLineName(List<LineAndColourResponse> lineAndColourResponses) {
 
-		lineAndColourResponses.stream().sorted(Comparator.comparing(LineAndColourResponse::getLineName)).collect(Collectors.toList());
+		lineAndColourResponses = lineAndColourResponses.stream().sorted(Comparator.comparing(LineAndColourResponse::getLineName)).collect(Collectors.toList());
+
+		return lineAndColourResponses;
 	}
 
 	public void publishQcTaskAssignment(String purchaseOrderId, List<UserLineDetails> userLineDetailsAssignments, boolean isColourEnabled) {
