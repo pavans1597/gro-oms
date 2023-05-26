@@ -199,12 +199,8 @@ public class StyleServiceImpl implements StyleService {
 
 	@Override
 	public Style findOrCreate(String name, String styleNumber, Product product) {
-		try {
 			String factoryId = HeaderUtil.getFactoryIdHeaderValue();
 			Style style = StyleAdapter.buildStyleFromName(name, styleNumber, product, factoryId);
 			return styleDbService.findOrCreate(style);
-		} catch (Exception e) {
-			throw new GroyyoException("Something went wrong!");
-		}
 	}
 }
