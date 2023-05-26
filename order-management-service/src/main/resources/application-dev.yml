@@ -143,7 +143,7 @@ kafka:
     updates:
       topic: master-data-updates-dev
   quality-management:
-    topic: qc-taskAssignment-topic-dev
+    topic: qc-task-assignment-topic-dev
   notification:
     topic :  kafka-notification-topic-dev
 
