@@ -22,9 +22,9 @@ spec:
           resources:
             requests:
               memory: "500Mi"
-              cpu: "64m"
+              cpu: "200m"
             limits:
               memory: "1024Mi"
-              cpu: "128m"
+              cpu: "300m"
           ports:
             - containerPort: 80
