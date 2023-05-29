@@ -94,11 +94,13 @@ spring:
     show-sql: false
     properties:
       hibernate:
+        temp:
+          use_jdbc_metadata_defaults: false
         dialect: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       connection:
         provider_class: com.zaxxer.hikari.hibernate.HikariConnectionProvider
-      ddl-auto: update
+      ddl-auto: none
     open-in-view: 'true'
   kafka:
     consumer:
