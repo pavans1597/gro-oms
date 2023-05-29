@@ -6,6 +6,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import com.groyyo.core.multitenancy.multitenancy.util.TenantContext;
+import com.groyyo.core.base.exception.GroyyoException;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -200,8 +201,8 @@ public class StyleServiceImpl implements StyleService {
 
 	@Override
 	public Style findOrCreate(String name, String styleNumber, Product product) {
-		String factoryId = TenantContext.getTenantId();
-		Style style = StyleAdapter.buildStyleFromName(name, styleNumber, product, factoryId);
-		return styleDbService.findOrCreate(style);
+			String factoryId = TenantContext.getTenantId();
+			Style style = StyleAdapter.buildStyleFromName(name, styleNumber, product, factoryId);
+			return styleDbService.findOrCreate(style);
 	}
 }

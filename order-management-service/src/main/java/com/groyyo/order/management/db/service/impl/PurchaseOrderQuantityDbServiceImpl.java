@@ -1,5 +1,6 @@
 package com.groyyo.order.management.db.service.impl;
 
+import com.groyyo.core.base.exception.GroyyoException;
 import com.groyyo.core.sqlPostgresJpa.service.impl.AbstractJpaServiceImpl;
 import com.groyyo.order.management.db.service.PurchaseOrderQuantityDbService;
 import com.groyyo.order.management.entity.PurchaseOrderQuantity;
@@ -41,7 +42,11 @@ public class PurchaseOrderQuantityDbServiceImpl extends AbstractJpaServiceImpl<P
 
     @Override
     public List<PurchaseOrderQuantity> savePurchaseOrderQuantityList(List<PurchaseOrderQuantity> purchaseOrderQuantityList){
-        return purchaseOrderQuantityRepository.saveAllAndFlush(purchaseOrderQuantityList);
+        try {
+            return purchaseOrderQuantityRepository.saveAllAndFlush(purchaseOrderQuantityList);
+        } catch (Exception e) {
+            throw new GroyyoException("Something went wrong!");
+        }
     }
 
     @Override

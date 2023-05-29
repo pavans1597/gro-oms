@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Objects;
 
 import com.groyyo.core.multitenancy.multitenancy.util.TenantContext;
+import com.groyyo.core.base.exception.GroyyoException;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +14,6 @@ import org.springframework.stereotype.Service;
 
 import com.groyyo.core.base.exception.NoRecordException;
 import com.groyyo.core.base.exception.RecordExistsException;
-import com.groyyo.core.base.http.utils.HeaderUtil;
 import com.groyyo.core.kafka.dto.KafkaDTO;
 import com.groyyo.core.kafka.producer.NotificationProducer;
 import com.groyyo.order.management.adapter.BuyerAdapter;
@@ -173,8 +173,12 @@ public class BuyerServiceImpl implements BuyerService {
 
 	@Override
 	public Buyer findOrCreate(String name) {
-		String factoryId = TenantContext.getTenantId();
-		Buyer buyer = BuyerAdapter.buildBuyerFromName(name, factoryId);
-		return buyerDbService.findOrCreate(buyer);
+		try {
+			String factoryId = TenantContext.getTenantId();
+			Buyer buyer = BuyerAdapter.buildBuyerFromName(name, factoryId);
+			return buyerDbService.findOrCreate(buyer);
+		} catch (Exception e) {
+			throw new GroyyoException("Something went wrong!");
+		}
 	}
 }

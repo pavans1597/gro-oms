@@ -20,6 +20,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import com.groyyo.core.multitenancy.multitenancy.util.TenantContext;
+import com.groyyo.core.base.exception.GroyyoException;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -868,9 +869,13 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 	}
 
 	private void updateQuantityInPurchaseOrder(PurchaseOrder purchaseOrder, Long totalQuantity, Long totalTargetQuantity) {
-		purchaseOrder.setTotalQuantity(totalQuantity);
-		purchaseOrder.setTotalTargetQuantity(totalTargetQuantity);
-		purchaseOrderDbService.saveAndFlush(purchaseOrder);
+		try {
+			purchaseOrder.setTotalQuantity(totalQuantity);
+			purchaseOrder.setTotalTargetQuantity(totalTargetQuantity);
+			purchaseOrderDbService.saveAndFlush(purchaseOrder);
+		} catch (Exception e) {
+			throw new GroyyoException("Something went wrong!");
+		}
 	}
 
 	@Override

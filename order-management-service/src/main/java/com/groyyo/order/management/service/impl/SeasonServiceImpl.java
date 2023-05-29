@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import com.groyyo.core.multitenancy.multitenancy.util.TenantContext;
+import com.groyyo.core.base.exception.GroyyoException;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +15,6 @@ import org.springframework.stereotype.Service;
 
 import com.groyyo.core.base.exception.NoRecordException;
 import com.groyyo.core.base.exception.RecordExistsException;
-import com.groyyo.core.base.http.utils.HeaderUtil;
 import com.groyyo.core.kafka.dto.KafkaDTO;
 import com.groyyo.core.kafka.producer.NotificationProducer;
 import com.groyyo.core.master.dto.request.SeasonRequestDto;
@@ -239,8 +239,13 @@ public class SeasonServiceImpl implements SeasonService {
 
 	@Override
 	public Season findOrCreate(String name) {
-		String factoryId = TenantContext.getTenantId();
-		Season season = SeasonAdapter.buildSeasonFromName(name, factoryId);
-		return seasonDbService.findOrCreate(season);
+		try {
+			String factoryId = TenantContext.getTenantId();
+			Season season = SeasonAdapter.buildSeasonFromName(name, factoryId);
+			return seasonDbService.findOrCreate(season);
+		} catch (Exception e) {
+			throw new GroyyoException("Something went wrong!");
+		}
+
 	}
 }

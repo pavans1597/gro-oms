@@ -1,12 +1,27 @@
 package com.groyyo.order.management.entity;
 
+import java.util.Date;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import javax.persistence.Transient;
+import javax.persistence.UniqueConstraint;
+
 import com.groyyo.core.dto.PurchaseOrder.PurchaseOrderStatus;
 import com.groyyo.core.sqlPostgresJpa.entity.AbstractJpaEntity;
-import lombok.*;
-import lombok.experimental.SuperBuilder;
 
-import javax.persistence.*;
-import java.util.Date;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+import lombok.experimental.SuperBuilder;
 
 @Getter
 @Setter
@@ -15,7 +30,7 @@ import java.util.Date;
 @AllArgsConstructor
 @ToString(callSuper = true)
 @Entity(name = "purchase_order")
-@Table(name = "purchase_order", uniqueConstraints = {  @UniqueConstraint(name = "UK_purchase_order_name", columnNames = { "name" }) })
+@Table(name = "purchase_order", uniqueConstraints = { @UniqueConstraint(name = "UK_purchase_order_name_factory_id", columnNames = { "name", "factoryId" }) })
 public class PurchaseOrder extends AbstractJpaEntity {
 
 	private static final long serialVersionUID = 1L;
