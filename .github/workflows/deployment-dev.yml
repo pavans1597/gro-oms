@@ -5,7 +5,7 @@ name: order-management-service-deployment-action-dev
 
 on:
   push:
-    branches: [ 'develop-multi']
+    branches: [ 'develop']
 
 jobs:
   deploy-service:
