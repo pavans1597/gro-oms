@@ -14,7 +14,7 @@ spec:
         group: service-dev
     spec:
       containers:
-        - image: groyyoacrmulti.azurecr.io/order-management-service-dev:backup
+        - image: groyyoOrgServiceRegistry.azurecr.io/order-management-service-dev:backup
           name: order-management-service
           env:
             - name: TZ
@@ -22,9 +22,9 @@ spec:
           resources:
             requests:
               memory: "500Mi"
-              cpu: "64m"
+              cpu: "128m"
             limits:
               memory: "1024Mi"
-              cpu: "128m"
+              cpu: "256m"
           ports:
             - containerPort: 80

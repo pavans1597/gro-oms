@@ -21,13 +21,13 @@ metadata:
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
 
 spec:
-  ingressClassName: nginx
+  ingressClassName: console-dev-nginx
   tls:
     - hosts:
-        - intent-multi.groyyo.com
+        - groyyoconsoledev.groyyo.com
       secretName: letsencrypt-auth-dev
   rules:
-    - host: intent-multi.groyyo.com
+    - host: groyyoconsoledev.groyyo.com
       http:
         paths:
           - path: /order-management-service
