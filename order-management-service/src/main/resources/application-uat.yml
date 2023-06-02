@@ -1,5 +1,6 @@
 ############# Application Context ###############
 server:
+  max-http-header-size: 10000000
   port: '8008'
   servlet:
     context-path: /order-management-service

@@ -5,6 +5,7 @@ import com.groyyo.core.base.http.utils.HeaderUtil;
 import com.groyyo.core.dto.PurchaseOrder.ColourQuantityResponseDto;
 import com.groyyo.core.dto.PurchaseOrder.PurchaseOrderQuantityResponseDto;
 import com.groyyo.core.dto.userservice.LineType;
+import com.groyyo.core.multitenancy.multitenancy.util.TenantContext;
 import com.groyyo.order.management.dto.request.PurchaseOrderQuantityCreateDto;
 import com.groyyo.order.management.service.PurchaseOrderQuantityService;
 import lombok.extern.log4j.Log4j2;
@@ -35,7 +36,7 @@ public class PurchaseOrderQuantityController {
     @GetMapping("get/colour/{purchaseOrderId}/lineType/{lineType}")
     public ResponseDto<List<ColourQuantityResponseDto>> getColoursByPoID(@PathVariable String purchaseOrderId,@PathVariable LineType lineType) {
         log.info("Request received to get all colours and its quantity by PurchaseOrderId :{}", purchaseOrderId);
-        String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+        String factoryId = TenantContext.getTenantId();
         List<ColourQuantityResponseDto> response = purchaseOrderQuantityService.getColoursByPoID(purchaseOrderId, factoryId,lineType);
         return ResponseDto.success(" Pending colours " + response.size() + " quantity available to assign checkers in the system", response);
     }

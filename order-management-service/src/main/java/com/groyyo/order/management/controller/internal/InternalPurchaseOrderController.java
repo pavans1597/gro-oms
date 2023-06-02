@@ -5,7 +5,9 @@ package com.groyyo.order.management.controller.internal;
 
 import com.groyyo.core.base.common.dto.ResponseDto;
 import com.groyyo.core.base.http.utils.HeaderUtil;
+import com.groyyo.core.dto.PurchaseOrder.PurchaseOrderResponseDto;
 import com.groyyo.core.dto.PurchaseOrder.PurchaseOrderStatus;
+import com.groyyo.core.multitenancy.multitenancy.util.TenantContext;
 import com.groyyo.order.management.dto.request.PurchaseOrderListRequestDto;
 import com.groyyo.order.management.dto.response.PurchaseOrderDetailResponseDto;
 import com.groyyo.order.management.dto.response.PurchaseOrderStatusCountDto;
@@ -18,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author nipunaggarwal
@@ -77,8 +80,19 @@ public class InternalPurchaseOrderController {
 	@PostMapping("get/purchaseOrders")
 	public ResponseDto<List<PurchaseOrderDetailResponseDto>> getPurchaseOrdersStatusWise(@RequestBody List<PurchaseOrderStatus> requestDto) {
 		log.info("Request received to publish Purchase orders based on status", requestDto);
-		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+		String factoryId = TenantContext.getTenantId();
 		List<PurchaseOrderDetailResponseDto> purchaseOrderStatusWiseResponse = purchaseOrderService.getPurchaseOrdersStatusWise(requestDto, factoryId);
 		return ResponseDto.success("PurchaseOrders retrieved successfully " + purchaseOrderStatusWiseResponse.size(), purchaseOrderStatusWiseResponse);
+	}
+
+	@GetMapping("/get/{id}")
+	public ResponseDto<PurchaseOrderResponseDto> getPurchaseOrder(@PathVariable String id) {
+
+		log.info("Request received to get purchaseOrder with id: {}", id);
+
+		PurchaseOrderResponseDto purchaseOrderResponseDto = purchaseOrderService.getPurchaseOrderById(id, Boolean.TRUE);
+
+		return Objects.isNull(purchaseOrderResponseDto) ? ResponseDto.failure("Found no purchaseOrder with id: " + id)
+				: ResponseDto.success("Found purchaseOrder with id: " + id, purchaseOrderResponseDto);
 	}
 }

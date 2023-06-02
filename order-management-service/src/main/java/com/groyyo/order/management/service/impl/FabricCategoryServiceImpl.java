@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import com.groyyo.core.multitenancy.multitenancy.util.TenantContext;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +42,7 @@ public class FabricCategoryServiceImpl implements FabricCategoryService {
 	public List<FabricCategoryResponseDto> getAllFabricCategorys(Boolean status) {
 
 		log.info("Serving request to get all fabricCategorys");
-		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+		String factoryId = TenantContext.getTenantId();
 
 		List<FabricCategory> fabricCategoryEntities = Objects.isNull(status) ? fabricCategoryDbService.getAllFabricCategorys(factoryId)
 				: fabricCategoryDbService.getAllFabricCategorysForStatus(status, factoryId);
@@ -75,7 +76,7 @@ public class FabricCategoryServiceImpl implements FabricCategoryService {
 		log.info("Serving request to add a fabricCategory with request object: {}", fabricCategoryRequestDto);
 
 		runValidations(fabricCategoryRequestDto);
-		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+		String factoryId = TenantContext.getTenantId();
 
 		FabricCategory fabricCategory = FabricCategoryAdapter.buildFabricCategoryFromRequest(fabricCategoryRequestDto, factoryId);
 
@@ -144,7 +145,7 @@ public class FabricCategoryServiceImpl implements FabricCategoryService {
 				log.error("Unable to build fabricCategory request from response object: {}", fabricCategoryResponseDto);
 				return;
 			}
-			String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+			String factoryId = TenantContext.getTenantId();
 
 			FabricCategory fabricCategory = FabricCategoryAdapter.buildFabricCategoryFromRequest(fabricCategoryRequestDto, factoryId);
 

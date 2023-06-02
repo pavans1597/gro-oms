@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import com.groyyo.core.multitenancy.multitenancy.util.TenantContext;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +42,7 @@ public class FabricServiceImpl implements FabricService {
 	public List<FabricResponseDto> getAllFabrics(Boolean status) {
 
 		log.info("Serving request to get all fabrics");
-		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+		String factoryId = TenantContext.getTenantId();
 
 		List<Fabric> fabricEntities = Objects.isNull(status) ? fabricDbService.getAllFabrics(factoryId)
 				: fabricDbService.getAllFabricsForStatus(status, factoryId);
@@ -75,7 +76,7 @@ public class FabricServiceImpl implements FabricService {
 		log.info("Serving request to add a fabric with request object: {}", fabricRequestDto);
 
 		runValidations(fabricRequestDto);
-		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+		String factoryId = TenantContext.getTenantId();
 
 		Fabric fabric = FabricAdapter.buildFabricFromRequest(fabricRequestDto, factoryId);
 
@@ -144,7 +145,7 @@ public class FabricServiceImpl implements FabricService {
 				log.error("Unable to build fabric request from response object: {}", fabricResponseDto);
 				return;
 			}
-			String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+			String factoryId = TenantContext.getTenantId();
 
 			Fabric fabric = FabricAdapter.buildFabricFromRequest(fabricRequestDto, factoryId);
 

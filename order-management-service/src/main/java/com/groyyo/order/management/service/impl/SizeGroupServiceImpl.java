@@ -7,6 +7,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import com.groyyo.core.multitenancy.multitenancy.util.TenantContext;
+import com.groyyo.core.base.exception.GroyyoException;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +17,6 @@ import org.springframework.stereotype.Service;
 
 import com.groyyo.core.base.exception.NoRecordException;
 import com.groyyo.core.base.exception.RecordExistsException;
-import com.groyyo.core.base.http.utils.HeaderUtil;
 import com.groyyo.core.kafka.dto.KafkaDTO;
 import com.groyyo.core.kafka.producer.NotificationProducer;
 import com.groyyo.core.master.dto.request.SizeGroupRequestDto;
@@ -57,7 +58,7 @@ public class SizeGroupServiceImpl implements SizeGroupService {
 	public List<SizeGroupResponseDto> getAllSizeGroups(Boolean status) {
 
 		log.info("Serving request to get all sizeGroups");
-		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+		String factoryId = TenantContext.getTenantId();
 
 		List<SizeGroup> sizeGroupEntities = Objects.isNull(status) ? sizeGroupDbService.getAllSizeGroups(factoryId)
 				: sizeGroupDbService.getAllSizeGroupsForStatus(status, factoryId);
@@ -99,7 +100,7 @@ public class SizeGroupServiceImpl implements SizeGroupService {
 		log.info("Serving request to add a sizeGroup with request object:{}", sizeGroupRequestDto);
 
 		runValidations(sizeGroupRequestDto);
-		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+		String factoryId = TenantContext.getTenantId();
 
 		SizeGroup sizeGroup = SizeGroupAdapter.buildSizeGroupFromRequest(sizeGroupRequestDto, factoryId);
 
@@ -197,7 +198,7 @@ public class SizeGroupServiceImpl implements SizeGroupService {
 
 	@Override
 	public void consumeSizeGroup(SizeGroupResponseDto sizeGroupResponseDto) {
-		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+		String factoryId = TenantContext.getTenantId();
 
 		SizeGroup sizeGroup = SizeGroupAdapter.buildSizeGroupFromResponse(sizeGroupResponseDto, factoryId);
 
@@ -299,8 +300,12 @@ public class SizeGroupServiceImpl implements SizeGroupService {
 
 	@Override
 	public SizeGroup findOrCreate(String name, List<Size> sizes) {
-		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
-		SizeGroup sizeGroup = SizeGroupAdapter.buildSizeGroup(name, sizes.stream().map(AbstractJpaEntity::getUuid).collect(Collectors.toList()), factoryId);
-		return sizeGroupDbService.findOrCreate(sizeGroup);
+		try {
+			String factoryId = TenantContext.getTenantId();
+			SizeGroup sizeGroup = SizeGroupAdapter.buildSizeGroup(name, sizes.stream().map(AbstractJpaEntity::getUuid).collect(Collectors.toList()), factoryId);
+			return sizeGroupDbService.findOrCreate(sizeGroup);
+		} catch (Exception e) {
+			throw new GroyyoException("Something went wrong!");
+		}
 	}
 }

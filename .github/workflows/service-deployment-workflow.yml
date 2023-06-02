@@ -89,7 +89,6 @@ jobs:
         with:
           repository: groyyo/core-utils
           token: ${{ secrets.GH_ACCESS_TOKEN }}
-          ref: master-multi
           path: core-utils
 
       - name: Pull origin

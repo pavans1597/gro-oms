@@ -21,7 +21,7 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @ToString(callSuper = true)
 @Entity(name = "fabric")
-@Table(name = "fabric", uniqueConstraints = { @UniqueConstraint(name = "UK_fabric_name", columnNames = { "name" }) })
+@Table(name = "fabric", uniqueConstraints = { @UniqueConstraint(name = "UK_fabric_name_factory_id", columnNames = { "name", "factoryId" }) })
 public class Fabric extends AbstractJpaEntity {
 
 	private static final long serialVersionUID = 1L;

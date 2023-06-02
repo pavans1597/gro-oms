@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import com.groyyo.core.multitenancy.multitenancy.util.TenantContext;
+import com.groyyo.core.base.exception.GroyyoException;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +40,7 @@ public class StyleServiceImpl implements StyleService {
 	@Override
 	public List<StyleDto> getAllStyles(Boolean status) {
 		log.info("Serving request to get all styles");
-		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+		String factoryId = TenantContext.getTenantId();
 
 		List<Style> styleEntities = Objects.isNull(status) ? styleDbService.getAllStyles(factoryId)
 				: styleDbService.getAllStylesForStatus(status, factoryId);
@@ -88,7 +90,7 @@ public class StyleServiceImpl implements StyleService {
 
 		log.info("Serving request to add a style with request object:{}", styleRequestDto);
 
-		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+		String factoryId = TenantContext.getTenantId();
 
 		runValidations(styleRequestDto, factoryId);
 
@@ -199,8 +201,8 @@ public class StyleServiceImpl implements StyleService {
 
 	@Override
 	public Style findOrCreate(String name, String styleNumber, Product product) {
-		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
-		Style style = StyleAdapter.buildStyleFromName(name, styleNumber, product, factoryId);
-		return styleDbService.findOrCreate(style);
+			String factoryId = TenantContext.getTenantId();
+			Style style = StyleAdapter.buildStyleFromName(name, styleNumber, product, factoryId);
+			return styleDbService.findOrCreate(style);
 	}
 }

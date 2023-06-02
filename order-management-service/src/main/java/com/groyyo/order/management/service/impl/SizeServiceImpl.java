@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import com.groyyo.core.multitenancy.multitenancy.util.TenantContext;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,7 +48,7 @@ public class SizeServiceImpl implements SizeService {
 
 		log.info("Serving request to get all sizes");
 		
-		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+		String factoryId = TenantContext.getTenantId();
 
 		List<Size> sizeEntities = Objects.isNull(status) ? sizeDbService.getAllSizes(factoryId)
 				: sizeDbService.getAllSizesForStatus(status, factoryId);
@@ -80,7 +81,7 @@ public class SizeServiceImpl implements SizeService {
 
 		log.info("Serving request to add a size with request object:{}", sizeRequestDto);
 
-		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+		String factoryId = TenantContext.getTenantId();
 
 		runValidations(sizeRequestDto, factoryId);
 
@@ -165,7 +166,7 @@ public class SizeServiceImpl implements SizeService {
 	@Override
 	public void consumeSize(SizeResponseDto sizeResponseDto) {
 		
-		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+		String factoryId = TenantContext.getTenantId();
 
 		Size size = SizeAdapter.buildSizeFromResponse(sizeResponseDto, factoryId);
 
@@ -230,7 +231,7 @@ public class SizeServiceImpl implements SizeService {
 
 	@Override
 	public Size findOrCreate(String name) {
-		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+		String factoryId = TenantContext.getTenantId();
 		Size size = SizeAdapter.buildSizeFromName(name, factoryId);
 		return sizeDbService.findOrCreate(size);
 	}

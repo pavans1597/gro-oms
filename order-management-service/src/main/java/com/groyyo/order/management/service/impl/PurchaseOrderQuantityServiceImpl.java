@@ -6,6 +6,7 @@ import com.groyyo.core.base.http.utils.HeaderUtil;
 import com.groyyo.core.dto.PurchaseOrder.ColourQuantityResponseDto;
 import com.groyyo.core.dto.PurchaseOrder.PurchaseOrderQuantityResponseDto;
 import com.groyyo.core.dto.userservice.LineType;
+import com.groyyo.core.multitenancy.multitenancy.util.TenantContext;
 import com.groyyo.core.sqlPostgresJpa.specification.utils.CriteriaOperation;
 import com.groyyo.core.sqlPostgresJpa.specification.utils.GroyyoSpecificationBuilder;
 import com.groyyo.order.management.adapter.PurchaseOrderQuantityAdapter;
@@ -46,7 +47,7 @@ public class PurchaseOrderQuantityServiceImpl implements PurchaseOrderQuantitySe
 	public List<PurchaseOrderQuantityResponseDto> getAllPurchaseOrderQuantitiesForPurchaseOrder(String purchaseOrderId) {
 
 		log.info("Serving request to get all purchaseOrderQuantities for a purchase order");
-		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+		String factoryId = TenantContext.getTenantId();
 
 		List<PurchaseOrderQuantity> purchaseOrderQuantityEntities = purchaseOrderQuantityDbService.getAllPurchaseOrderQuantitiesForPurchaseOrder(purchaseOrderId, factoryId);
 
@@ -77,7 +78,7 @@ public class PurchaseOrderQuantityServiceImpl implements PurchaseOrderQuantitySe
 	public PurchaseOrderQuantityResponseDto addPurchaseOrderQuantity(PurchaseOrderQuantityRequestDto purchaseOrderQuantityRequestDto, String purchaseOrderId, Double tolerance) {
 
 		log.info("Serving request to add a purchaseOrderQuantity with request object:{}", purchaseOrderQuantityRequestDto);
-		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+		String factoryId = TenantContext.getTenantId();
 
 		PurchaseOrderQuantity purchaseOrderQuantity = PurchaseOrderQuantityAdapter.buildPurchaseOrderQuantityFromRequest(purchaseOrderQuantityRequestDto, purchaseOrderId, tolerance, factoryId);
 
@@ -98,7 +99,7 @@ public class PurchaseOrderQuantityServiceImpl implements PurchaseOrderQuantitySe
 
 		log.info("Serving request to bulk add purchaseOrderQuantity with request object: {}", purchaseOrderQuantityRequestList);
 		
-		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+		String factoryId = TenantContext.getTenantId();
 
 		List<PurchaseOrderQuantity> purchaseOrderQuantityList = PurchaseOrderQuantityAdapter.buildPurchaseOrderQuantityListFromRequestList(purchaseOrderQuantityRequestList, purchaseOrderId,
 				tolerance, factoryId);
@@ -217,7 +218,7 @@ public class PurchaseOrderQuantityServiceImpl implements PurchaseOrderQuantitySe
 
 		GroyyoSpecificationBuilder<PurchaseOrderQuantity> groyyoSpecificationBuilder = new GroyyoSpecificationBuilder<PurchaseOrderQuantity>();
 
-		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+		String factoryId = TenantContext.getTenantId();
 
 		if (StringUtils.isNotBlank(factoryId))
 			groyyoSpecificationBuilder.with(FilterConstants.PurchaseOrderQuantityFilterConstants.PURCHASE_ORDER_QUANTITY_FACTORY_ID, CriteriaOperation.EQ, factoryId);

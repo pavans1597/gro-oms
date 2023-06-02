@@ -1,9 +1,40 @@
 package com.groyyo.order.management.service.impl;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.InputMismatchException;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Random;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
+
+import com.groyyo.core.multitenancy.multitenancy.util.TenantContext;
+import com.groyyo.core.base.exception.GroyyoException;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.groyyo.core.base.common.dto.PageResponse;
 import com.groyyo.core.base.exception.NoRecordException;
 import com.groyyo.core.base.exception.RecordExistsException;
-import com.groyyo.core.base.http.utils.HeaderUtil;
 import com.groyyo.core.base.utils.DateUtil;
 import com.groyyo.core.dto.PurchaseOrder.*;
 import com.groyyo.core.dto.userservice.LineType;
@@ -95,7 +126,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
 		log.info("Serving request to get all purchaseOrders");
 
-		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+		String factoryId = TenantContext.getTenantId();
 
 		List<PurchaseOrder> purchaseOrderEntities = Objects.isNull(status) ? purchaseOrderDbService.getAllPurchaseOrders(factoryId)
 				: purchaseOrderDbService.getAllPurchaseOrdersForStatus(status, factoryId);
@@ -130,7 +161,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
 		PurchaseOrder purchaseOrder = PurchaseOrder.builder().build();
 
-		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+		String factoryId = TenantContext.getTenantId();
 
 		addRunTimeStyle(purchaseOrderRequestDto, factoryId);
 
@@ -404,7 +435,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
 		PurchaseOrderStatusCountDto purchaseOrderStatusCounts = PurchaseOrderStatusCountDto.builder().build();
 
-		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+		String factoryId = TenantContext.getTenantId();;
 
 		List<PurchaseOrder> purchaseOrderEntities = Objects.isNull(status) ? purchaseOrderDbService.getAllPurchaseOrders(factoryId)
 				: purchaseOrderDbService.getAllPurchaseOrdersForStatus(status, factoryId);
@@ -450,7 +481,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 	public PurchaseOrderStatusCountDto getPurchaseOrderStatusCounts(Boolean status, LocalDate startTime, LocalDate endTime, PurchaseOrderStatus purchaseOrderStatus) {
 		PurchaseOrderStatusCountDto purchaseOrderStatusCounts = PurchaseOrderStatusCountDto.builder().build();
 		try {
-			String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+			String factoryId = TenantContext.getTenantId();
 			Date startDate = DateUtil.convertToDate(startTime);
 			Date endDate = DateUtil.convertToDate(LocalDateTime.of(endTime, LocalTime.MAX));
 			;
@@ -480,7 +511,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 		if (Objects.nonNull(purchaseOrderStatus))
 			groyyoSpecificationBuilder.with(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_STATUS, CriteriaOperation.ENUM_EQ, purchaseOrderStatus);
 
-		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+		String factoryId = TenantContext.getTenantId();;
 
 		if (StringUtils.isNotBlank(factoryId))
 			groyyoSpecificationBuilder.with(FilterConstants.PurchaseOrderFilterConstants.PURCHASE_ORDER_FACTORY_ID, CriteriaOperation.EQ, factoryId);
@@ -618,7 +649,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 	}
 
 	private boolean isEntityExistsWithNameAndFactoryId(String name) {
-		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+		String factoryId = TenantContext.getTenantId();;
 		return StringUtils.isNotBlank(name) && purchaseOrderDbService.isEntityExistsByNameAndFactoryId(name, factoryId);
 	}
 
@@ -636,7 +667,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 	}
 
 	private List<PurchaseOrderResponseDto> addBulkPurchaseOrder(List<BulkPurchaseOrderRequestDto> purchaseOrderRequestsDto) {
-		String factoryId = HeaderUtil.getFactoryIdHeaderValue();
+		String factoryId = TenantContext.getTenantId();;
 		List<PurchaseOrderResponseDto> purchaseOrderResponses = new ArrayList<>();
 		purchaseOrderRequestsDto.forEach(purchaseOrderRequestDto -> {
 			List<PurchaseOrderQuantity> purchaseOrderQuantities = new ArrayList<>();
@@ -826,9 +857,13 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 	}
 
 	private void updateQuantityInPurchaseOrder(PurchaseOrder purchaseOrder, Long totalQuantity, Long totalTargetQuantity) {
-		purchaseOrder.setTotalQuantity(totalQuantity);
-		purchaseOrder.setTotalTargetQuantity(totalTargetQuantity);
-		purchaseOrderDbService.saveAndFlush(purchaseOrder);
+		try {
+			purchaseOrder.setTotalQuantity(totalQuantity);
+			purchaseOrder.setTotalTargetQuantity(totalTargetQuantity);
+			purchaseOrderDbService.saveAndFlush(purchaseOrder);
+		} catch (Exception e) {
+			throw new GroyyoException("Something went wrong!");
+		}
 	}
 
 	@Override
